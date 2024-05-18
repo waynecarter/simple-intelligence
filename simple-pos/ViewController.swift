@@ -14,7 +14,7 @@ class ViewController: UICollectionViewController {
     private let searchCloseButton = UIButton(type: .custom)
     private let payButton = UIButton(type: .custom)
     private let addToBagButton = UIButton()
-    private var addToBagButtonBottomContraint: NSLayoutConstraint!
+    private var addToBagButton_BottomContraint: NSLayoutConstraint!
     
     let labelFontSize = UIFont.labelFontSize * 1.2
     let buttonFontSize = UIFont.labelFontSize * 1.2
@@ -137,7 +137,7 @@ class ViewController: UICollectionViewController {
         collectionView.translatesAutoresizingMaskIntoConstraints = false
         
         let spacing: CGFloat = 10
-        addToBagButtonBottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -margin.bottom)
+        addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -margin.bottom)
         NSLayoutConstraint.activate([
             searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin.top),
             searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin.left),
@@ -169,7 +169,7 @@ class ViewController: UICollectionViewController {
             
             addToBagButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: margin.left),
             addToBagButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -margin.right),
-            addToBagButtonBottomContraint
+            addToBagButton_BottomContraint
             
             // TODO: For iPad, set button width to a constant instead of setting leading and trailing anchors:
             // addToCartButton.widthAnchor.constraint(equalToConstant: 200),
@@ -262,7 +262,7 @@ class ViewController: UICollectionViewController {
         
         UIView.animate(withDuration: animationDuration) {
             self.collectionView.performBatchUpdates {
-                self.addToBagButtonBottomContraint.constant = -(keyboardFrame.height + self.margin.bottom) + self.view.safeAreaInsets.bottom
+                self.addToBagButton_BottomContraint.constant = -(keyboardFrame.height + self.margin.bottom) + self.view.safeAreaInsets.bottom
                 self.view.layoutIfNeeded()
             }
         }
@@ -276,7 +276,7 @@ class ViewController: UICollectionViewController {
         
         UIView.animate(withDuration: animationDuration) {
             self.collectionView.performBatchUpdates {
-                self.addToBagButtonBottomContraint.constant = -self.margin.bottom
+                self.addToBagButton_BottomContraint.constant = -self.margin.bottom
                 self.view.layoutIfNeeded()
             }
         }

@@ -9,24 +9,27 @@ import UIKit
 import Vision
 
 struct AI {
-    static func featureEmbedding(from image: UIImage?, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
-        guard let cgImage = image?.cgImage else {
+    static let shared = AI()
+    private init() {}
+    
+    func featureEmbedding(for image: UIImage, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
+        guard let cgImage = image.cgImage else {
             completion(nil)
             return
         }
         
         // Run async on the background queue with high priority.
         DispatchQueue.global().async(qos: .userInitiated) {
-            featureEmbedding(from: cgImage, fitTo: fitSize, grayscale: grayscale, completion: completion)
+            featureEmbedding(for: cgImage, fitTo: fitSize, grayscale: grayscale, completion: completion)
         }
     }
         
-    private static func featureEmbedding(from cgImage: CGImage, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
+    private func featureEmbedding(for cgImage: CGImage, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
         var cgImage = cgImage
         
         // Fit to size if specified.
         if let fitSize = fitSize,
-           let fitImage = cgImage.fit(to: fitSize)
+           let fitImage = fit(cgImage: cgImage, to: fitSize)
         {
             cgImage = fitImage
         }
@@ -84,28 +87,28 @@ struct AI {
         }
     }
     
-    static func foregroundFeatureEmbedding(from image: UIImage?, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
-        guard let cgImage = image?.cgImage else {
+    func foregroundFeatureEmbedding(for image: UIImage, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
+        guard let cgImage = image.cgImage else {
             completion(nil)
             return
         }
         
         // Run async on the background queue with high priority.
         DispatchQueue.global().async(qos: .userInitiated) {
-            foregroundFeatureEmbedding(from: cgImage, fitTo: fitSize, grayscale: grayscale, completion: completion)
+            foregroundFeatureEmbedding(for: cgImage, fitTo: fitSize, grayscale: grayscale, completion: completion)
         }
     }
     
-    private static func foregroundFeatureEmbedding(from cgImage: CGImage, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
+    private func foregroundFeatureEmbedding(for cgImage: CGImage, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
         var cgImage = cgImage
         
         // Fit to size if specified.
-        if let fitSize = fitSize, let fitImage = cgImage.fit(to: fitSize) {
+        if let fitSize = fitSize, let fitImage = fit(cgImage: cgImage, to: fitSize) {
             cgImage = fitImage
         }
         
         // Fit to size if specified.
-        if grayscale, let grayscaleImage = cgImage.grayscale() {
+        if grayscale, let grayscaleImage = self.grayscale(cgImage: cgImage) {
             cgImage = grayscaleImage
         }
         
@@ -137,16 +140,16 @@ struct AI {
         }()
         
         if let foregroundImage = foregroundImage {
-            featureEmbedding(from: foregroundImage, completion: completion)
+            featureEmbedding(for: foregroundImage, completion: completion)
         } else {
-            featureEmbedding(from: cgImage, completion: completion)
+            featureEmbedding(for: cgImage, completion: completion)
         }
     }
-}
-
-private extension CGImage {
-    func fit(to targetSize: CGSize) -> CGImage? {
-        let imageSize = CGSize(width: self.width, height: self.height)
+    
+    // MARK: - Util
+    
+    func fit(cgImage: CGImage, to targetSize: CGSize) -> CGImage? {
+        let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
         
         // Calculate the aspect ratios
         let widthRatio = targetSize.width / imageSize.width
@@ -165,15 +168,15 @@ private extension CGImage {
 
         let renderer = UIGraphicsImageRenderer(size: rendererSize, format: rendererFormat)
         let fittedImage = renderer.image { _ in
-            UIImage(cgImage: self).draw(in: scaledRect)
+            UIImage(cgImage: cgImage).draw(in: scaledRect)
         }
         
         return fittedImage.cgImage
     }
     
-    func grayscale() -> CGImage? {
+    func grayscale(cgImage: CGImage) -> CGImage? {
         guard let currentFilter = CIFilter(name: "CIColorControls") else { return nil }
-        let ciImage = CIImage(cgImage: self)
+        let ciImage = CIImage(cgImage: cgImage)
         currentFilter.setValue(ciImage, forKey: kCIInputImageKey)
         currentFilter.setValue(0.0, forKey: kCIInputSaturationKey)
 
