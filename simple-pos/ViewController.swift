@@ -309,7 +309,9 @@ class ViewController: UICollectionViewController {
     }
     
     func clearSearchResult() {
-        products = []
+        if products.count > 0 {
+            products = []
+        }
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -358,10 +360,17 @@ class ViewController: UICollectionViewController {
     }
     
     func pay() {
-        database.clearCart()
-        updatePayButtonTitle(amount: 0);
-        clearSearchResult()
-        closeSearch()
+        let dialog = UIAlertController(title: "Payment", message: String(format: "Total $%0.2f", database.cartTotal), preferredStyle: UIAlertController.Style.alert)
+        dialog.addAction(UIAlertAction(title: "Clear Cart", style: UIAlertAction.Style.default, handler: { action in self.clearCart() }))
+        dialog.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        self.present(dialog, animated: true, completion: nil)
+    }
+    
+    func clearCart() {
+        self.database.clearCart()
+        self.updatePayButtonTitle(amount: 0);
+        self.clearSearchResult()
+        self.closeSearch()
     }
 }
 
