@@ -8,6 +8,8 @@
 import UIKit
 
 class ViewController: UICollectionViewController {
+    private lazy var database = { return Database.shared }()
+    
     private let searchBar = UIView()
     private let searchButton = UIButton(type: .custom)
     private let searchTextField = UITextField()
@@ -20,14 +22,13 @@ class ViewController: UICollectionViewController {
     let buttonFontSize = UIFont.labelFontSize * 1.2
     let margin = UIEdgeInsets(top: 8, left: 20, bottom: 20, right: 20)
     
-    let products = [
-        ("Bell Pepper", "🫑", "$2.00", "Isle 5"),
-        ("Broccoli", "🥦", "$1.50", "Isle 2"),
-        ("Lettuce", "🥬", "$1.00", "Isle 4"),
-        ("Cucumber", "🥒", "$1.20", "Isle 3"),
-        ("Green Apple", "🍏", "$2.50", "Isle 6"),
-        ("Avocado", "🥑", "$2.80", "Isle 1")
-    ]
+    private var products = [Database.Product]() {
+        didSet {
+            // When the search results change, reload the collection view's data.
+            collectionView.reloadData()
+            addToBagButton.isEnabled = (products.count > 0)
+        }
+    }
     
     init() {
         let layout = UICollectionViewFlowLayout()
@@ -104,15 +105,14 @@ class ViewController: UICollectionViewController {
         payButton.configuration = {
             var config = UIButton.Configuration.filled()
             config.buttonSize = .large
-            config.attributedTitle = {
-                var title = AttributedString()
-                title.append(AttributedString("Pay", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: buttonFontSize, weight: .bold)])))
-                title.append(AttributedString(" $30.50", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: buttonFontSize)])))
-                return title
-            }()
             return config
         }()
         payButton.translatesAutoresizingMaskIntoConstraints = false
+        payButton.isEnabled = false
+        payButton.addAction(UIAction(title: "Pay") { [weak self] _ in
+            self?.pay()
+        }, for: .touchUpInside)
+        updatePayButtonTitle(amount: database.cartTotal)
         view.addSubview(payButton)
         
         collectionView.showsHorizontalScrollIndicator = false
@@ -132,6 +132,7 @@ class ViewController: UICollectionViewController {
         }()
         addToBagButton.translatesAutoresizingMaskIntoConstraints = false
         addToBagButton.addAction(UIAction(title: "Add to Bag") { [weak self] _ in self?.addActiveItemToBag() }, for: .touchUpInside)
+        addToBagButton.isEnabled = false
         view.addSubview(addToBagButton)
         
         collectionView.translatesAutoresizingMaskIntoConstraints = false
@@ -206,22 +207,67 @@ class ViewController: UICollectionViewController {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCollectionViewCell.reuseIdentifier, for: indexPath) as! ProductCollectionViewCell
         
         let product = products[indexPath.item]
-        cell.imageView.image = UIImage.from(string: product.1)
-        cell.titleLabel.text = product.0
-        cell.priceLabel.text = product.2
-        cell.locationLabel.text = product.3
+        cell.imageView.image = product.image
+        cell.titleLabel.text = product.name
+        cell.priceLabel.text = String(format: "$%.02f", product.price)
+        cell.locationLabel.text = product.location
         
         return cell
     }
     
+    func getTargetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
+        guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else {
+            return proposedContentOffset
+        }
+        
+        guard let layoutAttributes = layout.layoutAttributesForElements(in: collectionView.bounds) else {
+            return proposedContentOffset
+        }
+        
+        // Find the closest layout to the center point X of the proposedContentOffset
+        let collectionViewSize = collectionView.bounds.size
+        let proposedContentOffsetCenterX = proposedContentOffset.x + collectionViewSize.width / 2
+        
+        var closest: UICollectionViewLayoutAttributes?
+        for attributes in layoutAttributes {
+            if closest == nil || abs(attributes.center.x - proposedContentOffsetCenterX) < abs(closest!.center.x - proposedContentOffsetCenterX) {
+                closest = attributes
+            }
+        }
+        
+        // Calculate a new content offset from the closet layout
+        return CGPoint(x: closest!.center.x - collectionViewSize.width / 2, y: proposedContentOffset.y)
+    }
+    
+    override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        let targetOffset = getTargetContentOffset(forProposedContentOffset: targetContentOffset.pointee, withScrollingVelocity: velocity)
+        targetContentOffset.pointee = targetOffset
+    }
+    
+    func activeProduct() -> Database.Product? {
+        let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
+        let midPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
+        guard let indexPath = collectionView.indexPathForItem(at: midPoint) else {
+            return nil
+        }
+        return self.products[indexPath.item];
+    }
+    
     func addActiveItemToBag() {
-        // TODO: Get the index path of the active item and add it to the bag.
-        // TODO: Update the payButton with the new bag total.
+        // Get the index path of the active item and add it to the bag.
+        guard let product = activeProduct() else {
+            return
+        }
+        
+        database.addToCart(product: product)
+        updatePayButtonTitle(amount: database.cartTotal)
         // TODO: Should we also close the search? If so, calling closeSearch() will close it if it's open.
     }
     
     @objc func searchTextFieldDidChange(_ textField: UITextField) {
-        // TODO: Execute the search and update the search results.
+        if let text = textField.text {
+            self.products = database.search(string: text)
+        }
     }
     
     func openSearch() {
@@ -281,6 +327,28 @@ class ViewController: UICollectionViewController {
             }
         }
     }
+    
+    // MARK: - Pay Button
+    
+    func payButtonTitle(amount: Double) -> AttributedString {
+        var title = AttributedString()
+        title.append(AttributedString("Pay", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: buttonFontSize, weight: .bold)])))
+        if (amount > 0) {
+            title.append(AttributedString(String(format: " $%0.2f", amount), attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: buttonFontSize)])))
+        }
+        return title
+    }
+    
+    func updatePayButtonTitle(amount: Double) {
+        payButton.configuration!.attributedTitle = payButtonTitle(amount: amount)
+        payButton.isEnabled = amount > 0
+    }
+    
+    func pay() {
+        database.clearCart()
+        updatePayButtonTitle(amount: 0);
+        self.products = []
+    }
 }
 
 class ProductCollectionViewCell: UICollectionViewCell {
@@ -297,7 +365,6 @@ class ProductCollectionViewCell: UICollectionViewCell {
         super.init(frame: frame)
         
         // TODO: For iPad, don't show the locationLabel or include it in the layout.
-        
         imageView.contentMode = .scaleAspectFit
         imageView.layer.shadowColor = UIColor.black.cgColor
         imageView.layer.shadowOffset = CGSize(width: 0, height: 3)
