@@ -185,6 +185,8 @@ class ViewController: UICollectionViewController {
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
     
+    // MARK: - Collection View
+    
     private func updateCollectionViewLayout() {
         guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else { return }
         
@@ -247,6 +249,8 @@ class ViewController: UICollectionViewController {
         targetContentOffset.pointee = targetOffset
     }
     
+    // MARK: - Bag
+    
     func activeProduct() -> Database.Product? {
         let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
         let midPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
@@ -262,10 +266,15 @@ class ViewController: UICollectionViewController {
             return
         }
         
+        showTouchButtonFeedback()
+        
         database.addToCart(product: product)
         updatePayButtonTitle(amount: database.cartTotal)
+        
         // TODO: Should we also close the search? If so, calling closeSearch() will close it if it's open.
     }
+    
+    // MARK: - Search
     
     @objc func searchTextFieldDidChange(_ textField: UITextField) {
         if let text = textField.text {
@@ -343,7 +352,7 @@ class ViewController: UICollectionViewController {
         }
     }
     
-    // MARK: - Pay Button
+    // MARK: - Payment
     
     func payButtonTitle(amount: Double) -> AttributedString {
         var title = AttributedString()
@@ -360,6 +369,8 @@ class ViewController: UICollectionViewController {
     }
     
     func pay() {
+        showTouchButtonFeedback()
+        
         let dialog = UIAlertController(title: "Payment", message: String(format: "Total $%0.2f", database.cartTotal), preferredStyle: UIAlertController.Style.alert)
         dialog.addAction(UIAlertAction(title: "Clear Cart", style: UIAlertAction.Style.default, handler: { action in self.clearCart() }))
         dialog.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
@@ -370,6 +381,13 @@ class ViewController: UICollectionViewController {
         self.database.clearCart()
         self.updatePayButtonTitle(amount: 0);
         self.closeSearch()
+    }
+    
+    // MARK: - Haptic Feedback
+    
+    func showTouchButtonFeedback() {
+        let feedback = UIImpactFeedbackGenerator(style: .medium)
+        feedback.impactOccurred()
     }
 }
 
