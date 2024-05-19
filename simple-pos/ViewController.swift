@@ -14,7 +14,7 @@ class ViewController: UICollectionViewController {
     private let searchButton = UIButton(type: .custom)
     private let searchTextField = UITextField()
     private let searchCloseButton = UIButton(type: .custom)
-    private let payButton = UIButton(type: .custom)
+    private let payButton = PayButton()
     private let addToBagButton = UIButton()
     private var addToBagButton_BottomContraint: NSLayoutConstraint!
     
@@ -110,29 +110,23 @@ class ViewController: UICollectionViewController {
         
         searchBar.addSubview(searchTextField)
         
-        payButton.configuration = {
-            var config = UIButton.Configuration.filled()
-            config.buttonSize = .large
-            return config
-        }()
-        payButton.translatesAutoresizingMaskIntoConstraints = false
-        payButton.isHidden = true
+        payButton.setTotal(database.cartTotal, animated: false)
         payButton.addAction(UIAction(title: "Pay") { [weak self] _ in
             self?.pay()
         }, for: .touchUpInside)
-        updatePayButtonTitle(amount: database.cartTotal)
+        payButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(payButton)
         
         addToBagButton.titleLabel?.font = UIFont.systemFont(ofSize: buttonFontSize)
         addToBagButton.configuration = {
             var config = UIButton.Configuration.filled()
+            config.title = "Add to Bag"
             config.buttonSize = .large
             config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var outgoing = incoming
                 outgoing.font = UIFont.systemFont(ofSize: self.buttonFontSize)
                 return outgoing
             }
-            config.title = "Add to Bag"
             return config
         }()
         addToBagButton.translatesAutoresizingMaskIntoConstraints = false
@@ -265,17 +259,8 @@ class ViewController: UICollectionViewController {
                 snapshot.removeFromSuperview()
                 imageView.isHidden = false
                 
-                // Update the pay button text
-                self.updatePayButtonTitle(amount: self.database.cartTotal)
-
-                // Animate the cart button to indicate the item has been added
-                UIView.animate(withDuration: 0.2, animations: {
-                    self.payButton.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
-                }, completion: { _ in
-                    UIView.animate(withDuration: 0.2, animations: {
-                        self.payButton.transform = CGAffineTransform.identity
-                    })
-                })
+                // Set the new cart total.
+                self.payButton.setTotal(self.database.cartTotal)
             })
         }
         
@@ -338,20 +323,6 @@ class ViewController: UICollectionViewController {
     
     // MARK: - Payment
     
-    func payButtonTitle(amount: Double) -> AttributedString {
-        var title = AttributedString()
-        title.append(AttributedString("Pay", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: buttonFontSize, weight: .bold)])))
-        if (amount > 0) {
-            title.append(AttributedString(String(format: " $%0.2f", amount), attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: buttonFontSize)])))
-        }
-        return title
-    }
-    
-    func updatePayButtonTitle(amount: Double) {
-        payButton.configuration!.attributedTitle = payButtonTitle(amount: amount)
-        payButton.isHidden = amount <= 0
-    }
-    
     func pay() {
         searchTextField.resignFirstResponder()
         
@@ -363,7 +334,7 @@ class ViewController: UICollectionViewController {
     
     func clearCart() {
         self.database.clearCart()
-        self.updatePayButtonTitle(amount: 0);
+        self.payButton.setTotal(0)
         self.closeSearch()
     }
     
@@ -537,5 +508,85 @@ class ProductCollectionViewCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
+    }
+}
+
+class PayButton: UIButton {
+    private var total: Double = .zero
+    
+    init() {
+        super.init(frame: .zero)
+        setup()
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        super.init(coder: aDecoder)
+        setup()
+    }
+    
+    private func setup() {
+        configuration = UIButton.Configuration.filled()
+        configuration?.buttonSize = .large
+        setTotal(0, animated: false)
+    }
+    
+    func setTotal(_ newTotal: Double, animated: Bool = true) {
+        let oldTotal = self.total
+        self.total = max(0, newTotal)
+        
+        if animated == false {
+            updateTitle(to: newTotal)
+        } else {
+            // For tansitioning to a non-zero total, update the title before the animation.
+            if newTotal > 0 {
+                updateTitle(to: newTotal)
+            }
+            animate(from: oldTotal, to: newTotal)
+        }
+    }
+    
+    private func animate(from oldTotal: Double, to newTotal: Double) {
+        guard oldTotal != newTotal else { return }
+        
+        if newTotal == 0 {
+            // Genie exit animation
+            UIView.animate(withDuration: 0.2, delay: 0, options: [.curveEaseIn], animations: {
+                self.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+                self.alpha = 0
+            }, completion: { _ in
+                self.updateTitle(to: newTotal)
+                self.alpha = 1
+            })
+        } else if oldTotal == 0 {
+            // Genie bounce entry animation
+            self.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+            self.alpha = 0
+            UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 2, options: []) {
+                self.transform = CGAffineTransform(scaleX: 1, y: 1)
+                self.alpha = 1
+            }
+        } else {
+            // Bounce animation
+            UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseInOut], animations: {
+                self.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+            }, completion: { _ in
+                UIView.animate(withDuration: 0.1, delay: 0, options: [.curveEaseIn], animations: {
+                    self.transform = CGAffineTransform.identity
+                })
+            })
+        }
+    }
+
+    private func updateTitle(to total: Double) {
+        var title = AttributedString()
+        title.append(AttributedString("Pay", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: UIFont.buttonFontSize, weight: .bold)])))
+        if total > 0 {
+            title.append(AttributedString(String(format: " $%0.2f", total), attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: UIFont.buttonFontSize)])))
+        }
+        
+        self.configuration?.attributedTitle = title
+        self.isHidden = total == 0
+        
+        self.sizeToFit()
     }
 }
