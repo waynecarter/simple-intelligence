@@ -490,19 +490,3 @@ class ProductCollectionViewCell: UICollectionViewCell {
         fatalError("init(coder:) has not been implemented")
     }
 }
-
-extension UIImage {
-    static func from(string: String) -> UIImage {
-        let nsString = string as NSString
-        let font = UIFont.systemFont(ofSize: 160)
-        let stringAttributes = [NSAttributedString.Key.font: font]
-        let imageSize = nsString.size(withAttributes: stringAttributes)
-
-        let renderer = UIGraphicsImageRenderer(size: imageSize)
-        let image = renderer.image { _ in
-            nsString.draw( at: CGPoint.zero, withAttributes: stringAttributes)
-        }
-
-        return image
-    }
-}
