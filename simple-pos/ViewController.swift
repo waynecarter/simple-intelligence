@@ -31,7 +31,7 @@ class ViewController: UICollectionViewController {
     }
     
     init() {
-        let layout = UICollectionViewFlowLayout()
+        let layout = CenteredCollectionViewFlowLayout()
         layout.scrollDirection = .horizontal
         super.init(collectionViewLayout: layout)
     }
@@ -61,6 +61,11 @@ class ViewController: UICollectionViewController {
     }
     
     private func setupUI() {
+        collectionView.register(ProductCollectionViewCell.self, forCellWithReuseIdentifier: ProductCollectionViewCell.reuseIdentifier)
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.decelerationRate = .fast
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        
         view.backgroundColor = .systemBackground
         
         searchBar.layer.cornerRadius = 10
@@ -115,9 +120,6 @@ class ViewController: UICollectionViewController {
         updatePayButtonTitle(amount: database.cartTotal)
         view.addSubview(payButton)
         
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.register(ProductCollectionViewCell.self, forCellWithReuseIdentifier: ProductCollectionViewCell.reuseIdentifier)
-        
         addToBagButton.titleLabel?.font = UIFont.systemFont(ofSize: buttonFontSize)
         addToBagButton.configuration = {
             var config = UIButton.Configuration.filled()
@@ -134,8 +136,6 @@ class ViewController: UICollectionViewController {
         addToBagButton.addAction(UIAction(title: "Add to Bag") { [weak self] _ in self?.addActiveItemToBag() }, for: .touchUpInside)
         addToBagButton.isEnabled = false
         view.addSubview(addToBagButton)
-        
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
         
         let spacing: CGFloat = 10
         addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -margin.bottom)
@@ -215,35 +215,6 @@ class ViewController: UICollectionViewController {
         return cell
     }
     
-    func getTargetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
-        guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else {
-            return proposedContentOffset
-        }
-        
-        guard let layoutAttributes = layout.layoutAttributesForElements(in: collectionView.bounds) else {
-            return proposedContentOffset
-        }
-        
-        // Find the closest layout to the center point X of the proposedContentOffset
-        let collectionViewSize = collectionView.bounds.size
-        let proposedContentOffsetCenterX = proposedContentOffset.x + collectionViewSize.width / 2
-        
-        var closest: UICollectionViewLayoutAttributes?
-        for attributes in layoutAttributes {
-            if closest == nil || abs(attributes.center.x - proposedContentOffsetCenterX) < abs(closest!.center.x - proposedContentOffsetCenterX) {
-                closest = attributes
-            }
-        }
-        
-        // Calculate a new content offset from the closet layout
-        return CGPoint(x: closest!.center.x - collectionViewSize.width / 2, y: proposedContentOffset.y)
-    }
-    
-    override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        let targetOffset = getTargetContentOffset(forProposedContentOffset: targetContentOffset.pointee, withScrollingVelocity: velocity)
-        targetContentOffset.pointee = targetOffset
-    }
-    
     func activeProduct() -> Database.Product? {
         let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
         let midPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
@@ -299,6 +270,60 @@ class ViewController: UICollectionViewController {
         // TODO: Enable visual search.
     }
     
+    // MARK: - Pay Button
+    
+    func payButtonTitle(amount: Double) -> AttributedString {
+        var title = AttributedString()
+        title.append(AttributedString("Pay", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: buttonFontSize, weight: .bold)])))
+        if (amount > 0) {
+            title.append(AttributedString(String(format: " $%0.2f", amount), attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: buttonFontSize)])))
+        }
+        return title
+    }
+    
+    func updatePayButtonTitle(amount: Double) {
+        payButton.configuration!.attributedTitle = payButtonTitle(amount: amount)
+        payButton.isEnabled = amount > 0
+    }
+    
+    func pay() {
+        database.clearCart()
+        updatePayButtonTitle(amount: 0);
+        self.products = []
+    }
+    
+    // MARK: - Scrolling
+    
+    private var selectedItemIndexPath: IndexPath?
+    private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
+    
+    override func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
+        let midPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
+        let itemIndexPath = collectionView.indexPathForItem(at: midPoint)
+        
+        if itemIndexPath?.isEmpty ?? true, products.count > 0 {
+            // If the products contain any items then the active product
+            // index path can't be null or empty so do nothing
+        } else {
+            // If the selected item changed, generated selection feedback
+            if itemIndexPath != nil, selectedItemIndexPath != nil, itemIndexPath != selectedItemIndexPath {
+                selectionFeedbackGenerator.selectionChanged()
+                selectionFeedbackGenerator.prepare()
+            }
+            
+            selectedItemIndexPath = itemIndexPath
+        }
+    }
+    
+    override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
+        guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else { return }
+        let targetOffset = layout.targetContentOffset(forProposedContentOffset: targetContentOffset.pointee, withScrollingVelocity: velocity)
+        targetContentOffset.pointee = targetOffset
+    }
+    
+    // MARK: - Keyboard
+    
     @objc func keyboardWillShow(notification: NSNotification) {
         guard let userInfo = notification.userInfo,
               let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
@@ -327,28 +352,34 @@ class ViewController: UICollectionViewController {
             }
         }
     }
-    
-    // MARK: - Pay Button
-    
-    func payButtonTitle(amount: Double) -> AttributedString {
-        var title = AttributedString()
-        title.append(AttributedString("Pay", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: buttonFontSize, weight: .bold)])))
-        if (amount > 0) {
-            title.append(AttributedString(String(format: " $%0.2f", amount), attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: buttonFontSize)])))
+}
+
+class CenteredCollectionViewFlowLayout: UICollectionViewFlowLayout {
+
+    override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
+        guard let collectionView = collectionView else {
+            return proposedContentOffset
         }
-        return title
+        
+        guard let layoutAttributes = layoutAttributesForElements(in: collectionView.bounds) else {
+            return proposedContentOffset
+        }
+        
+        // Find the closest layout to the center point X of the proposedContentOffset
+        let collectionViewSize = collectionView.bounds.size
+        let proposedContentOffsetCenterX = proposedContentOffset.x + collectionViewSize.width / 2
+        
+        var closest: UICollectionViewLayoutAttributes?
+        for attributes in layoutAttributes {
+            if closest == nil || abs(attributes.center.x - proposedContentOffsetCenterX) < abs(closest!.center.x - proposedContentOffsetCenterX) {
+                closest = attributes
+            }
+        }
+        
+        // Calculate a new content offset from the closet layout
+        return CGPoint(x: closest!.center.x - collectionViewSize.width / 2, y: proposedContentOffset.y)
     }
     
-    func updatePayButtonTitle(amount: Double) {
-        payButton.configuration!.attributedTitle = payButtonTitle(amount: amount)
-        payButton.isEnabled = amount > 0
-    }
-    
-    func pay() {
-        database.clearCart()
-        updatePayButtonTitle(amount: 0);
-        self.products = []
-    }
 }
 
 class ProductCollectionViewCell: UICollectionViewCell {
