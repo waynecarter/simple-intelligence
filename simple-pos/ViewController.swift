@@ -325,6 +325,13 @@ class ViewController: UICollectionViewController {
         self.closeSearch()
     }
     
+    // MARK: - Haptic Feedback
+    
+    func showTouchButtonFeedback() {
+        let feedback = UIImpactFeedbackGenerator(style: .medium)
+        feedback.impactOccurred()
+    }
+    
     // MARK: - Scrolling
     
     private var selectedItemIndexPath: IndexPath?
