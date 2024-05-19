@@ -103,8 +103,11 @@ class ViewController: UICollectionViewController {
         let searchTextFont = UIFont.systemFont(ofSize: labelFontSize)
         searchTextField.font = searchTextFont
         searchTextField.isHidden = true
+        searchTextField.returnKeyType = .done
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
         searchTextField.addTarget(self, action: #selector(searchTextFieldDidChange(_:)), for: .editingChanged)
+        searchTextField.addTarget(self, action: #selector(searchTextFieldDidEnd(_:)), for: .editingDidEndOnExit)
+        
         searchBar.addSubview(searchTextField)
         
         payButton.configuration = {
@@ -241,6 +244,10 @@ class ViewController: UICollectionViewController {
         }
     }
     
+    @objc func searchTextFieldDidEnd(_ textField: UITextField) {
+        closeSearch()
+    }
+    
     func openSearch() {
         guard searchTextField.isHidden == true else { return }
         
@@ -258,6 +265,8 @@ class ViewController: UICollectionViewController {
     func closeSearch() {
         guard searchTextField.isHidden == false else { return }
         
+        clearSearchResult()
+        
         UIView.transition(with: searchBar, duration: 0.2, options: .transitionCrossDissolve) { [self] in
             searchBar.backgroundColor = nil
             searchButton.isHidden = false
@@ -268,6 +277,41 @@ class ViewController: UICollectionViewController {
         }
         
         // TODO: Enable visual search.
+    }
+    
+    func clearSearchResult() {
+        if products.count > 0 {
+            products = []
+        }
+    }
+    
+    @objc func keyboardWillShow(notification: NSNotification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+              let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+            return
+        }
+        
+        UIView.animate(withDuration: animationDuration) {
+            self.collectionView.performBatchUpdates {
+                self.addToBagButton_BottomContraint.constant = -(keyboardFrame.height + self.margin.bottom) + self.view.safeAreaInsets.bottom
+                self.view.layoutIfNeeded()
+            }
+        }
+    }
+    
+    @objc func keyboardWillHide(notification: NSNotification) {
+        guard let userInfo = notification.userInfo,
+              let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
+            return
+        }
+        
+        UIView.animate(withDuration: animationDuration) {
+            self.collectionView.performBatchUpdates {
+                self.addToBagButton_BottomContraint.constant = -self.margin.bottom
+                self.view.layoutIfNeeded()
+            }
+        }
     }
     
     // MARK: - Pay Button
@@ -287,9 +331,16 @@ class ViewController: UICollectionViewController {
     }
     
     func pay() {
-        database.clearCart()
-        updatePayButtonTitle(amount: 0);
-        self.products = []
+        let dialog = UIAlertController(title: "Payment", message: String(format: "Total $%0.2f", database.cartTotal), preferredStyle: UIAlertController.Style.alert)
+        dialog.addAction(UIAlertAction(title: "Clear Cart", style: UIAlertAction.Style.default, handler: { action in self.clearCart() }))
+        dialog.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        self.present(dialog, animated: true, completion: nil)
+    }
+    
+    func clearCart() {
+        self.database.clearCart()
+        self.updatePayButtonTitle(amount: 0);
+        self.closeSearch()
     }
     
     // MARK: - Scrolling
