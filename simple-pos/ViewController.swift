@@ -285,35 +285,6 @@ class ViewController: UICollectionViewController {
         }
     }
     
-    @objc func keyboardWillShow(notification: NSNotification) {
-        guard let userInfo = notification.userInfo,
-              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
-              let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
-            return
-        }
-        
-        UIView.animate(withDuration: animationDuration) {
-            self.collectionView.performBatchUpdates {
-                self.addToBagButton_BottomContraint.constant = -(keyboardFrame.height + self.margin.bottom) + self.view.safeAreaInsets.bottom
-                self.view.layoutIfNeeded()
-            }
-        }
-    }
-    
-    @objc func keyboardWillHide(notification: NSNotification) {
-        guard let userInfo = notification.userInfo,
-              let animationDuration = userInfo[UIResponder.keyboardAnimationDurationUserInfoKey] as? TimeInterval else {
-            return
-        }
-        
-        UIView.animate(withDuration: animationDuration) {
-            self.collectionView.performBatchUpdates {
-                self.addToBagButton_BottomContraint.constant = -self.margin.bottom
-                self.view.layoutIfNeeded()
-            }
-        }
-    }
-    
     // MARK: - Pay Button
     
     func payButtonTitle(amount: Double) -> AttributedString {
