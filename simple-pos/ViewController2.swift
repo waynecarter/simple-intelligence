@@ -53,11 +53,11 @@ class ViewController2: UICollectionViewController {
     }
     
     @IBAction func addToCart(_ sender: Any) {
-        print("AddToCart button tapped")
+        print("Add to Cart button tapped")
     }
     
     @IBAction func pay(_ sender: Any) {
-        print("pay button tapped")
+        print("Pay button tapped")
     }
 }
 
@@ -81,8 +81,17 @@ class SearchBarButtonItem: UIBarButtonItem {
         button.configuration = UIButton.Configuration.plain()
         button.configuration?.image = UIImage(systemName: "magnifyingglass")?.withConfiguration(UIImage.SymbolConfiguration(pointSize: 24))
         button.tintColor = .label
+        button.addAction(UIAction(title: "Open Search") { [weak self] _ in
+            self?.touchUpInside()
+        }, for: .touchUpInside)
         
         self.customView = button
+    }
+    
+    func touchUpInside() {
+        if let target = target, let action = action {
+            _ = target.perform(action, with: self)
+        }
     }
 }
 
@@ -97,6 +106,9 @@ class PayBarButtonItem: UIBarButtonItem {
     private func setup() {
         button.configuration = UIButton.Configuration.filled()
         button.configuration?.buttonSize = .large
+        button.addAction(UIAction(title: "Pay") { [weak self] _ in
+            self?.touchUpInside()
+        }, for: .touchUpInside)
         setTotal(nil)
         
         button.configuration?.buttonSize = .large
@@ -115,6 +127,12 @@ class PayBarButtonItem: UIBarButtonItem {
         button.configuration?.attributedTitle = title
         button.sizeToFit()
     }
+    
+    func touchUpInside() {
+        if let target = target, let action = action {
+            _ = target.perform(action, with: self)
+        }
+    }
 }
 
 class AddToCartBarButtonItem: UIBarButtonItem {
@@ -132,6 +150,9 @@ class AddToCartBarButtonItem: UIBarButtonItem {
             config.title = self.title
             return config
         }()
+        button.addAction(UIAction(title: "Add to Bag") { [weak self] _ in
+            self?.touchUpInside()
+        }, for: .touchUpInside)
         
         self.customView = button
         
@@ -144,6 +165,12 @@ class AddToCartBarButtonItem: UIBarButtonItem {
                 button.leadingAnchor.constraint(equalTo: customView.leadingAnchor),
                 button.trailingAnchor.constraint(equalTo: customView.trailingAnchor)
             ])
+        }
+    }
+    
+    func touchUpInside() {
+        if let target = target, let action = action {
+            _ = target.perform(action, with: self)
         }
     }
 }
