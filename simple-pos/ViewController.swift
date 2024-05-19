@@ -98,8 +98,11 @@ class ViewController: UICollectionViewController {
         let searchTextFont = UIFont.systemFont(ofSize: labelFontSize)
         searchTextField.font = searchTextFont
         searchTextField.isHidden = true
+        searchTextField.returnKeyType = .done
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
         searchTextField.addTarget(self, action: #selector(searchTextFieldDidChange(_:)), for: .editingChanged)
+        searchTextField.addTarget(self, action: #selector(searchTextFieldDidEnd(_:)), for: .editingDidEndOnExit)
+        
         searchBar.addSubview(searchTextField)
         
         payButton.configuration = {
@@ -270,6 +273,10 @@ class ViewController: UICollectionViewController {
         }
     }
     
+    @objc func searchTextFieldDidEnd(_ textField: UITextField) {
+        closeSearch()
+    }
+    
     func openSearch() {
         guard searchTextField.isHidden == true else { return }
         
@@ -287,6 +294,8 @@ class ViewController: UICollectionViewController {
     func closeSearch() {
         guard searchTextField.isHidden == false else { return }
         
+        clearSearchResult()
+        
         UIView.transition(with: searchBar, duration: 0.2, options: .transitionCrossDissolve) { [self] in
             searchBar.backgroundColor = nil
             searchButton.isHidden = false
@@ -297,6 +306,10 @@ class ViewController: UICollectionViewController {
         }
         
         // TODO: Enable visual search.
+    }
+    
+    func clearSearchResult() {
+        products = []
     }
     
     @objc func keyboardWillShow(notification: NSNotification) {
@@ -347,7 +360,8 @@ class ViewController: UICollectionViewController {
     func pay() {
         database.clearCart()
         updatePayButtonTitle(amount: 0);
-        self.products = []
+        clearSearchResult()
+        closeSearch()
     }
 }
 
