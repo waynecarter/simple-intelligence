@@ -369,7 +369,6 @@ class ViewController: UICollectionViewController {
     func clearCart() {
         self.database.clearCart()
         self.updatePayButtonTitle(amount: 0);
-        self.clearSearchResult()
         self.closeSearch()
     }
 }
