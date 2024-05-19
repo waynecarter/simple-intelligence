@@ -116,7 +116,7 @@ class ViewController: UICollectionViewController {
             return config
         }()
         payButton.translatesAutoresizingMaskIntoConstraints = false
-        payButton.isEnabled = false
+        payButton.isHidden = true
         payButton.addAction(UIAction(title: "Pay") { [weak self] _ in
             self?.pay()
         }, for: .touchUpInside)
@@ -237,12 +237,54 @@ class ViewController: UICollectionViewController {
             return
         }
         
-        showTouchButtonFeedback()
+        // Animate the the product image flying into the pay button.
+        let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
+        let visibleMidPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
+        if let selectedItemIndexPath = collectionView.indexPathForItem(at: visibleMidPoint),
+           let cell = collectionView.cellForItem(at: selectedItemIndexPath) as? ProductCollectionViewCell,
+           let window = self.view.window
+        {
+            // Create a snapshot of the imageView
+            let imageView = cell.imageView
+            guard let snapshot = imageView.snapshotView(afterScreenUpdates: false) else { return }
+            snapshot.frame = window.convert(imageView.frame, from: imageView.superview)
+            window.addSubview(snapshot)
+            
+            // Hide the original imageView temporarily
+            imageView.isHidden = true
+
+            // Define the animation path
+            let cartButtonFrame = window.convert(payButton.frame, from: payButton.superview)
+            let finalPoint = CGPoint(x: cartButtonFrame.midX, y: cartButtonFrame.midY)
+            
+            UIView.animate(withDuration: 0.5, animations: {
+                // Move and scale down the snapshot
+                snapshot.center = finalPoint
+                snapshot.transform = CGAffineTransform(scaleX: 0.01, y: 0.01)
+            }, completion: { _ in
+                snapshot.removeFromSuperview()
+                imageView.isHidden = false
+                
+                // Update the pay button text
+                self.updatePayButtonTitle(amount: self.database.cartTotal)
+
+                // Animate the cart button to indicate the item has been added
+                UIView.animate(withDuration: 0.2, animations: {
+                    self.payButton.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+                }, completion: { _ in
+                    UIView.animate(withDuration: 0.2, animations: {
+                        self.payButton.transform = CGAffineTransform.identity
+                    })
+                })
+            })
+        }
         
-        database.addToCart(product: product)
-        updatePayButtonTitle(amount: database.cartTotal)
+        // Send force feedback
+        self.generateImpactFeedback()
         
-        // TODO: Should we also close the search? If so, calling closeSearch() will close it if it's open.
+        // Add the product to the cart and close the search if it's open
+        self.database.addToCart(product: product)
+        self.closeSearch()
     }
     
     // MARK: - Search
@@ -307,11 +349,11 @@ class ViewController: UICollectionViewController {
     
     func updatePayButtonTitle(amount: Double) {
         payButton.configuration!.attributedTitle = payButtonTitle(amount: amount)
-        payButton.isEnabled = amount > 0
+        payButton.isHidden = amount <= 0
     }
     
     func pay() {
-        showTouchButtonFeedback()
+        searchTextField.resignFirstResponder()
         
         let dialog = UIAlertController(title: "Payment", message: String(format: "Total $%0.2f", database.cartTotal), preferredStyle: UIAlertController.Style.alert)
         dialog.addAction(UIAlertAction(title: "Clear Cart", style: UIAlertAction.Style.default, handler: { action in self.clearCart() }))
@@ -327,29 +369,36 @@ class ViewController: UICollectionViewController {
     
     // MARK: - Haptic Feedback
     
-    func showTouchButtonFeedback() {
-        let feedback = UIImpactFeedbackGenerator(style: .medium)
-        feedback.impactOccurred()
+    private let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+    private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
+    
+    func generateImpactFeedback() {
+        impactFeedbackGenerator.impactOccurred()
+        impactFeedbackGenerator.prepare()
+    }
+    
+    func generateSelectionFeedback() {
+        selectionFeedbackGenerator.selectionChanged()
+        selectionFeedbackGenerator.prepare()
     }
     
     // MARK: - Scrolling
     
     private var selectedItemIndexPath: IndexPath?
-    private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
         let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
-        let midPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
-        let itemIndexPath = collectionView.indexPathForItem(at: midPoint)
+        let visibleMidPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
+        let itemIndexPath = collectionView.indexPathForItem(at: visibleMidPoint)
         
         if itemIndexPath?.isEmpty ?? true, products.count > 0 {
-            // If the products contain any items then the active product
-            // index path can't be null or empty so do nothing
+            // If the products contain any items then the active product index
+            // path can't be null or empty so do nothing. This is expected while
+            // scrolling when the midpoint is between items.
         } else {
             // If the selected item changed, generated selection feedback
             if itemIndexPath != nil, selectedItemIndexPath != nil, itemIndexPath != selectedItemIndexPath {
-                selectionFeedbackGenerator.selectionChanged()
-                selectionFeedbackGenerator.prepare()
+                generateSelectionFeedback()
             }
             
             selectedItemIndexPath = itemIndexPath
