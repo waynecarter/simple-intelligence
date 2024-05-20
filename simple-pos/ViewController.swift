@@ -10,10 +10,8 @@ import UIKit
 class ViewController: UICollectionViewController {
     private lazy var database = { return Database.shared }()
     
-    private let searchBar = UIView()
     private let searchButton = UIButton(type: .custom)
-    private let searchTextField = UITextField()
-    private let searchCloseButton = UIButton(type: .custom)
+    private let searchTextField = UISearchTextField()
     private let payButton = PayButton()
     private let addToBagButton = UIButton()
     private var addToBagButton_BottomContraint: NSLayoutConstraint!
@@ -68,36 +66,16 @@ class ViewController: UICollectionViewController {
         
         view.backgroundColor = .systemBackground
         
-        searchBar.layer.cornerRadius = 10
-        searchBar.layer.masksToBounds = true
-        searchBar.translatesAutoresizingMaskIntoConstraints = false
-        view.addSubview(searchBar)
-        
         let searchButtonImageSize: CGFloat = 24
-        searchButton.configuration = {
-            var config = UIButton.Configuration.plain()
-            config.image = UIImage(systemName: "magnifyingglass")?.withConfiguration(UIImage.SymbolConfiguration(pointSize: searchButtonImageSize))
-            return config
-        }()
+        searchButton.configuration = UIButton.Configuration.plain()
+        searchButton.configuration?.buttonSize = .large
+        searchButton.configuration?.image = UIImage(systemName: "magnifyingglass")?.withConfiguration(UIImage.SymbolConfiguration(pointSize: searchButtonImageSize))
         searchButton.tintColor = .label
         searchButton.translatesAutoresizingMaskIntoConstraints = false
         searchButton.addAction(UIAction(title: "Open Search") { [weak self] _ in
             self?.openSearch()
         }, for: .touchUpInside)
-        searchBar.addSubview(searchButton)
-        
-        searchCloseButton.configuration = {
-            var config = UIButton.Configuration.plain()
-            config.image = UIImage(systemName: "xmark")?.withConfiguration(UIImage.SymbolConfiguration(pointSize: searchButtonImageSize))
-            return config
-        }()
-        searchCloseButton.tintColor = .label
-        searchCloseButton.isHidden = true
-        searchCloseButton.translatesAutoresizingMaskIntoConstraints = false
-        searchCloseButton.addAction(UIAction(title: "Close Search") { [weak self] _ in
-            self?.closeSearch()
-        }, for: .touchUpInside)
-        searchBar.addSubview(searchCloseButton)
+        view.addSubview(searchButton)
         
         searchTextField.placeholder = "Search"
         let searchTextFont = UIFont.systemFont(ofSize: labelFontSize)
@@ -107,8 +85,7 @@ class ViewController: UICollectionViewController {
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
         searchTextField.addTarget(self, action: #selector(searchTextFieldDidChange(_:)), for: .editingChanged)
         searchTextField.addTarget(self, action: #selector(searchTextFieldDidEnd(_:)), for: .editingDidEndOnExit)
-        
-        searchBar.addSubview(searchTextField)
+        view.addSubview(searchTextField)
         
         payButton.setTotal(database.cartTotal, animated: false)
         payButton.addAction(UIAction(title: "Pay") { [weak self] _ in
@@ -134,28 +111,16 @@ class ViewController: UICollectionViewController {
         addToBagButton.isEnabled = false
         view.addSubview(addToBagButton)
         
-        let spacing: CGFloat = 10
         addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -margin.bottom)
         NSLayoutConstraint.activate([
-            searchBar.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin.top),
-            searchBar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin.left),
-            searchBar.trailingAnchor.constraint(equalTo: payButton.leadingAnchor, constant: -spacing),
-            searchBar.bottomAnchor.constraint(equalTo: payButton.bottomAnchor),
-            
-            searchButton.topAnchor.constraint(equalTo: searchBar.topAnchor),
-            searchButton.leadingAnchor.constraint(equalTo: searchBar.leadingAnchor),
-            searchButton.bottomAnchor.constraint(equalTo: searchBar.bottomAnchor),
+            searchButton.centerYAnchor.constraint(equalTo: searchTextField.centerYAnchor),
+            searchButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin.left),
             searchButton.widthAnchor.constraint(equalToConstant: searchButtonImageSize * 2.25),
             
-            searchCloseButton.topAnchor.constraint(equalTo: searchBar.topAnchor),
-            searchCloseButton.leadingAnchor.constraint(equalTo: searchBar.leadingAnchor),
-            searchCloseButton.bottomAnchor.constraint(equalTo: searchBar.bottomAnchor),
-            searchCloseButton.widthAnchor.constraint(equalToConstant: searchButtonImageSize * 2.25),
-            
-            searchTextField.centerYAnchor.constraint(equalTo: searchBar.centerYAnchor),
-            searchTextField.leadingAnchor.constraint(equalTo: searchCloseButton.trailingAnchor),
-            searchTextField.trailingAnchor.constraint(equalTo: searchBar.trailingAnchor, constant: -spacing),
-            searchTextField.heightAnchor.constraint(equalToConstant: searchTextFont.lineHeight + searchTextFont.ascender + searchTextFont.descender + searchTextFont.leading),
+            searchTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin.top),
+            searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin.left),
+            searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin.right),
+            searchTextField.bottomAnchor.constraint(equalTo: payButton.bottomAnchor),
             
             payButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin.top),
             payButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin.right),
@@ -285,34 +250,42 @@ class ViewController: UICollectionViewController {
     }
     
     func openSearch() {
-        guard searchTextField.isHidden == true else { return }
-        
         // TODO: Disable visual search.
         
-        UIView.transition(with: searchBar, duration: 0.2, options: .transitionCrossDissolve) { [self] in
-            searchBar.backgroundColor = .secondarySystemBackground
-            searchButton.isHidden = true
-            searchCloseButton.isHidden = false
-            searchTextField.isHidden = false
-            searchTextField.becomeFirstResponder()
+        searchTextField.alpha = 0
+        searchTextField.isHidden = false
+        
+        searchTextField.becomeFirstResponder()
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            self.searchButton.alpha = 0
+            self.searchTextField.alpha = 1
+            
+            self.payButton.alpha = 0
+        }) { _ in
+            self.searchButton.isHidden = true
         }
     }
     
     func closeSearch() {
-        guard searchTextField.isHidden == false else { return }
+        // TODO: Enable visual search.
         
         clearSearchResult()
+        searchTextField.resignFirstResponder()
         
-        UIView.transition(with: searchBar, duration: 0.2, options: .transitionCrossDissolve) { [self] in
-            searchBar.backgroundColor = nil
-            searchButton.isHidden = false
-            searchCloseButton.isHidden = true
-            searchTextField.isHidden = true
-            searchTextField.text = nil
-            searchTextField.resignFirstResponder()
+        searchButton.alpha = 0
+        searchButton.isHidden = false
+        payButton.alpha = 0
+        
+        UIView.animate(withDuration: 0.2, animations: {
+            self.searchButton.alpha = 1
+            self.searchTextField.alpha = 0
+            
+            self.payButton.alpha = 1
+        }) { _ in
+            self.searchTextField.text = nil
+            self.searchTextField.isHidden = true
         }
-        
-        // TODO: Enable visual search.
     }
     
     func clearSearchResult() {
@@ -335,7 +308,6 @@ class ViewController: UICollectionViewController {
     func clearCart() {
         self.database.clearCart()
         self.payButton.setTotal(0)
-        self.closeSearch()
     }
     
     // MARK: - Haptic Feedback
