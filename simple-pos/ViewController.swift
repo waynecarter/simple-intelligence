@@ -27,11 +27,15 @@ class ViewController: UICollectionViewController {
             // When the search results change, reload the collection view's data.
             collectionView.reloadData()
             addToBagButton.isEnabled = (products.count > 0)
+            
+            // Clear the selected item tracking variable used to detect that
+            // the active item has chaged and generate haptic feedback.
+            if products.count == 0 { lastSelectedItemIndexPath = nil }
         }
     }
     
     init() {
-        let layout = CenteredCollectionViewFlowLayout()
+        let layout = CenteredFlowLayout()
         layout.scrollDirection = .horizontal
         super.init(collectionViewLayout: layout)
     }
@@ -183,26 +187,14 @@ class ViewController: UICollectionViewController {
     
     // MARK: - Bag
     
-    func activeProduct() -> Database.Product? {
-        let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
-        let midPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
-        guard let indexPath = collectionView.indexPathForItem(at: midPoint) else {
-            return nil
-        }
-        return self.products[indexPath.item];
-    }
-    
     func addActiveItemToBag() {
         // Get the index path of the active item and add it to the bag.
-        guard let product = activeProduct() else {
+        guard let selectedItemIndexPath = self.selectedItemIndexPath else {
             return
         }
         
         // Animate the the product image flying into the pay button.
-        let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
-        let visibleMidPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
-        if let selectedItemIndexPath = collectionView.indexPathForItem(at: visibleMidPoint),
-           let cell = collectionView.cellForItem(at: selectedItemIndexPath) as? ProductCollectionViewCell,
+        if let cell = collectionView.cellForItem(at: selectedItemIndexPath) as? ProductCollectionViewCell,
            let window = self.view.window
         {
             // Create a snapshot of the imageView
@@ -215,8 +207,8 @@ class ViewController: UICollectionViewController {
             imageView.isHidden = true
 
             // Define the animation path
-            let cartButtonFrame = window.convert(payButton.frame, from: payButton.superview)
-            let finalPoint = CGPoint(x: cartButtonFrame.midX, y: cartButtonFrame.midY)
+            let payButtonFrame = window.convert(payButton.frame, from: payButton.superview)
+            let finalPoint = CGPoint(x: payButtonFrame.midX, y: payButtonFrame.midY)
             
             UIView.animate(withDuration: 0.5, animations: {
                 // Move and scale down the snapshot
@@ -235,6 +227,7 @@ class ViewController: UICollectionViewController {
         self.generateImpactFeedback()
         
         // Add the product to the cart and close the search if it's open
+        let product = self.products[selectedItemIndexPath.item]
         self.database.addToCart(product: product)
         self.closeSearch()
     }
@@ -296,7 +289,7 @@ class ViewController: UICollectionViewController {
         }
     }
     
-    // MARK: - Payment
+    // MARK: - Pay
     
     func pay() {
         searchTextField.resignFirstResponder()
@@ -312,48 +305,39 @@ class ViewController: UICollectionViewController {
         self.payButton.setTotal(0)
     }
     
-    // MARK: - Haptic Feedback
+    // MARK: - Selected Item
     
-    private let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
-    private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
-    
-    func generateImpactFeedback() {
-        impactFeedbackGenerator.impactOccurred()
-        impactFeedbackGenerator.prepare()
-    }
-    
-    func generateSelectionFeedback() {
-        selectionFeedbackGenerator.selectionChanged()
-        selectionFeedbackGenerator.prepare()
+    private var selectedItemIndexPath: IndexPath? {
+        guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else { return nil }
+        guard products.count > 0 else { return nil }
+        
+        // Calculate the currently selected item's index path.
+        let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
+        let visibleMidPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
+        let itemWidth = layout.itemSize.width + layout.minimumLineSpacing
+        var itemIndex = Int(round(visibleMidPoint.x / itemWidth)) - 1
+        
+        // Clamp the item index between 1 and products.count. The calculated index
+        // can be invalid when the scroll view has scrolled beyond it's extents.
+        itemIndex = min(products.count - 1, itemIndex)
+        itemIndex = max(0, itemIndex)
+        
+        return IndexPath(item: itemIndex, section: 0)
     }
     
     // MARK: - Scrolling
     
-    private var selectedItemIndexPath: IndexPath?
+    private var lastSelectedItemIndexPath: IndexPath?
     
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
-        let visibleMidPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
-        let itemIndexPath = collectionView.indexPathForItem(at: visibleMidPoint)
+        let selectedItemIndexPath = self.selectedItemIndexPath
         
-        if itemIndexPath?.isEmpty ?? true, products.count > 0 {
-            // If the products contain any items then the active product index
-            // path can't be null or empty so do nothing. This is expected while
-            // scrolling when the midpoint is between items.
-        } else {
-            // If the selected item changed, generated selection feedback
-            if itemIndexPath != nil, selectedItemIndexPath != nil, itemIndexPath != selectedItemIndexPath {
-                generateSelectionFeedback()
-            }
-            
-            selectedItemIndexPath = itemIndexPath
+        // If the selected item changed, generated selection feedback
+        if lastSelectedItemIndexPath != nil, selectedItemIndexPath != lastSelectedItemIndexPath {
+            generateSelectionFeedback()
         }
-    }
-    
-    override func scrollViewWillEndDragging(_ scrollView: UIScrollView, withVelocity velocity: CGPoint, targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-        guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else { return }
-        let targetOffset = layout.targetContentOffset(forProposedContentOffset: targetContentOffset.pointee, withScrollingVelocity: velocity)
-        targetContentOffset.pointee = targetOffset
+        
+        lastSelectedItemIndexPath = selectedItemIndexPath
     }
     
     // MARK: - Keyboard
@@ -386,33 +370,31 @@ class ViewController: UICollectionViewController {
             }
         }
     }
+    
+    // MARK: - Haptic Feedback
+    
+    private let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
+    private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
+    
+    func generateImpactFeedback() {
+        impactFeedbackGenerator.impactOccurred()
+        impactFeedbackGenerator.prepare()
+    }
+    
+    func generateSelectionFeedback() {
+        selectionFeedbackGenerator.selectionChanged()
+        selectionFeedbackGenerator.prepare()
+    }
 }
 
-class CenteredCollectionViewFlowLayout: UICollectionViewFlowLayout {
-
+class CenteredFlowLayout: UICollectionViewFlowLayout {
+    
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
-        guard let collectionView = collectionView else {
-            return proposedContentOffset
-        }
-        
-        guard let layoutAttributes = layoutAttributesForElements(in: collectionView.bounds) else {
-            return proposedContentOffset
-        }
-        
-        // Find the closest layout to the center point X of the proposedContentOffset
-        let collectionViewSize = collectionView.bounds.size
-        let proposedContentOffsetCenterX = proposedContentOffset.x + collectionViewSize.width / 2
-        
-        var closest: UICollectionViewLayoutAttributes?
-        for attributes in layoutAttributes {
-            if closest == nil || abs(attributes.center.x - proposedContentOffsetCenterX) < abs(closest!.center.x - proposedContentOffsetCenterX) {
-                closest = attributes
-            }
-        }
-        
-        // Calculate a new content offset from the closet layout
-        return CGPoint(x: closest!.center.x - collectionViewSize.width / 2, y: proposedContentOffset.y)
+        let itemIndex = round(proposedContentOffset.x / (itemSize.width + minimumLineSpacing))
+        let newOffsetX = (itemSize.width + minimumLineSpacing) * CGFloat(itemIndex)
+        return CGPoint(x: newOffsetX, y: proposedContentOffset.y)
     }
+
 }
 
 class ProductCollectionViewCell: UICollectionViewCell {
