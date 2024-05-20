@@ -413,13 +413,6 @@ class CenteredCollectionViewFlowLayout: UICollectionViewFlowLayout {
         // Calculate a new content offset from the closet layout
         return CGPoint(x: closest!.center.x - collectionViewSize.width / 2, y: proposedContentOffset.y)
     }
-    
-    // MARK: - Haptic Feedback
-    
-    func showTouchButtonFeedback() {
-        let feedback = UIImpactFeedbackGenerator(style: .medium)
-        feedback.impactOccurred()
-    }
 }
 
 class ProductCollectionViewCell: UICollectionViewCell {
