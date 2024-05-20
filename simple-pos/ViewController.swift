@@ -301,9 +301,9 @@ class ViewController: UICollectionViewController {
     func pay() {
         searchTextField.resignFirstResponder()
         
-        let dialog = UIAlertController(title: "Payment", message: String(format: "Total $%0.2f", database.cartTotal), preferredStyle: UIAlertController.Style.alert)
-        dialog.addAction(UIAlertAction(title: "Clear Cart", style: UIAlertAction.Style.default, handler: { action in self.clearCart() }))
-        dialog.addAction(UIAlertAction(title: "Cancel", style: UIAlertAction.Style.cancel, handler: nil))
+        let dialog = UIAlertController(title: "Are you sure you want to clear the cart?", message: nil, preferredStyle: .actionSheet)
+        dialog.addAction(UIAlertAction(title: "Clear Cart", style: .destructive, handler: { action in self.clearCart() }))
+        dialog.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
         self.present(dialog, animated: true, completion: nil)
     }
     
