@@ -12,13 +12,15 @@ class ViewController: UICollectionViewController {
     
     private let searchButton = UIButton(type: .custom)
     private let searchTextField = UISearchTextField()
+    
     private let payButton = PayButton()
+    
     private let addToBagButton = UIButton()
     private var addToBagButton_BottomContraint: NSLayoutConstraint!
+    private let addToBagButton_BottomMargin: CGFloat = 20
     
     let labelFontSize = UIFont.labelFontSize * 1.2
     let buttonFontSize = UIFont.labelFontSize * 1.2
-    let margin = UIEdgeInsets(top: 8, left: 20, bottom: 20, right: 20)
     
     private var products = [Database.Product]() {
         didSet {
@@ -111,33 +113,33 @@ class ViewController: UICollectionViewController {
         addToBagButton.isEnabled = false
         view.addSubview(addToBagButton)
         
-        addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -margin.bottom)
+        addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor, constant: -addToBagButton_BottomMargin)
         NSLayoutConstraint.activate([
             searchButton.centerYAnchor.constraint(equalTo: searchTextField.centerYAnchor),
-            searchButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin.left),
+            searchButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             searchButton.widthAnchor.constraint(equalToConstant: searchButtonImageSize * 2.25),
             
-            searchTextField.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin.top),
-            searchTextField.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: margin.left),
-            searchTextField.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin.right),
+            searchTextField.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
+            searchTextField.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            searchTextField.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
             searchTextField.bottomAnchor.constraint(equalTo: payButton.bottomAnchor),
             
-            payButton.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: margin.top),
-            payButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -margin.right),
+            payButton.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
+            payButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
             
             collectionView.topAnchor.constraint(equalTo: payButton.bottomAnchor),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: addToBagButton.topAnchor),
             
-            addToBagButton.leadingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.leadingAnchor, constant: margin.left),
-            addToBagButton.trailingAnchor.constraint(equalTo: view.safeAreaLayoutGuide.trailingAnchor, constant: -margin.right),
+            addToBagButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            addToBagButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
             addToBagButton_BottomContraint
             
             // TODO: For iPad, set button width to a constant instead of setting leading and trailing anchors:
             // addToCartButton.widthAnchor.constraint(equalToConstant: 200),
             // addToCartButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            // addToCartButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -margin)
+            // addToCartButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor)
         ])
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
@@ -365,7 +367,7 @@ class ViewController: UICollectionViewController {
         
         UIView.animate(withDuration: animationDuration) {
             self.collectionView.performBatchUpdates {
-                self.addToBagButton_BottomContraint.constant = -(keyboardFrame.height + self.margin.bottom) + self.view.safeAreaInsets.bottom
+                self.addToBagButton_BottomContraint.constant = -(keyboardFrame.height + self.addToBagButton_BottomMargin) + self.view.safeAreaInsets.bottom
                 self.view.layoutIfNeeded()
             }
         }
@@ -379,7 +381,7 @@ class ViewController: UICollectionViewController {
         
         UIView.animate(withDuration: animationDuration) {
             self.collectionView.performBatchUpdates {
-                self.addToBagButton_BottomContraint.constant = -self.margin.bottom
+                self.addToBagButton_BottomContraint.constant = -self.addToBagButton_BottomMargin
                 self.view.layoutIfNeeded()
             }
         }
