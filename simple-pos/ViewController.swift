@@ -314,6 +314,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         self.database.clearCart()
         self.payButton.setTotal(0)
         clearSearchResult()
+        startVisualSearch()
     }
     
     // MARK: - Selected Item

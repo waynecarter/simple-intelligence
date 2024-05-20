@@ -42,6 +42,10 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     private func startSession(_ completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
         sessionQueue.async {
+            if let session = self.session, session.isRunning {
+                return
+            }
+            
             let status = AVCaptureDevice.authorizationStatus(for: .video)
             if status != .authorized {
                 completion(false, "No permission to use the video device")
@@ -55,11 +59,9 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                 return
             }
             
-            if let session = self.session, !session.isRunning {
-                self.captureTimestamp = 0
-                session.startRunning()
-                completion(session.isRunning, session.isRunning ? nil : "Video capture session cannot start")
-            }
+            self.captureTimestamp = 0
+            self.session!.startRunning()
+            completion(self.session!.isRunning, self.session!.isRunning ? nil : "Video capture session cannot start")
         }
     }
     
