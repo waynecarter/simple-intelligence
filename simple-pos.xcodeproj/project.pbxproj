@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		40E7CA382BFB20B5004BE7E1 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E7CA372BFB20B5004BE7E1 /* Camera.swift */; };
 		B09602122BF7014700F6A866 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09602112BF7014700F6A866 /* AppDelegate.swift */; };
 		B09602142BF7014700F6A866 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09602132BF7014700F6A866 /* SceneDelegate.swift */; };
 		B09602162BF7014700F6A866 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B09602152BF7014700F6A866 /* ViewController.swift */; };
@@ -38,6 +39,7 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		40E7CA372BFB20B5004BE7E1 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		B096020E2BF7014700F6A866 /* simple-pos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "simple-pos.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B09602112BF7014700F6A866 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B09602132BF7014700F6A866 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -92,6 +94,7 @@
 				B0F97DE72BF95A1900824492 /* ViewController2.swift */,
 				B0EBE56F2BF9167C002FF20C /* Database.swift */,
 				B0EBE5712BF91CB2002FF20C /* AI.swift */,
+				40E7CA372BFB20B5004BE7E1 /* Camera.swift */,
 				B09602172BF7014700F6A866 /* Main.storyboard */,
 				B096021C2BF7014B00F6A866 /* LaunchScreen.storyboard */,
 				B096021A2BF7014B00F6A866 /* Assets.xcassets */,
@@ -186,6 +189,7 @@
 				B0EBE5702BF9167C002FF20C /* Database.swift in Sources */,
 				B0EBE5722BF91CB2002FF20C /* AI.swift in Sources */,
 				B09602142BF7014700F6A866 /* SceneDelegate.swift in Sources */,
+				40E7CA382BFB20B5004BE7E1 /* Camera.swift in Sources */,
 				B0F97DE82BF95A1900824492 /* ViewController2.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -338,7 +342,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = FMV3C84SQX;
+				DEVELOPMENT_TEAM = 6ESMJQCA3W;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "simple-pos/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Point of Sale";
@@ -368,7 +372,7 @@
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
-				DEVELOPMENT_TEAM = FMV3C84SQX;
+				DEVELOPMENT_TEAM = 6ESMJQCA3W;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "simple-pos/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Point of Sale";

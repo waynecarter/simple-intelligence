@@ -7,8 +7,9 @@
 
 import UIKit
 
-class ViewController: UICollectionViewController {
+class ViewController: UICollectionViewController, CameraDelegate {
     private lazy var database = { return Database.shared }()
+    private lazy var ai = { return AI.shared }()
     
     private let searchButton = UIButton(type: .custom)
     private let searchTextField = UISearchTextField()
@@ -18,6 +19,8 @@ class ViewController: UICollectionViewController {
     private let addToBagButton = UIButton()
     private var addToBagButton_BottomContraint: NSLayoutConstraint!
     private let addToBagButton_BottomMargin: CGFloat = 20
+    
+    private var camera: Camera!
     
     let labelFontSize = UIFont.labelFontSize * 1.2
     let buttonFontSize = UIFont.labelFontSize * 1.2
@@ -38,6 +41,8 @@ class ViewController: UICollectionViewController {
         let layout = CenteredFlowLayout()
         layout.scrollDirection = .horizontal
         super.init(collectionViewLayout: layout)
+        
+        camera = Camera(delegate: self)
     }
     
     deinit {
@@ -52,6 +57,7 @@ class ViewController: UICollectionViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        startVisualSearch()
     }
     
     override func viewSafeAreaInsetsDidChange() {
@@ -245,7 +251,7 @@ class ViewController: UICollectionViewController {
     }
     
     func openSearch() {
-        // TODO: Disable visual search.
+        stopVisualSearch()
         
         searchTextField.alpha = 0
         searchTextField.isHidden = false
@@ -263,7 +269,7 @@ class ViewController: UICollectionViewController {
     }
     
     func closeSearch() {
-        // TODO: Enable visual search.
+        startVisualSearch()
         
         clearSearchResult()
         searchTextField.resignFirstResponder()
@@ -281,6 +287,10 @@ class ViewController: UICollectionViewController {
             self.searchTextField.text = nil
             self.searchTextField.isHidden = true
         }
+    }
+    
+    func isSearchActive() -> Bool {
+        return !self.searchTextField.isHidden
     }
     
     func clearSearchResult() {
@@ -303,6 +313,7 @@ class ViewController: UICollectionViewController {
     func clearCart() {
         self.database.clearCart()
         self.payButton.setTotal(0)
+        clearSearchResult()
     }
     
     // MARK: - Selected Item
@@ -384,6 +395,36 @@ class ViewController: UICollectionViewController {
     func generateSelectionFeedback() {
         selectionFeedbackGenerator.selectionChanged()
         selectionFeedbackGenerator.prepare()
+    }
+    
+    // MARK: - Camera
+    
+    func startVisualSearch() {
+        // TODO: Display error if not success (e.g. no permission)
+        camera.start { success, error in }
+    }
+    
+    func stopVisualSearch() {
+        camera.stop()
+        clearSearchResult()
+    }
+    
+    func didCaptureImage(_ image: UIImage) {
+        self.ai.foregroundFeatureEmbedding(for: image, fitTo: CGSize(width: 100, height: 100)) { embedding in
+            guard let embedding = embedding else { return }
+            
+            let results = self.database.search(vector: embedding)
+            
+            // Ignore empty search results
+            if results.isEmpty { return }
+            
+            DispatchQueue.main.async {
+                if self.products.isEmpty && !self.isSearchActive() {
+                    self.products = results
+                    self.camera.stop()
+                }
+            }
+        }
     }
 }
 
