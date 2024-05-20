@@ -37,17 +37,9 @@ class Database {
             loadDemoData(in: collection)
         }
         
-        // Initialize the value index on the "name" field for fast sorting.
-        let nameIndex = ValueIndexConfiguration(["name"])
-        try! collection.createIndex(withName: "NameIndex", config: nameIndex)
-
-        // Initialize the value index on the "category" field for fast predicates.
-        let categoryIndex = ValueIndexConfiguration(["category"])
-        try! collection.createIndex(withName: "CategoryIndex", config: categoryIndex)
-
-        // Initialize the full-text search index on the "name", "color", and "category" fields.
-        let ftsIndex = FullTextIndexConfiguration(["name", "color", "category"])
-        try! collection.createIndex(withName: "NameColorAndCategoryIndex", config: ftsIndex)
+        // Initialize the full-text search index on the "name" and "color" fields.
+        let ftsIndex = FullTextIndexConfiguration(["name", "color"])
+        try! collection.createIndex(withName: "NameAndColorIndex", config: ftsIndex)
         
         // Initialize the vector index on the "embedding" field for image search.
         var vectorIndex = VectorIndexConfiguration(expression: "embedding", dimensions: 768, centroids: 2)
@@ -68,8 +60,8 @@ class Database {
             SELECT name, price, location, image
             FROM _
             WHERE type = "product"
-                AND MATCH(NameColorAndCategoryIndex, $search)
-            ORDER BY RANK(NameColorAndCategoryIndex)
+                AND MATCH(NameAndColorIndex, $search)
+            ORDER BY RANK(NameAndColorIndex)
         """
         
         // Set query parameters
