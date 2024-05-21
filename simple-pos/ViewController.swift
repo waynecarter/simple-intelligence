@@ -330,7 +330,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
         cancelButton.isHidden = !showCancel
 
         if showAddToBag {
-            addToBagButton.isHidden = false
             UIView.animate(withDuration: 0.2, animations: {
                 self.addToBagButton.alpha = 1
             })
@@ -343,7 +342,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
         }
 
         if showCancel {
-            cancelButton.isHidden = false
             UIView.animate(withDuration: 0.2, animations: {
                 self.cancelButton.alpha = 1
             })
