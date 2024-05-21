@@ -15,7 +15,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private let videoDataOutput = AVCaptureVideoDataOutput()
     private let sessionQueue = DispatchQueue(label: "VideoSessionQueue", qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem)
     
-    private let captureInterval: TimeInterval = 1.0
+    private let captureInterval: TimeInterval = 0.2
     private var captureTimestamp: TimeInterval = 0.0
     
     private var delegate: CameraDelegate?
