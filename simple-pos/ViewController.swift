@@ -16,9 +16,11 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     private let payButton = PayButton()
     
-    private let addToBagButton = UIButton()
+    private let addToBagButton = UIButton(type: .roundedRect)
     private var addToBagButton_BottomContraint: NSLayoutConstraint!
     private let addToBagButton_BottomMargin: CGFloat = 20
+    
+    private let cancelButton = UIButton(type: .roundedRect)
     
     private var camera: Camera!
     
@@ -29,7 +31,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
         didSet {
             // When the search results change, reload the collection view's data.
             collectionView.reloadData()
-            addToBagButton.isEnabled = (products.count > 0)
+            
+            // Update the action buttons.
+            updateActions()
             
             // Clear the selected item tracking variable used to detect that
             // the active item has chaged and generate haptic feedback.
@@ -57,7 +61,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        startVisualSearch()
+        startVectorSearch()
     }
     
     override func viewSafeAreaInsetsDidChange() {
@@ -84,15 +88,13 @@ class ViewController: UICollectionViewController, CameraDelegate {
         searchButton.configuration?.image = UIImage(systemName: "magnifyingglass")?.withConfiguration(UIImage.SymbolConfiguration(pointSize: searchButtonImageSize))
         searchButton.tintColor = .label
         searchButton.translatesAutoresizingMaskIntoConstraints = false
-        searchButton.addAction(UIAction(title: "Open Search") { [weak self] _ in
-            self?.openSearch()
-        }, for: .touchUpInside)
+        searchButton.addAction(UIAction(title: "Open Search") { [weak self] _ in self?.startTextSearch() }, for: .touchUpInside)
         view.addSubview(searchButton)
         
         searchTextField.placeholder = "Search"
         let searchTextFont = UIFont.systemFont(ofSize: labelFontSize)
         searchTextField.font = searchTextFont
-        searchTextField.isHidden = true
+        searchTextField.alpha = 0
         searchTextField.returnKeyType = .done
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
         searchTextField.addTarget(self, action: #selector(searchTextFieldDidChange(_:)), for: .editingChanged)
@@ -100,29 +102,30 @@ class ViewController: UICollectionViewController, CameraDelegate {
         view.addSubview(searchTextField)
         
         payButton.setTotal(database.cartTotal, animated: false)
-        payButton.addAction(UIAction(title: "Pay") { [weak self] _ in
-            self?.pay()
-        }, for: .touchUpInside)
+        payButton.addAction(UIAction(title: "Pay") { [weak self] _ in self?.pay() }, for: .touchUpInside)
         payButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(payButton)
         
+        addToBagButton.setTitle("Add to Bag", for: .normal)
         addToBagButton.titleLabel?.font = UIFont.systemFont(ofSize: buttonFontSize)
-        addToBagButton.configuration = {
-            var config = UIButton.Configuration.filled()
-            config.title = "Add to Bag"
-            config.buttonSize = .large
-            config.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-                var outgoing = incoming
-                outgoing.font = UIFont.systemFont(ofSize: self.buttonFontSize)
-                return outgoing
-            }
-            return config
-        }()
+        addToBagButton.configuration = UIButton.Configuration.filled()
+        addToBagButton.configuration?.buttonSize = .large
         addToBagButton.translatesAutoresizingMaskIntoConstraints = false
         addToBagButton.addAction(UIAction(title: "Add to Bag") { [weak self] _ in self?.addActiveItemToBag() }, for: .touchUpInside)
-        addToBagButton.isEnabled = false
+        addToBagButton.alpha = 0
         view.addSubview(addToBagButton)
         
+        cancelButton.setTitle("Cancel", for: .normal)
+        cancelButton.tintColor = .darkGray
+        cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: buttonFontSize)
+        cancelButton.configuration = UIButton.Configuration.filled()
+        cancelButton.configuration?.buttonSize = .large
+        cancelButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        cancelButton.translatesAutoresizingMaskIntoConstraints = false
+        cancelButton.addAction(UIAction(title: "Cancel Search") { [weak self] _ in self?.cancelSearch() }, for: .touchUpInside)
+        cancelButton.alpha = 0
+        view.addSubview(cancelButton)
+
         addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor, constant: -addToBagButton_BottomMargin)
         NSLayoutConstraint.activate([
             searchButton.centerYAnchor.constraint(equalTo: searchTextField.centerYAnchor),
@@ -142,9 +145,12 @@ class ViewController: UICollectionViewController, CameraDelegate {
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: addToBagButton.topAnchor),
             
-            addToBagButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            cancelButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            cancelButton.bottomAnchor.constraint(equalTo: addToBagButton.bottomAnchor),
+            
+            addToBagButton.leadingAnchor.constraint(equalTo: cancelButton.trailingAnchor, constant: 10),
             addToBagButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-            addToBagButton_BottomContraint
+            addToBagButton_BottomContraint,
             
             // TODO: For iPad, set button width to a constant instead of setting leading and trailing anchors:
             // addToCartButton.widthAnchor.constraint(equalToConstant: 200),
@@ -232,13 +238,134 @@ class ViewController: UICollectionViewController, CameraDelegate {
         // Send force feedback
         self.generateImpactFeedback()
         
-        // Add the product to the cart and close the search if it's open
+        // Add the product to the cart and close the search.
         let product = self.products[selectedItemIndexPath.item]
         self.database.addToCart(product: product)
-        self.closeSearch()
+        self.cancelSearch()
     }
     
     // MARK: - Search
+    
+    func cancelSearch() {
+        clearSearchResults()
+        
+        switch searchMode {
+        case .vector: startVectorSearch()
+        case .text: stopTextSearch()
+        }
+    }
+    
+    func clearSearchResults() {
+        if products.count > 0 {
+            products = []
+        }
+    }
+    
+    enum SearchMode {
+        case vector
+        case text
+    }
+    
+    private var searchMode: SearchMode = .vector {
+        didSet {
+            transitionTo(searchMode: searchMode)
+        }
+    }
+    
+    private func transitionTo(searchMode: SearchMode) {
+        switch searchMode {
+        case .vector:
+            searchTextField.isHidden = false
+            cancelButton.isHidden = false
+            searchButton.isHidden = false
+            payButton.isHidden = false
+
+            UIView.animate(withDuration: 0.2, animations: {
+                self.searchTextField.alpha = 0
+                self.cancelButton.alpha = 0
+                self.searchButton.alpha = 1
+                
+                self.payButton.isActive = true
+            }, completion: { _ in
+                self.searchTextField.isHidden = true
+                self.cancelButton.isHidden = true
+                
+                self.searchTextField.text = nil
+            })
+            
+            searchTextField.resignFirstResponder()
+            startVectorSearch()
+        case .text:
+            stopVectorSearch()
+            
+            searchTextField.isHidden = false
+            cancelButton.isHidden = false
+            searchButton.isHidden = false
+            payButton.isHidden = false
+
+            UIView.animate(withDuration: 0.2, animations: {
+                self.searchTextField.alpha = 1
+                self.cancelButton.alpha = 1
+                self.searchButton.alpha = 0
+                
+                self.payButton.isActive = false
+            }, completion: { _ in
+                self.searchButton.isHidden = true
+                self.payButton.isHidden = true
+            })
+            
+            searchTextField.becomeFirstResponder()
+        }
+
+        updateActions()
+    }
+    
+    private func updateActions() {
+        let showAddToBag = self.searchMode == .text || self.products.count > 0
+        let enableAddToBag = self.products.count > 0
+        let showCancel = self.searchMode == .text || self.products.count > 0
+
+        addToBagButton.isHidden = !showAddToBag
+        addToBagButton.isEnabled = enableAddToBag
+        cancelButton.isHidden = !showCancel
+
+        if showAddToBag {
+            addToBagButton.isHidden = false
+            UIView.animate(withDuration: 0.2, animations: {
+                self.addToBagButton.alpha = 1
+            })
+        } else {
+            UIView.animate(withDuration: 0.2, animations: {
+                self.addToBagButton.alpha = 0
+            }, completion: { _ in
+                self.addToBagButton.isHidden = true
+            })
+        }
+
+        if showCancel {
+            cancelButton.isHidden = false
+            UIView.animate(withDuration: 0.2, animations: {
+                self.cancelButton.alpha = 1
+            })
+        } else {
+            UIView.animate(withDuration: 0.2, animations: {
+                self.cancelButton.alpha = 0
+            }, completion: { _ in
+                self.cancelButton.isHidden = true
+            })
+        }
+    }
+    
+    // MARK: - Text Search
+    
+    func startTextSearch() {
+        searchMode = .text
+    }
+    
+    func stopTextSearch() {
+        clearSearchResults()
+        searchMode = .vector
+    }
     
     @objc func searchTextFieldDidChange(_ textField: UITextField) {
         if let text = textField.text {
@@ -247,55 +374,36 @@ class ViewController: UICollectionViewController, CameraDelegate {
     }
     
     @objc func searchTextFieldDidEnd(_ textField: UITextField) {
-        closeSearch()
+        stopTextSearch()
     }
     
-    func openSearch() {
-        stopVisualSearch()
-        
-        searchTextField.alpha = 0
-        searchTextField.isHidden = false
-        
-        searchTextField.becomeFirstResponder()
-        
-        UIView.animate(withDuration: 0.2, animations: {
-            self.searchButton.alpha = 0
-            self.searchTextField.alpha = 1
+    // MARK: - Vector Search
+    
+    func startVectorSearch() {
+        // TODO: Display error if not success (e.g. no permission)
+        camera.start { success, error in }
+    }
+    
+    func stopVectorSearch() {
+        camera.stop()
+        clearSearchResults()
+    }
+    
+    func didCaptureImage(_ image: UIImage) {
+        self.ai.foregroundFeatureEmbedding(for: image, fitTo: CGSize(width: 100, height: 100)) { embedding in
+            guard let embedding = embedding else { return }
             
-            self.payButton.alpha = 0
-        }) { _ in
-            self.searchButton.isHidden = true
-        }
-    }
-    
-    func closeSearch() {
-        startVisualSearch()
-        
-        clearSearchResult()
-        searchTextField.resignFirstResponder()
-        
-        searchButton.alpha = 0
-        searchButton.isHidden = false
-        payButton.alpha = 0
-        
-        UIView.animate(withDuration: 0.2, animations: {
-            self.searchButton.alpha = 1
-            self.searchTextField.alpha = 0
+            let results = self.database.search(vector: embedding)
             
-            self.payButton.alpha = 1
-        }) { _ in
-            self.searchTextField.text = nil
-            self.searchTextField.isHidden = true
-        }
-    }
-    
-    func isSearchActive() -> Bool {
-        return !self.searchTextField.isHidden
-    }
-    
-    func clearSearchResult() {
-        if products.count > 0 {
-            products = []
+            // Ignore empty search results
+            if results.isEmpty { return }
+            
+            DispatchQueue.main.async {
+                if self.products.isEmpty {
+                    self.products = results
+                    self.camera.stop()
+                }
+            }
         }
     }
     
@@ -313,8 +421,8 @@ class ViewController: UICollectionViewController, CameraDelegate {
     func clearCart() {
         self.database.clearCart()
         self.payButton.setTotal(0)
-        clearSearchResult()
-        startVisualSearch()
+        clearSearchResults()
+        startVectorSearch()
     }
     
     // MARK: - Selected Item
@@ -396,36 +504,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
     func generateSelectionFeedback() {
         selectionFeedbackGenerator.selectionChanged()
         selectionFeedbackGenerator.prepare()
-    }
-    
-    // MARK: - Camera
-    
-    func startVisualSearch() {
-        // TODO: Display error if not success (e.g. no permission)
-        camera.start { success, error in }
-    }
-    
-    func stopVisualSearch() {
-        camera.stop()
-        clearSearchResult()
-    }
-    
-    func didCaptureImage(_ image: UIImage) {
-        self.ai.foregroundFeatureEmbedding(for: image, fitTo: CGSize(width: 100, height: 100)) { embedding in
-            guard let embedding = embedding else { return }
-            
-            let results = self.database.search(vector: embedding)
-            
-            // Ignore empty search results
-            if results.isEmpty { return }
-            
-            DispatchQueue.main.async {
-                if self.products.isEmpty && !self.isSearchActive() {
-                    self.products = results
-                    self.camera.stop()
-                }
-            }
-        }
     }
 }
 
@@ -546,12 +624,10 @@ class PayButton: UIButton {
                 self.alpha = 0
             }, completion: { _ in
                 self.updateTitle(to: newTotal)
-                self.alpha = 1
             })
         } else if oldTotal == 0 {
             // Genie bounce entry animation
             self.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-            self.alpha = 0
             UIView.animate(withDuration: 0.3, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 2, options: []) {
                 self.transform = CGAffineTransform(scaleX: 1, y: 1)
                 self.alpha = 1
@@ -576,8 +652,19 @@ class PayButton: UIButton {
         }
         
         self.configuration?.attributedTitle = title
-        self.isHidden = total == 0
+        self.alpha = (total == 0 ? 0 : 1)
         
         self.sizeToFit()
+    }
+    
+    var isActive: Bool = true {
+        didSet {
+            let show = isActive && (total > 0)
+            let alpha: CGFloat = show ? 1 : 0
+            
+            UIView.animate(withDuration: 0.2) {
+                self.alpha = alpha
+            }
+        }
     }
 }
