@@ -197,9 +197,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
         return cell
     }
     
-    // MARK: - Bag
+    // MARK: - Add to Bag
     
-    func addActiveItemToBag() {
+    private func addActiveItemToBag() {
         // Get the index path of the active item and add it to the bag.
         guard let selectedItemIndexPath = self.selectedItemIndexPath else {
             return
@@ -246,7 +246,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     // MARK: - Search
     
-    func cancelSearch() {
+    private func cancelSearch() {
         clearSearchResults()
         
         switch searchMode {
@@ -255,13 +255,13 @@ class ViewController: UICollectionViewController, CameraDelegate {
         }
     }
     
-    func clearSearchResults() {
+    private func clearSearchResults() {
         if products.count > 0 {
             products = []
         }
     }
     
-    enum SearchMode {
+    private enum SearchMode {
         case vector
         case text
     }
@@ -358,11 +358,11 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     // MARK: - Text Search
     
-    func startTextSearch() {
+    private func startTextSearch() {
         searchMode = .text
     }
     
-    func stopTextSearch() {
+    private func stopTextSearch() {
         clearSearchResults()
         searchMode = .vector
     }
@@ -379,12 +379,12 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     // MARK: - Vector Search
     
-    func startVectorSearch() {
+    private func startVectorSearch() {
         // TODO: Display error if not success (e.g. no permission)
         camera.start { success, error in }
     }
     
-    func stopVectorSearch() {
+    private func stopVectorSearch() {
         camera.stop()
         clearSearchResults()
     }
@@ -409,7 +409,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     // MARK: - Pay
     
-    func pay() {
+    private func pay() {
         searchTextField.resignFirstResponder()
         
         let alert = UIAlertController(title: "Are you sure you want to clear the cart?", message: nil, preferredStyle: .actionSheet)
@@ -419,7 +419,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         self.present(alert, animated: true, completion: nil)
     }
     
-    func clearCart() {
+    private func clearCart() {
         self.database.clearCart()
         self.payButton.setTotal(0)
         clearSearchResults()
@@ -497,12 +497,12 @@ class ViewController: UICollectionViewController, CameraDelegate {
     private let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
     private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
     
-    func generateImpactFeedback() {
+    private func generateImpactFeedback() {
         impactFeedbackGenerator.impactOccurred()
         impactFeedbackGenerator.prepare()
     }
     
-    func generateSelectionFeedback() {
+    private func generateSelectionFeedback() {
         selectionFeedbackGenerator.selectionChanged()
         selectionFeedbackGenerator.prepare()
     }
