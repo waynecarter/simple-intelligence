@@ -374,7 +374,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     }
     
     @objc func searchTextFieldDidEnd(_ textField: UITextField) {
-        stopTextSearch()
+        searchTextField.resignFirstResponder()
     }
     
     // MARK: - Vector Search
