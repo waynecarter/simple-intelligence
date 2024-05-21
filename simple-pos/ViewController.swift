@@ -22,6 +22,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     private let cancelButton = UIButton(type: .roundedRect)
     
+    private let explainerImageView = UIImageView()
+    private let explainerLabel = UILabel()
+    
     private var camera: Camera!
     
     let labelFontSize = UIFont.labelFontSize * 1.2
@@ -59,7 +62,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        startVectorSearch()
+        searchMode = .vector
     }
     
     override func viewSafeAreaInsetsDidChange() {
@@ -94,17 +97,27 @@ class ViewController: UICollectionViewController, CameraDelegate {
         
         searchTextField.placeholder = "Search"
         searchTextField.font = UIFont.systemFont(ofSize: labelFontSize)
-        searchTextField.alpha = 0
         searchTextField.returnKeyType = .done
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
         searchTextField.addTarget(self, action: #selector(searchTextFieldDidChange(_:)), for: .editingChanged)
         searchTextField.addTarget(self, action: #selector(searchTextFieldDidEnd(_:)), for: .editingDidEndOnExit)
+        searchTextField.alpha = 0
         view.addSubview(searchTextField)
         
         payButton.setTotal(database.cartTotal, animated: false)
         payButton.addAction(UIAction(title: "Pay") { [weak self] _ in self?.pay() }, for: .touchUpInside)
         payButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(payButton)
+        
+        explainerImageView.contentMode = .scaleAspectFit
+        explainerImageView.tintColor = .tertiaryLabel
+        explainerImageView.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(explainerImageView)
+        
+        explainerLabel.font = UIFont.systemFont(ofSize: labelFontSize)
+        explainerLabel.textColor = .tertiaryLabel
+        explainerLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(explainerLabel)
         
         addToBagButton.setTitle("Add to Bag", for: .normal)
         addToBagButton.titleLabel?.font = UIFont.systemFont(ofSize: buttonFontSize)
@@ -144,6 +157,14 @@ class ViewController: UICollectionViewController, CameraDelegate {
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: addToBagButton.topAnchor),
+            
+            explainerImageView.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor, constant: -searchButtonImageSize),
+            explainerImageView.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor),
+            explainerImageView.widthAnchor.constraint(equalToConstant: 60),
+            explainerImageView.heightAnchor.constraint(equalToConstant: 60),
+            
+            explainerLabel.topAnchor.constraint(equalToSystemSpacingBelow: explainerImageView.bottomAnchor, multiplier: 0.5),
+            explainerLabel.centerXAnchor.constraint(equalTo: explainerImageView.centerXAnchor),
             
             cancelButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             cancelButton.bottomAnchor.constraint(equalTo: addToBagButton.bottomAnchor),
@@ -342,10 +363,13 @@ class ViewController: UICollectionViewController, CameraDelegate {
         let showAddToBag = self.searchMode == .text || self.products.count > 0
         let enableAddToBag = self.products.count > 0
         let showCancel = self.searchMode == .text || self.products.count > 0
+        let showExplainer = self.products.count == 0
 
         addToBagButton.isHidden = !showAddToBag
         addToBagButton.isEnabled = enableAddToBag
         cancelButton.isHidden = !showCancel
+        explainerImageView.isHidden = !showExplainer
+        explainerLabel.isHidden = !showExplainer
 
         if showAddToBag {
             UIView.animate(withDuration: 0.2, animations: {
@@ -368,6 +392,31 @@ class ViewController: UICollectionViewController, CameraDelegate {
                 self.cancelButton.alpha = 0
             }, completion: { _ in
                 self.cancelButton.isHidden = true
+            })
+        }
+        
+        if showExplainer {
+            let explainerImageSystemName = searchMode == .text ? "text.magnifyingglass" : "camera.viewfinder"
+            let explainerImage = UIImage(systemName: explainerImageSystemName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
+            let explainerText = searchMode == .text ? "Search for an item" : "Scan an item"
+            
+            UIView.animate(withDuration: 0.2, animations: {
+                self.explainerImageView.alpha = 1
+                self.explainerLabel.alpha = 1
+                
+                self.explainerImageView.image = explainerImage
+                self.explainerLabel.text = explainerText
+            })
+        } else {
+            UIView.animate(withDuration: 0.2, animations: {
+                self.explainerImageView.alpha = 0
+                self.explainerLabel.alpha = 0
+            }, completion: { _ in
+                self.explainerImageView.isHidden = true
+                self.explainerLabel.isHidden = true
+                
+                self.explainerImageView.image = nil
+                self.explainerLabel.text = nil
             })
         }
     }
@@ -579,7 +628,7 @@ class ProductCollectionViewCell: UICollectionViewCell {
 }
 
 class PayButton: UIButton {
-    private var total: Double = .zero
+    private(set) var total: Double = .zero
     
     init() {
         super.init(frame: .zero)
