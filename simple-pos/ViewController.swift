@@ -412,10 +412,11 @@ class ViewController: UICollectionViewController, CameraDelegate {
     func pay() {
         searchTextField.resignFirstResponder()
         
-        let dialog = UIAlertController(title: "Are you sure you want to clear the cart?", message: nil, preferredStyle: .actionSheet)
-        dialog.addAction(UIAlertAction(title: "Clear Cart", style: .destructive, handler: { action in self.clearCart() }))
-        dialog.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
-        self.present(dialog, animated: true, completion: nil)
+        let alert = UIAlertController(title: "Are you sure you want to clear the cart?", message: nil, preferredStyle: .actionSheet)
+        alert.popoverPresentationController?.sourceView = payButton
+        alert.addAction(UIAlertAction(title: "Clear Cart", style: .destructive, handler: { action in self.clearCart() }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
     
     func clearCart() {
