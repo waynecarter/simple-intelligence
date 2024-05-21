@@ -398,7 +398,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         if showExplainer {
             let explainerImageSystemName = searchMode == .text ? "text.magnifyingglass" : "camera.viewfinder"
             let explainerImage = UIImage(systemName: explainerImageSystemName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
-            let explainerText = searchMode == .text ? "Search for an item" : "Scan an item"
+            let explainerText = searchMode == .text ? "Search for Item" : "Scan Item"
             
             UIView.animate(withDuration: 0.2, animations: {
                 self.explainerImageView.alpha = 1
