@@ -42,20 +42,18 @@ class ViewController: UICollectionViewController, CameraDelegate {
     }
     
     init() {
-        let layout = CenteredFlowLayout()
-        layout.scrollDirection = .horizontal
-        super.init(collectionViewLayout: layout)
+        super.init(collectionViewLayout: CenteredFlowLayout())
         
         camera = Camera(delegate: self)
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
     }
     
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
-    }
-    
-    required init?(coder: NSCoder) {
-        super.init(coder: coder)
     }
     
     override func viewDidLoad() {
@@ -79,6 +77,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
         collectionView.showsHorizontalScrollIndicator = false
         collectionView.decelerationRate = .fast
         collectionView.translatesAutoresizingMaskIntoConstraints = false
+        if let collectionViewLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            collectionViewLayout.scrollDirection = .horizontal
+        }
         
         view.backgroundColor = .systemBackground
         
@@ -92,8 +93,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         view.addSubview(searchButton)
         
         searchTextField.placeholder = "Search"
-        let searchTextFont = UIFont.systemFont(ofSize: labelFontSize)
-        searchTextField.font = searchTextFont
+        searchTextField.font = UIFont.systemFont(ofSize: labelFontSize)
         searchTextField.alpha = 0
         searchTextField.returnKeyType = .done
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
@@ -111,7 +111,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         addToBagButton.configuration = UIButton.Configuration.filled()
         addToBagButton.configuration?.buttonSize = .large
         addToBagButton.translatesAutoresizingMaskIntoConstraints = false
-        addToBagButton.addAction(UIAction(title: "Add to Bag") { [weak self] _ in self?.addActiveItemToBag() }, for: .touchUpInside)
+        addToBagButton.addAction(UIAction(title: "Add to Bag") { [weak self] _ in self?.addSelectedItemToBag() }, for: .touchUpInside)
         addToBagButton.alpha = 0
         view.addSubview(addToBagButton)
         
@@ -148,7 +148,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
             cancelButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             cancelButton.bottomAnchor.constraint(equalTo: addToBagButton.bottomAnchor),
             
-            addToBagButton.leadingAnchor.constraint(equalTo: cancelButton.trailingAnchor, constant: 10),
+            addToBagButton.leadingAnchor.constraint(equalToSystemSpacingAfter: cancelButton.trailingAnchor, multiplier: 1),
             addToBagButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
             addToBagButton_BottomContraint,
             
@@ -170,14 +170,18 @@ class ViewController: UICollectionViewController, CameraDelegate {
         let itemSpacing: CGFloat = 30
         layout.minimumLineSpacing = itemSpacing
         
-        // TODO: The itemWidthScalingFactor controls how many items are shown on the screen at once. This should be something like 4.5 on iPad.
-        let itemWidthScalingFactor: CGFloat = 1.8
-        let itemWidth = (view.bounds.width - (itemSpacing * 2)) / itemWidthScalingFactor
+        let maxNumberOfItemsOnScreen: CGFloat = {
+            switch UIDevice.current.userInterfaceIdiom {
+            case .pad: return 6.5
+            default: return 1.8
+            }
+        }()
+        let itemWidth = floor((view.bounds.width - (itemSpacing * 2)) / maxNumberOfItemsOnScreen)
         let itemHeight = itemWidth + 80
         layout.itemSize = CGSize(width: itemWidth, height: itemHeight)
         
-        let horizontalInset = view.bounds.midX - (layout.itemSize.width / 2)
-        let verticalInset = (collectionView.bounds.height - layout.itemSize.height) / 2
+        let horizontalInset = round(view.bounds.midX - (itemWidth / 2))
+        let verticalInset = round((collectionView.bounds.height - itemHeight) / 2)
         layout.sectionInset = UIEdgeInsets(top: verticalInset, left: horizontalInset, bottom: verticalInset, right: horizontalInset)
     }
     
@@ -197,9 +201,23 @@ class ViewController: UICollectionViewController, CameraDelegate {
         return cell
     }
     
+    // MARK: - Selected Item
+    
+    private var selectedItemIndexPath: IndexPath? {
+        guard products.count > 0 , let layout = collectionViewLayout as? UICollectionViewFlowLayout else {
+            return nil
+        }
+        
+        let x = min(max(0, collectionView.contentOffset.x), collectionView.contentSize.width)
+        let itemWidth = layout.itemSize.width + layout.minimumLineSpacing
+        let itemIndex = Int(round(x / itemWidth))
+        
+        return IndexPath(item: itemIndex, section: 0)
+    }
+    
     // MARK: - Add to Bag
     
-    private func addActiveItemToBag() {
+    private func addSelectedItemToBag() {
         // Get the index path of the active item and add it to the bag.
         guard let selectedItemIndexPath = self.selectedItemIndexPath else {
             return
@@ -424,26 +442,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
         startVectorSearch()
     }
     
-    // MARK: - Selected Item
-    
-    private var selectedItemIndexPath: IndexPath? {
-        guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else { return nil }
-        guard products.count > 0 else { return nil }
-        
-        // Calculate the currently selected item's index path.
-        let visibleRect = CGRect(origin: collectionView.contentOffset, size: collectionView.bounds.size)
-        let visibleMidPoint = CGPoint(x: visibleRect.midX, y: visibleRect.midY)
-        let itemWidth = layout.itemSize.width + layout.minimumLineSpacing
-        var itemIndex = Int(round(visibleMidPoint.x / itemWidth)) - 1
-        
-        // Clamp the item index between 1 and products.count. The calculated index
-        // can be invalid when the scroll view has scrolled beyond it's extents.
-        itemIndex = min(products.count - 1, itemIndex)
-        itemIndex = max(0, itemIndex)
-        
-        return IndexPath(item: itemIndex, section: 0)
-    }
-    
     // MARK: - Scrolling
     
     private var lastSelectedItemIndexPath: IndexPath?
@@ -509,8 +507,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
 class CenteredFlowLayout: UICollectionViewFlowLayout {
     
     override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
-        let itemIndex = round(proposedContentOffset.x / (itemSize.width + minimumLineSpacing))
-        let newOffsetX = (itemSize.width + minimumLineSpacing) * CGFloat(itemIndex)
+        let itemWidth = itemSize.width + minimumLineSpacing
+        let itemIndex = round(proposedContentOffset.x / itemWidth)
+        let newOffsetX = itemWidth * CGFloat(itemIndex)
         return CGPoint(x: newOffsetX, y: proposedContentOffset.y)
     }
 
