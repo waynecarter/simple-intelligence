@@ -400,7 +400,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
             let explainerImage = UIImage(systemName: explainerImageSystemName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
             let explainerText = searchMode == .text ? "Search for Item" : "Scan Item"
             
-            UIView.animate(withDuration: 0.2, animations: {
+            UIView.animate(withDuration: 0.6, animations: {
                 self.explainerImageView.alpha = 1
                 self.explainerLabel.alpha = 1
                 
