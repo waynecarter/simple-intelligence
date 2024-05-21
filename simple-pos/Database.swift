@@ -38,8 +38,8 @@ class Database {
         }
         
         // Initialize the full-text search index on the "name" and "color" fields.
-        let ftsIndex = FullTextIndexConfiguration(["name", "color"])
-        try! collection.createIndex(withName: "NameAndColorIndex", config: ftsIndex)
+        let ftsIndex = FullTextIndexConfiguration(["name"])
+        try! collection.createIndex(withName: "NameFullTextIndex", config: ftsIndex)
         
         // Initialize the vector index on the "embedding" field for image search.
         var vectorIndex = VectorIndexConfiguration(expression: "embedding", dimensions: 768, centroids: 2)
@@ -60,8 +60,8 @@ class Database {
             SELECT name, price, location, image
             FROM _
             WHERE type = "product"
-                AND MATCH(NameAndColorIndex, $search)
-            ORDER BY RANK(NameAndColorIndex)
+                AND MATCH(NameFullTextIndex, $search)
+            ORDER BY RANK(NameFullTextIndex)
         """
         
         // Set query parameters
