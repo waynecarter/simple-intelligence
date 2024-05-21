@@ -208,9 +208,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
             return nil
         }
         
-        let x = min(max(0, collectionView.contentOffset.x), collectionView.contentSize.width)
+        let contentOffsetX = min(max(0, collectionView.contentOffset.x), collectionView.contentSize.width)
         let itemWidth = layout.itemSize.width + layout.minimumLineSpacing
-        let itemIndex = Int(round(x / itemWidth))
+        let itemIndex = Int(round(contentOffsetX / itemWidth))
         
         return IndexPath(item: itemIndex, section: 0)
     }
