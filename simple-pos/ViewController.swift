@@ -18,8 +18,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     private let addToBagButton = UIButton(type: .roundedRect)
     private var addToBagButton_BottomContraint: NSLayoutConstraint!
-    private let addToBagButton_BottomMargin: CGFloat = 20
-    
+    private let addToCartButton_BottomMargin: CGFloat = 20
     private let cancelButton = UIButton(type: .roundedRect)
     
     private let explainerImageView = UIImageView()
@@ -139,7 +138,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         cancelButton.alpha = 0
         view.addSubview(cancelButton)
 
-        addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor, constant: -addToBagButton_BottomMargin)
+        addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor, constant: -addToCartButton_BottomMargin)
         NSLayoutConstraint.activate([
             searchButton.centerYAnchor.constraint(equalTo: searchTextField.centerYAnchor),
             searchButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
@@ -164,20 +163,30 @@ class ViewController: UICollectionViewController, CameraDelegate {
             explainerImageView.heightAnchor.constraint(equalToConstant: 60),
             
             explainerLabel.topAnchor.constraint(equalToSystemSpacingBelow: explainerImageView.bottomAnchor, multiplier: 0.5),
-            explainerLabel.centerXAnchor.constraint(equalTo: explainerImageView.centerXAnchor),
-            
-            cancelButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
-            cancelButton.bottomAnchor.constraint(equalTo: addToBagButton.bottomAnchor),
-            
-            addToBagButton.leadingAnchor.constraint(equalToSystemSpacingAfter: cancelButton.trailingAnchor, multiplier: 1),
-            addToBagButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-            addToBagButton_BottomContraint,
-            
-            // TODO: For iPad, set button width to a constant instead of setting leading and trailing anchors:
-            // addToCartButton.widthAnchor.constraint(equalToConstant: 200),
-            // addToCartButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            // addToCartButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor)
+            explainerLabel.centerXAnchor.constraint(equalTo: explainerImageView.centerXAnchor)
         ])
+
+        // Set the width of the add-to-cart and cancel buttons depending on the user interface idiom.
+        let spacing = CGFloat(10)
+        if UIDevice.current.userInterfaceIdiom == .pad {
+            NSLayoutConstraint.activate([
+                cancelButton.trailingAnchor.constraint(equalTo: addToBagButton.leadingAnchor, constant: -spacing),
+                cancelButton.bottomAnchor.constraint(equalTo: addToBagButton.bottomAnchor),
+                
+                addToBagButton.widthAnchor.constraint(equalToConstant: 300),
+                addToBagButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                addToBagButton_BottomContraint
+            ])
+        } else {
+            NSLayoutConstraint.activate([
+                cancelButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+                cancelButton.bottomAnchor.constraint(equalTo: addToBagButton.bottomAnchor),
+                
+                addToBagButton.leadingAnchor.constraint(equalTo: cancelButton.trailingAnchor, constant: spacing),
+                addToBagButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+                addToBagButton_BottomContraint
+            ])
+        }
         
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
@@ -517,7 +526,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         
         UIView.animate(withDuration: animationDuration) {
             self.collectionView.performBatchUpdates {
-                self.addToBagButton_BottomContraint.constant = -(keyboardFrame.height + self.addToBagButton_BottomMargin) + self.view.safeAreaInsets.bottom
+                self.addToBagButton_BottomContraint.constant = -(keyboardFrame.height + self.addToCartButton_BottomMargin) + self.view.safeAreaInsets.bottom
                 self.view.layoutIfNeeded()
             }
         }
@@ -531,7 +540,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         
         UIView.animate(withDuration: animationDuration) {
             self.collectionView.performBatchUpdates {
-                self.addToBagButton_BottomContraint.constant = -self.addToBagButton_BottomMargin
+                self.addToBagButton_BottomContraint.constant = -self.addToCartButton_BottomMargin
                 self.view.layoutIfNeeded()
             }
         }
