@@ -12,7 +12,8 @@ protocol CameraDelegate {
 
 class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private let session: AVCaptureSession = AVCaptureSession()
-    private let videoDataOutput = AVCaptureVideoDataOutput()
+    private let videoOutput = AVCaptureVideoDataOutput()
+    private let videoOutputAngle = 90.0 // TODO: Update for iPad
     private let sessionQueue = DispatchQueue(label: "VideoSessionQueue", qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem)
     
     private let captureInterval: TimeInterval = 0.2
@@ -20,7 +21,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     private var delegate: CameraDelegate?
     
-    private var position: AVCaptureDevice.Position = UIDevice.current.userInterfaceIdiom == .phone ? .back : .back
+    private var position: AVCaptureDevice.Position = UIDevice.current.userInterfaceIdiom == .phone ? .front : .back
     
     var previewLayer: AVCaptureVideoPreviewLayer?
     
@@ -94,15 +95,12 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         }
         
         if session.outputs.count == 0 {
-            if session.canAddOutput(videoDataOutput) {
-                videoDataOutput.alwaysDiscardsLateVideoFrames = true
-                videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)]
-                videoDataOutput.setSampleBufferDelegate(self, queue: sessionQueue)
-                session.addOutput(videoDataOutput)
-                
-                let captureConnection = videoDataOutput.connection(with: .video)! // Need to add first
-                captureConnection.isEnabled = true
-                captureConnection.videoRotationAngle = 90
+            if session.canAddOutput(videoOutput) {
+                videoOutput.alwaysDiscardsLateVideoFrames = true
+                videoOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)]
+                videoOutput.setSampleBufferDelegate(self, queue: sessionQueue)
+                session.addOutput(videoOutput)
+                updateVideoOutputAngle()
             } else {
                 throw "Could not add video output to the capture session"
             }
@@ -140,7 +138,16 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         }
         session.addInput(input)
         
+        updateVideoOutputAngle()
+        
         self.position = position
+    }
+    
+    private func updateVideoOutputAngle() {
+        if session.outputs.count > 0 {
+            let connection = videoOutput.connection(with: .video)!
+            connection.videoRotationAngle = videoOutputAngle
+        }
     }
     
     private func imageFromSampleBuffer(sampleBuffer: CMSampleBuffer) -> UIImage? {
