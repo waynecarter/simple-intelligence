@@ -16,9 +16,10 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     private let payButton = PayButton()
     
+    private let selectedItemDetailsLabel = UILabel()
+    
     private let addToBagButton = UIButton(type: .roundedRect)
     private var addToBagButton_BottomContraint: NSLayoutConstraint!
-    private let addToCartButton_BottomMargin: CGFloat = 20
     private let cancelButton = UIButton(type: .roundedRect)
     
     private let explainerImageView = UIImageView()
@@ -29,6 +30,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
     private let bodyFont = UIFont.preferredFont(forTextStyle: .title3)
     private let explainerFont = UIFont.preferredFont(forTextStyle: .title2)
     
+    private let margin: CGFloat = 20
+    private let spacing: CGFloat = 10
+    
     private var products = [Database.Product]() {
         didSet {
             // When the search results change, reload the collection view's data.
@@ -37,9 +41,8 @@ class ViewController: UICollectionViewController, CameraDelegate {
             // Update the action buttons.
             updateActions()
             
-            // Clear the selected item tracking variable used to detect that
-            // the active item has chaged and generate haptic feedback.
-            if products.count == 0 { lastSelectedItemIndexPath = nil }
+            // Update the selected item index path.
+            updateSelectedItemIndexPath()
         }
     }
     
@@ -75,14 +78,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
     }
     
     private func setupUI() {
-        collectionView.register(ProductCollectionViewCell.self, forCellWithReuseIdentifier: ProductCollectionViewCell.reuseIdentifier)
-        collectionView.showsHorizontalScrollIndicator = false
-        collectionView.decelerationRate = .fast
-        collectionView.translatesAutoresizingMaskIntoConstraints = false
-        if let collectionViewLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
-            collectionViewLayout.scrollDirection = .horizontal
-        }
-        
         view.backgroundColor = .systemBackground
         
         let searchButtonImageSize: CGFloat = 24
@@ -107,6 +102,20 @@ class ViewController: UICollectionViewController, CameraDelegate {
         payButton.addAction(UIAction(title: "Pay") { [weak self] _ in self?.pay() }, for: .touchUpInside)
         payButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(payButton)
+        
+        collectionView.register(ProductCollectionViewCell.self, forCellWithReuseIdentifier: ProductCollectionViewCell.reuseIdentifier)
+        collectionView.showsHorizontalScrollIndicator = false
+        collectionView.decelerationRate = .fast
+        collectionView.translatesAutoresizingMaskIntoConstraints = false
+        if let collectionViewLayout = collectionView.collectionViewLayout as? UICollectionViewFlowLayout {
+            collectionViewLayout.scrollDirection = .horizontal
+        }
+        
+        selectedItemDetailsLabel.adjustsFontForContentSizeCategory = true
+        selectedItemDetailsLabel.numberOfLines = 0
+        selectedItemDetailsLabel.textAlignment = .center
+        selectedItemDetailsLabel.translatesAutoresizingMaskIntoConstraints = false
+        view.addSubview(selectedItemDetailsLabel)
         
         explainerImageView.contentMode = .scaleAspectFit
         explainerImageView.tintColor = .tertiaryLabel
@@ -139,7 +148,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         cancelButton.alpha = 0
         view.addSubview(cancelButton)
 
-        addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor, constant: -addToCartButton_BottomMargin)
+        addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor, constant: -margin)
         NSLayoutConstraint.activate([
             searchButton.centerYAnchor.constraint(equalTo: searchTextField.centerYAnchor),
             searchButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
@@ -153,10 +162,14 @@ class ViewController: UICollectionViewController, CameraDelegate {
             payButton.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
             payButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
             
-            collectionView.topAnchor.constraint(equalTo: payButton.bottomAnchor),
+            collectionView.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: margin),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             collectionView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: addToBagButton.topAnchor),
+            
+            selectedItemDetailsLabel.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+            selectedItemDetailsLabel.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+            selectedItemDetailsLabel.bottomAnchor.constraint(equalTo: addToBagButton.topAnchor, constant: -margin),
             
             explainerImageView.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor, constant: -searchButtonImageSize),
             explainerImageView.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor),
@@ -168,7 +181,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
         ])
 
         // Set the width of the add-to-cart and cancel buttons depending on the user interface idiom.
-        let spacing = CGFloat(10)
         if UIDevice.current.userInterfaceIdiom == .pad {
             NSLayoutConstraint.activate([
                 cancelButton.trailingAnchor.constraint(equalTo: addToBagButton.leadingAnchor, constant: -spacing),
@@ -204,16 +216,21 @@ class ViewController: UICollectionViewController, CameraDelegate {
         let maxNumberOfItemsOnScreen: CGFloat = {
             switch UIDevice.current.userInterfaceIdiom {
             case .pad: return 6.5
-            default: return 1.8
+            default: return 2
             }
         }()
+        
         let itemWidth = floor((view.bounds.width - (itemSpacing * 2)) / maxNumberOfItemsOnScreen)
-        let itemHeight = itemWidth + 80
+        
+        let selectedItemDetailsLabelTop = selectedItemDetailsLabel.frame.minY
+        let collectionViewBottom = collectionView.frame.maxY
+        let bottomInset = (collectionViewBottom - selectedItemDetailsLabelTop) + spacing
+        let horizontalInset = round(view.bounds.midX - (itemWidth / 2))
+        
+        let itemHeight = collectionView.frame.height - bottomInset
         layout.itemSize = CGSize(width: itemWidth, height: itemHeight)
         
-        let horizontalInset = round(view.bounds.midX - (itemWidth / 2))
-        let verticalInset = round((collectionView.bounds.height - itemHeight) / 2)
-        layout.sectionInset = UIEdgeInsets(top: verticalInset, left: horizontalInset, bottom: verticalInset, right: horizontalInset)
+        layout.sectionInset = UIEdgeInsets(top: 0, left: horizontalInset, bottom: bottomInset, right: horizontalInset)
     }
     
     override func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -222,12 +239,8 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     override func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: ProductCollectionViewCell.reuseIdentifier, for: indexPath) as! ProductCollectionViewCell
-        
         let product = products[indexPath.item]
         cell.imageView.image = product.image
-        cell.titleLabel.text = product.name
-        cell.priceLabel.text = String(format: "$%.02f", product.price)
-        cell.locationLabel.text = product.location
         
         return cell
     }
@@ -235,15 +248,49 @@ class ViewController: UICollectionViewController, CameraDelegate {
     // MARK: - Selected Item
     
     private var selectedItemIndexPath: IndexPath? {
-        guard products.count > 0 , let layout = collectionViewLayout as? UICollectionViewFlowLayout else {
-            return nil
+        didSet {
+            guard oldValue != selectedItemIndexPath else {
+                return
+            }
+            
+            if let selectedItemIndexPath = selectedItemIndexPath, products.count > selectedItemIndexPath.item {
+                let product = products[selectedItemIndexPath.item]
+                
+                let attributedString = NSMutableAttributedString(string: product.name + "\n", attributes: [
+                    .font: UIFont.preferredFont(forTextStyle: .title1),
+                    .foregroundColor: UIColor.label
+                ])
+                attributedString.append(NSAttributedString(string:  String(format: "$%.02f", product.price) + "\n", attributes: [
+                    .font: UIFont.preferredFont(forTextStyle: .title2),
+                    .foregroundColor: UIColor.label
+                ]))
+                attributedString.append(NSAttributedString(string: product.location, attributes: [
+                    .font: UIFont.preferredFont(forTextStyle: .title3),
+                    .foregroundColor: UIColor.secondaryLabel
+                ]))
+                
+                selectedItemDetailsLabel.attributedText = attributedString
+            } else {
+                selectedItemDetailsLabel.attributedText = nil
+            }
+        }
+    }
+    
+    private func updateSelectedItemIndexPath() {
+        guard let layout = collectionViewLayout as? UICollectionViewFlowLayout else {
+            return
         }
         
-        let contentOffsetX = min(max(0, collectionView.contentOffset.x), collectionView.contentSize.width)
-        let itemWidth = layout.itemSize.width + layout.minimumLineSpacing
-        let itemIndex = Int(round(contentOffsetX / itemWidth))
-        
-        return IndexPath(item: itemIndex, section: 0)
+        if products.count == 0 {
+            self.selectedItemIndexPath = nil
+        } else {
+            let contentOffsetX = collectionView.contentOffset.x
+            let itemWidth = layout.itemSize.width + layout.minimumLineSpacing
+            let itemIndex = Int(round(contentOffsetX / itemWidth))
+            let clampedItemIndex = min(max(0, itemIndex), products.count - 1)
+                                
+            self.selectedItemIndexPath = IndexPath(item: clampedItemIndex, section: 0)
+        }
     }
     
     // MARK: - Add to Bag
@@ -503,17 +550,15 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     // MARK: - Scrolling
     
-    private var lastSelectedItemIndexPath: IndexPath?
-    
     override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-        let selectedItemIndexPath = self.selectedItemIndexPath
+        let oldSelectedItemIndexPath = self.selectedItemIndexPath
+        updateSelectedItemIndexPath()
+        let newSelectedItemIndexPath = self.selectedItemIndexPath
         
         // If the selected item changed, generated selection feedback
-        if lastSelectedItemIndexPath != nil, selectedItemIndexPath != lastSelectedItemIndexPath {
+        if oldSelectedItemIndexPath != nil, newSelectedItemIndexPath != oldSelectedItemIndexPath {
             generateSelectionFeedback()
         }
-        
-        lastSelectedItemIndexPath = selectedItemIndexPath
     }
     
     // MARK: - Keyboard
@@ -527,7 +572,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         
         UIView.animate(withDuration: animationDuration) {
             self.collectionView.performBatchUpdates {
-                self.addToBagButton_BottomContraint.constant = -(keyboardFrame.height + self.addToCartButton_BottomMargin) + self.view.safeAreaInsets.bottom
+                self.addToBagButton_BottomContraint.constant = -(keyboardFrame.height + self.margin) + self.view.safeAreaInsets.bottom
                 self.view.layoutIfNeeded()
             }
         }
@@ -541,7 +586,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         
         UIView.animate(withDuration: animationDuration) {
             self.collectionView.performBatchUpdates {
-                self.addToBagButton_BottomContraint.constant = -self.addToCartButton_BottomMargin
+                self.addToBagButton_BottomContraint.constant = -self.margin
                 self.view.layoutIfNeeded()
             }
         }
@@ -578,14 +623,17 @@ class ProductCollectionViewCell: UICollectionViewCell {
     static let reuseIdentifier = "ProductCell"
     
     let imageView = UIImageView()
-    let titleLabel = UILabel()
-    let priceLabel = UILabel()
-    let locationLabel = UILabel()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
-        
-        // TODO: For iPad, don't show the locationLabel or include it in the layout.
+        setup()
+    }
+    
+    required init?(coder: NSCoder) {
+        super.init(coder: coder)
+    }
+
+    private func setup() {
         imageView.contentMode = .scaleAspectFit
         imageView.layer.shadowColor = UIColor.black.cgColor
         imageView.layer.shadowOffset = CGSize(width: 0, height: 3)
@@ -595,46 +643,12 @@ class ProductCollectionViewCell: UICollectionViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(imageView)
         
-        titleLabel.font = UIFont.preferredFont(forTextStyle: .title1)
-        titleLabel.adjustsFontForContentSizeCategory = true
-        titleLabel.textAlignment = .center
-        titleLabel.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(titleLabel)
-        
-        priceLabel.font = UIFont.preferredFont(forTextStyle: .title2)
-        priceLabel.adjustsFontForContentSizeCategory = true
-        priceLabel.textAlignment = .center
-        priceLabel.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(priceLabel)
-        
-        locationLabel.font = UIFont.preferredFont(forTextStyle: .title3)
-        locationLabel.adjustsFontForContentSizeCategory = true
-        locationLabel.textColor = .secondaryLabel
-        locationLabel.translatesAutoresizingMaskIntoConstraints = false
-        contentView.addSubview(locationLabel)
-        
         NSLayoutConstraint.activate([
-            imageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
             imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-            imageView.bottomAnchor.constraint(equalTo: titleLabel.topAnchor),
-            imageView.widthAnchor.constraint(equalTo: contentView.widthAnchor),
-            
-            titleLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            titleLabel.bottomAnchor.constraint(equalTo: priceLabel.topAnchor),
-            titleLabel.heightAnchor.constraint(equalToConstant: titleLabel.font.lineHeight),
-            
-            priceLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            priceLabel.bottomAnchor.constraint(equalTo: locationLabel.topAnchor),
-            priceLabel.heightAnchor.constraint(equalToConstant: priceLabel.font.lineHeight),
-            
-            locationLabel.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
-            locationLabel.bottomAnchor.constraint(equalTo: contentView.bottomAnchor),
-            locationLabel.heightAnchor.constraint(equalToConstant: locationLabel.font.lineHeight)
+            imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor),
+            imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor),
+            imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
         ])
-    }
-    
-    required init?(coder: NSCoder) {
-        fatalError("init(coder:) has not been implemented")
     }
 }
 
