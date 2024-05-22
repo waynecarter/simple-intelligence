@@ -231,10 +231,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
         let itemWidth = floor(collectionView.bounds.width / maxNumberOfItemsOnScreen) - itemSpacing
         let bottomInset = (collectionView.frame.maxY - selectedItemDetailsLabel.frame.minY) + spacing
         let horizontalInset = round(view.bounds.midX - (itemWidth / 2))
-        
         let itemHeight = collectionView.frame.height - bottomInset
-        layout.itemSize = CGSize(width: itemWidth, height: itemHeight)
         
+        layout.itemSize = CGSize(width: itemWidth, height: itemHeight)
         layout.sectionInset = UIEdgeInsets(top: 0, left: horizontalInset, bottom: bottomInset, right: horizontalInset)
     }
     
