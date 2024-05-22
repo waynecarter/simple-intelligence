@@ -21,7 +21,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     private var delegate: CameraDelegate?
     
-    private var position: AVCaptureDevice.Position = UIDevice.current.userInterfaceIdiom == .phone ? .front : .back
+    private var position: AVCaptureDevice.Position = UIDevice.current.userInterfaceIdiom == .phone ? .back : .back
     
     var previewLayer: AVCaptureVideoPreviewLayer?
     
