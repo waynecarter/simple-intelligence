@@ -64,6 +64,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        startExplainerAnimation()
         searchMode = .vector
     }
     
@@ -300,6 +301,65 @@ class ViewController: UICollectionViewController, CameraDelegate {
         }
     }
     
+    // MARK: - Explainer
+    
+    private func updateExplainer() {
+        let showExplainer = self.products.count == 0
+
+        explainerImageView.isHidden = !showExplainer
+        explainerLabel.isHidden = !showExplainer
+        
+        if showExplainer {
+            let explainerImageSystemName = searchMode == .text ? "text.magnifyingglass" : "camera.viewfinder"
+            let explainerImage = UIImage(systemName: explainerImageSystemName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
+            let explainerText = searchMode == .text ? "Search for Item" : "Scan an Item"
+            
+            UIView.animate(withDuration: 0.6, animations: {
+                self.explainerImageView.alpha = 1
+                self.explainerLabel.alpha = 1
+                
+                self.explainerImageView.image = explainerImage
+                self.explainerLabel.text = explainerText
+            })
+        } else {
+            UIView.animate(withDuration: 0.2, animations: {
+                self.explainerImageView.alpha = 0
+                self.explainerLabel.alpha = 0
+            }, completion: { _ in
+                self.explainerImageView.isHidden = true
+                self.explainerLabel.isHidden = true
+                
+                self.explainerImageView.image = nil
+                self.explainerLabel.text = nil
+            })
+        }
+    }
+    
+    private func startExplainerAnimation() {
+        func breathe() {
+            UIView.animate(withDuration: 2, delay: 0, options: [.curveEaseInOut], animations: {
+                self.explainerImageView.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+                self.explainerImageView.layer.shadowOpacity = 1
+                self.explainerImageView.layer.shadowRadius = 4
+            }) { _ in
+                UIView.animate(withDuration: 2, delay: 0, options: [.curveEaseInOut], animations: {
+                    self.explainerImageView.transform = CGAffineTransform.identity
+                    self.explainerImageView.layer.shadowOpacity = 0
+                    self.explainerImageView.layer.shadowRadius = 0
+                }) { _ in
+                    breathe()
+                }
+            }
+        }
+        
+        explainerImageView.layer.shadowColor = UIColor.black.cgColor
+        explainerImageView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        explainerImageView.layer.shadowOpacity = 0
+        explainerImageView.layer.shadowRadius = 0
+
+        breathe()
+    }
+    
     // MARK: - Add to Bag
     
     private func addSelectedItemToBag() {
@@ -427,13 +487,10 @@ class ViewController: UICollectionViewController, CameraDelegate {
         let showAddToBag = self.searchMode == .text || self.products.count > 0
         let enableAddToBag = self.products.count > 0
         let showCancel = self.searchMode == .text || self.products.count > 0
-        let showExplainer = self.products.count == 0
 
         addToBagButton.isHidden = !showAddToBag
         addToBagButton.isEnabled = enableAddToBag
         cancelButton.isHidden = !showCancel
-        explainerImageView.isHidden = !showExplainer
-        explainerLabel.isHidden = !showExplainer
 
         if showAddToBag {
             UIView.animate(withDuration: 0.2, animations: {
@@ -459,30 +516,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
             })
         }
         
-        if showExplainer {
-            let explainerImageSystemName = searchMode == .text ? "text.magnifyingglass" : "camera.viewfinder"
-            let explainerImage = UIImage(systemName: explainerImageSystemName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
-            let explainerText = searchMode == .text ? "Search for Item" : "Scan an Item"
-            
-            UIView.animate(withDuration: 0.6, animations: {
-                self.explainerImageView.alpha = 1
-                self.explainerLabel.alpha = 1
-                
-                self.explainerImageView.image = explainerImage
-                self.explainerLabel.text = explainerText
-            })
-        } else {
-            UIView.animate(withDuration: 0.2, animations: {
-                self.explainerImageView.alpha = 0
-                self.explainerLabel.alpha = 0
-            }, completion: { _ in
-                self.explainerImageView.isHidden = true
-                self.explainerLabel.isHidden = true
-                
-                self.explainerImageView.image = nil
-                self.explainerLabel.text = nil
-            })
-        }
+        updateExplainer()
     }
     
     // MARK: - Text Search
