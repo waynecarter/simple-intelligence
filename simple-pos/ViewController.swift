@@ -604,7 +604,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         
         UIView.animate(withDuration: animationDuration) {
             self.collectionView.performBatchUpdates {
-                self.addToBagButton_BottomContraint.constant = -(keyboardFrame.height + self.margin) + self.view.safeAreaInsets.bottom
+                self.addToBagButton_BottomContraint.constant = self.view.safeAreaInsets.bottom - (keyboardFrame.height + self.margin)
                 self.view.layoutIfNeeded()
             }
         }
