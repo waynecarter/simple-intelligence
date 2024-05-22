@@ -638,6 +638,15 @@ class ViewController: UICollectionViewController, CameraDelegate {
         selectionFeedbackGenerator.selectionChanged()
         selectionFeedbackGenerator.prepare()
     }
+    
+    // Full screen
+    
+    private let prefersFullscreen = true
+    
+    override var prefersStatusBarHidden: Bool {
+        // Hide status bar for fullscreen
+        return prefersFullscreen
+    }
 }
 
 class CenteredFlowLayout: UICollectionViewFlowLayout {
