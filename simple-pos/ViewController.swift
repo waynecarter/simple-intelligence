@@ -340,8 +340,8 @@ class ViewController: UICollectionViewController, CameraDelegate {
         
         func breathe() {
             UIView.animate(withDuration: 2, delay: 0, options: [.curveEaseInOut], animations: {
-                self.explainerImageView.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
-                self.explainerImageView.tintColor = .tertiaryLabel.withAlphaComponent(0.4)
+                self.explainerImageView.transform = CGAffineTransform(scaleX: 1.13, y: 1.13)
+                self.explainerImageView.tintColor = .tertiaryLabel.withAlphaComponent(0.38)
             }) { _ in
                 UIView.animate(withDuration: 2, delay: 0, options: [.curveEaseInOut], animations: {
                     self.explainerImageView.transform = CGAffineTransform.identity
