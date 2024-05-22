@@ -223,16 +223,13 @@ class ViewController: UICollectionViewController, CameraDelegate {
         
         let maxNumberOfItemsOnScreen: CGFloat = {
             switch UIDevice.current.userInterfaceIdiom {
-            case .pad: return 6.5
+            case .pad: return 6
             default: return 2
             }
         }()
         
-        let itemWidth = floor((view.bounds.width - (itemSpacing * 2)) / maxNumberOfItemsOnScreen)
-        
-        let selectedItemDetailsLabelTop = selectedItemDetailsLabel.frame.minY
-        let collectionViewBottom = collectionView.frame.maxY
-        let bottomInset = (collectionViewBottom - selectedItemDetailsLabelTop) + spacing
+        let itemWidth = floor(collectionView.bounds.width / maxNumberOfItemsOnScreen) - itemSpacing
+        let bottomInset = (collectionView.frame.maxY - selectedItemDetailsLabel.frame.minY) + spacing
         let horizontalInset = round(view.bounds.midX - (itemWidth / 2))
         
         let itemHeight = collectionView.frame.height - bottomInset
