@@ -26,8 +26,8 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     private var camera: Camera!
     
-    let labelFontSize = UIFont.labelFontSize * 1.2
-    let buttonFontSize = UIFont.labelFontSize * 1.2
+    private let bodyFont = UIFont.preferredFont(forTextStyle: .title3)
+    private let explainerFont = UIFont.preferredFont(forTextStyle: .title2)
     
     private var products = [Database.Product]() {
         didSet {
@@ -95,7 +95,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         view.addSubview(searchButton)
         
         searchTextField.placeholder = "Search"
-        searchTextField.font = UIFont.systemFont(ofSize: labelFontSize)
+        searchTextField.font = bodyFont
         searchTextField.returnKeyType = .done
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
         searchTextField.addTarget(self, action: #selector(searchTextFieldDidChange(_:)), for: .editingChanged)
@@ -113,25 +113,26 @@ class ViewController: UICollectionViewController, CameraDelegate {
         explainerImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(explainerImageView)
         
-        explainerLabel.font = UIFont.systemFont(ofSize: labelFontSize)
+        explainerLabel.font = explainerFont
+        explainerLabel.adjustsFontForContentSizeCategory = true
         explainerLabel.textColor = .tertiaryLabel
         explainerLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(explainerLabel)
         
-        addToBagButton.setTitle("Add to Bag", for: .normal)
-        addToBagButton.titleLabel?.font = UIFont.systemFont(ofSize: buttonFontSize)
         addToBagButton.configuration = UIButton.Configuration.filled()
+        addToBagButton.configuration?.attributedTitle = "Add to Bag"
+        addToBagButton.configuration?.attributedTitle?.font = bodyFont
         addToBagButton.configuration?.buttonSize = .large
         addToBagButton.translatesAutoresizingMaskIntoConstraints = false
         addToBagButton.addAction(UIAction(title: "Add to Bag") { [weak self] _ in self?.addSelectedItemToBag() }, for: .touchUpInside)
         addToBagButton.alpha = 0
         view.addSubview(addToBagButton)
         
-        cancelButton.setTitle("Cancel", for: .normal)
-        cancelButton.tintColor = .darkGray
-        cancelButton.titleLabel?.font = UIFont.systemFont(ofSize: buttonFontSize)
         cancelButton.configuration = UIButton.Configuration.filled()
+        cancelButton.configuration?.attributedTitle = "Cancel"
+        cancelButton.configuration?.attributedTitle?.font = bodyFont
         cancelButton.configuration?.buttonSize = .large
+        cancelButton.tintColor = .darkGray
         cancelButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         cancelButton.addAction(UIAction(title: "Cancel Search") { [weak self] _ in self?.cancelSearch() }, for: .touchUpInside)
@@ -147,7 +148,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
             searchTextField.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
             searchTextField.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             searchTextField.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
-            searchTextField.bottomAnchor.constraint(equalTo: payButton.bottomAnchor),
+            searchTextField.heightAnchor.constraint(equalTo: payButton.heightAnchor),
             
             payButton.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
             payButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
@@ -159,8 +160,8 @@ class ViewController: UICollectionViewController, CameraDelegate {
             
             explainerImageView.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor, constant: -searchButtonImageSize),
             explainerImageView.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor),
-            explainerImageView.widthAnchor.constraint(equalToConstant: 60),
-            explainerImageView.heightAnchor.constraint(equalToConstant: 60),
+            explainerImageView.widthAnchor.constraint(equalTo: explainerLabel.heightAnchor, multiplier: 2.5),
+            explainerImageView.heightAnchor.constraint(equalTo: explainerLabel.heightAnchor, multiplier: 2.5),
             
             explainerLabel.topAnchor.constraint(equalToSystemSpacingBelow: explainerImageView.bottomAnchor, multiplier: 0.5),
             explainerLabel.centerXAnchor.constraint(equalTo: explainerImageView.centerXAnchor)
@@ -407,7 +408,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         if showExplainer {
             let explainerImageSystemName = searchMode == .text ? "text.magnifyingglass" : "camera.viewfinder"
             let explainerImage = UIImage(systemName: explainerImageSystemName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
-            let explainerText = searchMode == .text ? "Search for Item" : "Scan Item"
+            let explainerText = searchMode == .text ? "Search for Item" : "Scan an Item"
             
             UIView.animate(withDuration: 0.6, animations: {
                 self.explainerImageView.alpha = 1
@@ -581,8 +582,6 @@ class ProductCollectionViewCell: UICollectionViewCell {
     let priceLabel = UILabel()
     let locationLabel = UILabel()
     
-    let labelFontSize = UIFont.labelFontSize * 1.3
-    
     override init(frame: CGRect) {
         super.init(frame: frame)
         
@@ -596,18 +595,21 @@ class ProductCollectionViewCell: UICollectionViewCell {
         imageView.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(imageView)
         
-        titleLabel.font = UIFont.systemFont(ofSize: labelFontSize, weight: .medium)
+        titleLabel.font = UIFont.preferredFont(forTextStyle: .title1)
+        titleLabel.adjustsFontForContentSizeCategory = true
         titleLabel.textAlignment = .center
         titleLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(titleLabel)
         
-        priceLabel.font = UIFont.systemFont(ofSize: labelFontSize)
+        priceLabel.font = UIFont.preferredFont(forTextStyle: .title2)
+        priceLabel.adjustsFontForContentSizeCategory = true
         priceLabel.textAlignment = .center
         priceLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(priceLabel)
         
+        locationLabel.font = UIFont.preferredFont(forTextStyle: .title3)
+        locationLabel.adjustsFontForContentSizeCategory = true
         locationLabel.textColor = .secondaryLabel
-        locationLabel.font = UIFont.systemFont(ofSize: labelFontSize)
         locationLabel.translatesAutoresizingMaskIntoConstraints = false
         contentView.addSubview(locationLabel)
         
@@ -637,6 +639,9 @@ class ProductCollectionViewCell: UICollectionViewCell {
 }
 
 class PayButton: UIButton {
+    private let font: UIFont = UIFont.preferredFont(forTextStyle: .title3)
+    private let boldFont = UIFont(descriptor: UIFontDescriptor.preferredFontDescriptor(withTextStyle: .title3).withSymbolicTraits(.traitBold)!, size: 0)
+    
     private(set) var total: Double = .zero
     
     init() {
@@ -699,19 +704,19 @@ class PayButton: UIButton {
             })
         }
     }
-
+    
     private func updateTitle(to total: Double) {
         var title = AttributedString()
-        title.append(AttributedString("Pay", attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: UIFont.buttonFontSize, weight: .bold)])))
+        title.append(AttributedString("Pay", attributes: AttributeContainer([.font: boldFont])))
+
         if total > 0 {
-            title.append(AttributedString(String(format: " $%0.2f", total), attributes: AttributeContainer([.font: UIFont.systemFont(ofSize: UIFont.buttonFontSize)])))
+            title.append(AttributedString(String(format: " $%0.2f", total), attributes: AttributeContainer([.font: font])))
         }
         
         self.configuration?.attributedTitle = title
         self.alpha = (total == 0 ? 0 : 1)
-        
-        self.sizeToFit()
     }
+
     
     var isActive: Bool = true {
         didSet {
