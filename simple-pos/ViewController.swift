@@ -336,26 +336,21 @@ class ViewController: UICollectionViewController, CameraDelegate {
     }
     
     private func startExplainerAnimation() {
+        let originalTint = explainerImageView.tintColor
+        
         func breathe() {
             UIView.animate(withDuration: 2, delay: 0, options: [.curveEaseInOut], animations: {
-                self.explainerImageView.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
-                self.explainerImageView.layer.shadowOpacity = 1
-                self.explainerImageView.layer.shadowRadius = 4
+                self.explainerImageView.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
+                self.explainerImageView.tintColor = .tertiaryLabel.withAlphaComponent(0.4)
             }) { _ in
                 UIView.animate(withDuration: 2, delay: 0, options: [.curveEaseInOut], animations: {
                     self.explainerImageView.transform = CGAffineTransform.identity
-                    self.explainerImageView.layer.shadowOpacity = 0
-                    self.explainerImageView.layer.shadowRadius = 0
+                    self.explainerImageView.tintColor = originalTint
                 }) { _ in
                     breathe()
                 }
             }
         }
-        
-        explainerImageView.layer.shadowColor = UIColor.black.cgColor
-        explainerImageView.layer.shadowOffset = CGSize(width: 0, height: 2)
-        explainerImageView.layer.shadowOpacity = 0
-        explainerImageView.layer.shadowRadius = 0
 
         breathe()
     }
