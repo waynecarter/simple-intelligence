@@ -92,6 +92,13 @@ class ViewController: UICollectionViewController, CameraDelegate {
         searchTextField.placeholder = "Search"
         searchTextField.font = bodyFont
         searchTextField.returnKeyType = .done
+        
+        // Hide the toolbar on the keyboard
+        searchTextField.autocorrectionType = .no
+        searchTextField.spellCheckingType = .no
+        searchTextField.inputAssistantItem.leadingBarButtonGroups = [];
+        searchTextField.inputAssistantItem.trailingBarButtonGroups = [];
+        
         searchTextField.translatesAutoresizingMaskIntoConstraints = false
         searchTextField.addTarget(self, action: #selector(searchTextFieldDidChange(_:)), for: .editingChanged)
         searchTextField.addTarget(self, action: #selector(searchTextFieldDidEnd(_:)), for: .editingDidEndOnExit)
