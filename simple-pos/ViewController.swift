@@ -90,7 +90,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         searchButton.addAction(UIAction(title: "Open Search") { [weak self] _ in self?.startTextSearch() }, for: .touchUpInside)
         view.addSubview(searchButton)
         
-        searchTextField.placeholder = "Search"
+        searchTextField.placeholder = "Produce, Bakery, Dairy, and More"
         searchTextField.font = bodyFont
         searchTextField.returnKeyType = .done
         
@@ -306,7 +306,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         explainerLabel.isHidden = !showExplainer
         
         if showExplainer {
-            let explainerImageSystemName = searchMode == .text ? "text.magnifyingglass" : "camera.viewfinder"
+            let explainerImageSystemName = searchMode == .text ? "text.magnifyingglass" : "plus.viewfinder"
             let explainerImage = UIImage(systemName: explainerImageSystemName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
             let explainerText = searchMode == .text ? "Search for Item" : "Scan an Item"
             

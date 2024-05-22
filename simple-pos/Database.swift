@@ -37,9 +37,9 @@ class Database {
             loadDemoData(in: collection)
         }
         
-        // Initialize the full-text search index on the "name" and "color" fields.
-        let ftsIndex = FullTextIndexConfiguration(["name"])
-        try! collection.createIndex(withName: "NameFullTextIndex", config: ftsIndex)
+        // Initialize the full-text search index on the "name" and "category" fields.
+        let ftsIndex = FullTextIndexConfiguration(["name", "category"])
+        try! collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsIndex)
         
         // Initialize the vector index on the "embedding" field for image search.
         var vectorIndex = VectorIndexConfiguration(expression: "embedding", dimensions: 768, centroids: 2)
@@ -60,8 +60,8 @@ class Database {
             SELECT name, price, location, image
             FROM _
             WHERE type = "product"
-                AND MATCH(NameFullTextIndex, $search)
-            ORDER BY RANK(NameFullTextIndex)
+                AND MATCH(NameAndCategoryFullTextIndex, $search)
+            ORDER BY RANK(NameAndCategoryFullTextIndex)
         """
         
         // Set query parameters
@@ -296,7 +296,7 @@ class Database {
         }
     }
     
-    func image(from string: String) -> UIImage {
+    private func image(from string: String) -> UIImage {
         let nsString = string as NSString
         let font = UIFont.systemFont(ofSize: 160)
         let stringAttributes = [NSAttributedString.Key.font: font]
