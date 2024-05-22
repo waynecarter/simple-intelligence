@@ -11,7 +11,7 @@ protocol CameraDelegate {
 }
 
 class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
-    private var session: AVCaptureSession? = nil
+    private let session: AVCaptureSession = AVCaptureSession()
     private let videoDataOutput = AVCaptureVideoDataOutput()
     private let sessionQueue = DispatchQueue(label: "VideoSessionQueue", qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem)
     
@@ -20,12 +20,13 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     private var delegate: CameraDelegate?
     
+    private var position: AVCaptureDevice.Position = UIDevice.current.userInterfaceIdiom == .phone ? .back : .back
+    
     var previewLayer: AVCaptureVideoPreviewLayer?
     
-    var isRunning: Bool { ((self.session?.isRunning) != nil) }
+    var isRunning: Bool { session.isRunning }
     
     init(delegate: CameraDelegate) {
-        super.init()
         self.delegate = delegate
     }
     
@@ -35,100 +36,111 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             AVCaptureDevice.requestAccess(for: .video) { [unowned self] granted in
                 self.startSession(completion)
             }
-            return
+        } else {
+            self.startSession(completion)
         }
-        self.startSession(completion)
     }
     
     private func startSession(_ completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
+        if self.session.isRunning {
+            completion(true, nil)
+            return
+        }
+        
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        if status != .authorized {
+            completion(false, "No permission to use the video device")
+            return
+        }
+        
+        do {
+            try self.setup()
+        } catch {
+            completion(false, error)
+            return
+        }
+        
         sessionQueue.async {
-            if let session = self.session, session.isRunning {
-                return
-            }
-            
-            let status = AVCaptureDevice.authorizationStatus(for: .video)
-            if status != .authorized {
-                completion(false, "No permission to use the video device")
-                return
-            }
-            
-            do {
-                try self.setup()
-            } catch {
-                completion(false, error)
-                return
-            }
-            
             self.captureTimestamp = 0
-            self.session!.startRunning()
-            completion(self.session!.isRunning, self.session!.isRunning ? nil : "Video capture session cannot start")
+            self.session.startRunning()
+            completion(self.session.isRunning, self.session.isRunning ? nil : "Video capture session cannot start")
         }
     }
     
     func stop(_ completion: (() -> Void)? = nil) {
         sessionQueue.async {
-            if let session = self.session, session.isRunning {
-                session.stopRunning()
-                if let completion = completion {
-                    completion()
-                }
+            self.session.stopRunning()
+            
+            if let completion = completion {
+                completion()
             }
         }
     }
     
     private func setup() throws {
-        if session != nil {
+        if session.inputs.count > 0 && session.outputs.count > 0 {
             return
         }
-
-        // Select a video device, make an input
-        guard let videoDevice = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera],
-                                                                 mediaType: .video, position: .back).devices.first else {
+        
+        session.beginConfiguration()
+        defer {
+            session.commitConfiguration()
+        }
+        
+        session.sessionPreset = .vga640x480
+        
+        if session.inputs.count == 0 {
+            try setVideoInputDevice(position: position)
+        }
+        
+        if session.outputs.count == 0 {
+            if session.canAddOutput(videoDataOutput) {
+                videoDataOutput.alwaysDiscardsLateVideoFrames = true
+                videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)]
+                videoDataOutput.setSampleBufferDelegate(self, queue: sessionQueue)
+                session.addOutput(videoDataOutput)
+                
+                let captureConnection = videoDataOutput.connection(with: .video)! // Need to add first
+                captureConnection.isEnabled = true
+                captureConnection.videoRotationAngle = 90
+            } else {
+                throw "Could not add video output to the capture session"
+            }
+        }
+        
+        previewLayer = AVCaptureVideoPreviewLayer(session: session)
+        previewLayer!.videoGravity = AVLayerVideoGravity.resizeAspectFill
+    }
+    
+    func setVideoInputDevice(position: AVCaptureDevice.Position) throws {
+        session.beginConfiguration()
+        defer {
+            session.commitConfiguration()
+        }
+        
+        guard let device = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: position) else {
             throw "No video device found"
         }
         
-        var deviceInput: AVCaptureDeviceInput!
+        var input: AVCaptureDeviceInput!
         do {
-            deviceInput = try AVCaptureDeviceInput(device: videoDevice)
+            input = try AVCaptureDeviceInput(device: device)
+            if let currentInput = session.inputs.first {
+                if (currentInput.isEqualTo(input)) {
+                    return
+                }
+                session.removeInput(currentInput)
+            }
         } catch {
             throw "Could not use video input"
         }
         
-        self.session = AVCaptureSession()
-        guard let session = self.session else {
-            throw "Could create a capture session"
-        }
-        
-        session.beginConfiguration()
-        
-        session.sessionPreset = .vga640x480 // Model image size is smaller.
-        
-        // Add a video input
-        guard session.canAddInput(deviceInput) else {
-            session.commitConfiguration()
-            self.session = nil
+        guard session.canAddInput(input) else {
             throw "Could not add video input to the capture session"
         }
-        session.addInput(deviceInput)
+        session.addInput(input)
         
-        if session.canAddOutput(videoDataOutput) {
-            session.addOutput(videoDataOutput)
-            videoDataOutput.alwaysDiscardsLateVideoFrames = true
-            videoDataOutput.videoSettings = [kCVPixelBufferPixelFormatTypeKey as String: Int(kCVPixelFormatType_32BGRA)]
-            videoDataOutput.setSampleBufferDelegate(self, queue: sessionQueue)
-        } else {
-            session.commitConfiguration()
-            self.session = nil
-            throw "Could not add video output to the capture session"
-        }
-        
-        let captureConnection = videoDataOutput.connection(with: .video)!
-        captureConnection.isEnabled = true
-        captureConnection.videoRotationAngle = 90 // TODO adjust based on the device orientation
-        session.commitConfiguration()
-        
-        previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer!.videoGravity = AVLayerVideoGravity.resizeAspectFill
+        self.position = position
     }
     
     private func imageFromSampleBuffer(sampleBuffer: CMSampleBuffer) -> UIImage? {
@@ -173,6 +185,15 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         if let delegate = self.delegate {
             delegate.didCaptureImage(image)
         }
+    }
+}
+
+extension AVCaptureInput {
+    func isEqualTo(_ other: AVCaptureInput) -> Bool {
+        if let m = self as? AVCaptureDeviceInput, let o = other as? AVCaptureDeviceInput {
+            return m.device.uniqueID == o.device.uniqueID
+        }
+        return false
     }
 }
 
