@@ -65,7 +65,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        startExplainerAnimation()
         searchMode = .vector
     }
     
@@ -210,6 +209,8 @@ class ViewController: UICollectionViewController, CameraDelegate {
             ])
         }
         
+        startExplainerAnimation()
+        
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillShow(notification:)), name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.addObserver(self, selector: #selector(keyboardWillHide(notification:)), name: UIResponder.keyboardWillHideNotification, object: nil)
     }
@@ -337,17 +338,27 @@ class ViewController: UICollectionViewController, CameraDelegate {
     }
     
     private func startExplainerAnimation() {
-        let originalTint = explainerImageView.tintColor
+        explainerImageView.tintColor = .tertiaryLabel
+        explainerImageView.layer.masksToBounds = false
+        explainerImageView.layer.shadowColor = UIColor.black.cgColor
+        explainerImageView.layer.shadowOffset = CGSize(width: 0, height: 2)
+        explainerImageView.layer.shadowOpacity = 0
+        explainerImageView.layer.shadowRadius = 0
         
         func breathe() {
+            // Inhale
             UIView.animate(withDuration: 2, delay: 0, options: [.curveEaseInOut], animations: {
                 self.explainerImageView.transform = CGAffineTransform(scaleX: 1.13, y: 1.13)
-                self.explainerImageView.tintColor = .tertiaryLabel.withAlphaComponent(0.38)
+                self.explainerImageView.layer.shadowOpacity = 1
+                self.explainerImageView.layer.shadowRadius = 3
             }) { _ in
+                // Exhale
                 UIView.animate(withDuration: 2, delay: 0, options: [.curveEaseInOut], animations: {
                     self.explainerImageView.transform = CGAffineTransform.identity
-                    self.explainerImageView.tintColor = originalTint
+                    self.explainerImageView.layer.shadowOpacity = 0
+                    self.explainerImageView.layer.shadowRadius = 0
                 }) { _ in
+                    // Repeat
                     breathe()
                 }
             }
