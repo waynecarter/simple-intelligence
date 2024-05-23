@@ -25,13 +25,13 @@ class ViewController: UICollectionViewController, CameraDelegate {
     private let explainerImageView = UIImageView()
     private let explainerLabel = UILabel()
     
-    private var camera: Camera!
-    
     private let bodyFont = UIFont.preferredFont(forTextStyle: .title3)
     private let explainerFont = UIFont.preferredFont(forTextStyle: .title2)
     
     private let margin: CGFloat = 20
     private let spacing: CGFloat = 10
+    
+    private var camera: Camera!
     
     private var products = [Database.Product]() {
         didSet {
@@ -58,6 +58,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     }
     
     deinit {
+        database.removeChangeListener(databaseChangeListener)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
     }

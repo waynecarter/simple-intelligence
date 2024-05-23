@@ -7,12 +7,15 @@
 
 import UIKit
 import CouchbaseLiteSwift
+import Combine
 
 class Database {
     static let shared = Database()
     
     private let database: CouchbaseLiteSwift.Database
     private let collection: CouchbaseLiteSwift.Collection
+    
+    private var cancellables = Set<AnyCancellable>()
     
     struct Product {
         let name: String
@@ -29,8 +32,6 @@ class Database {
     }
     
     private init() {
-        try? CouchbaseLiteSwift.Database.delete(withName: "pos")
-        
         database = try! CouchbaseLiteSwift.Database(name: "pos")
         collection = try! database.defaultCollection()
         
@@ -51,6 +52,13 @@ class Database {
         var vectorIndex = VectorIndexConfiguration(expression: "embedding", dimensions: 768, centroids: 2)
         vectorIndex.metric = .cosine
         try! collection.createIndex(withName: "ImageVectorIndex", config: vectorIndex)
+        
+        startAppService()
+    }
+    
+    deinit {
+        cancellables.removeAll()
+        stopAppService()
     }
     
     // MARK: - Search
@@ -220,6 +228,28 @@ class Database {
         } catch {
             print("Database.clearCart: \(error.localizedDescription)")
         }
+    }
+    
+    // MARK: - App Service
+    
+    private var appService: AppService!
+    
+    private func startAppService() {
+        // Create the app service with the configured endpoint
+        appService = AppService(database: database, collections: [collection], endpoint: Settings.shared.endpoint)
+        
+        // When the endpoint settings change, update the app service
+        Settings.shared.$endpoint
+            .sink { [weak self] newEndpoint in
+                self?.appService.endpoint = newEndpoint
+            }.store(in: &cancellables)
+        
+        // Start the app service and start syncing with the configured endpoint
+        appService.start()
+    }
+    
+    private func stopAppService() {
+        appService.stop()
     }
     
     // MARK: - Util
