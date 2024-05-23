@@ -13,7 +13,7 @@ protocol CameraDelegate {
 class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private let session: AVCaptureSession = AVCaptureSession()
     private let videoOutput = AVCaptureVideoDataOutput()
-    private let videoOutputAngle = 90.0 // TODO: Update for iPad
+    private let videoOutputAngle = UIDevice.current.userInterfaceIdiom == .phone ? 90.0 : 180.0
     private let sessionQueue = DispatchQueue(label: "VideoSessionQueue", qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem)
     
     private let captureInterval: TimeInterval = 0.2
