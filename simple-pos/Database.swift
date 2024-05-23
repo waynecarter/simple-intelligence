@@ -29,6 +29,8 @@ class Database {
     }
     
     private init() {
+        try? CouchbaseLiteSwift.Database.delete(withName: "pos")
+        
         database = try! CouchbaseLiteSwift.Database(name: "pos")
         collection = try! database.defaultCollection()
         
@@ -37,6 +39,10 @@ class Database {
             loadDemoData(in: collection)
         }
         
+        // Initialize the value index on the "name" field for fast sorting.
+        let nameIndex = ValueIndexConfiguration(["name"])
+        try! collection.createIndex(withName: "NameIndex", config: nameIndex)
+
         // Initialize the full-text search index on the "name" and "category" fields.
         let ftsIndex = FullTextIndexConfiguration(["name", "category"])
         try! collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsIndex)
@@ -61,7 +67,7 @@ class Database {
             FROM _
             WHERE type = "product"
                 AND MATCH(NameAndCategoryFullTextIndex, $search)
-            ORDER BY RANK(NameAndCategoryFullTextIndex)
+            ORDER BY RANK(NameAndCategoryFullTextIndex), name
         """
         
         // Set query parameters
@@ -107,7 +113,7 @@ class Database {
             WHERE type = "product"
                 AND VECTOR_MATCH(ImageVectorIndex, $embedding, 10)
                 AND VECTOR_DISTANCE(ImageVectorIndex) < 0.35
-            ORDER BY VECTOR_DISTANCE(ImageVectorIndex)
+            ORDER BY VECTOR_DISTANCE(ImageVectorIndex), name
         """
         
         // Set query parameters

@@ -38,11 +38,12 @@ class ViewController: UICollectionViewController, CameraDelegate {
             // When the search results change, reload the collection view's data.
             collectionView.reloadData()
             
+            // Update the selected item index path and details.
+            updateSelectedItemIndexPath()
+            updateSelectedItemDetails()
+            
             // Update the action buttons.
             updateActions()
-            
-            // Update the selected item index path.
-            updateSelectedItemIndexPath()
         }
     }
     
@@ -251,32 +252,36 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     // MARK: - Selected Item
     
+    private func updateSelectedItemDetails() {
+        if let selectedItemIndexPath = selectedItemIndexPath, products.count > selectedItemIndexPath.item {
+            let product = products[selectedItemIndexPath.item]
+            
+            let attributedString = NSMutableAttributedString(string: product.name + "\n", attributes: [
+                .font: UIFont.preferredFont(forTextStyle: .title1),
+                .foregroundColor: UIColor.label
+            ])
+            attributedString.append(NSAttributedString(string:  String(format: "$%.02f", product.price) + "\n", attributes: [
+                .font: UIFont.preferredFont(forTextStyle: .title2),
+                .foregroundColor: UIColor.label
+            ]))
+            attributedString.append(NSAttributedString(string: product.location, attributes: [
+                .font: UIFont.preferredFont(forTextStyle: .title3),
+                .foregroundColor: UIColor.secondaryLabel
+            ]))
+            
+            selectedItemDetailsLabel.attributedText = attributedString
+        } else {
+            selectedItemDetailsLabel.attributedText = nil
+        }
+    }
+    
     private var selectedItemIndexPath: IndexPath? {
         didSet {
             guard oldValue != selectedItemIndexPath else {
                 return
             }
             
-            if let selectedItemIndexPath = selectedItemIndexPath, products.count > selectedItemIndexPath.item {
-                let product = products[selectedItemIndexPath.item]
-                
-                let attributedString = NSMutableAttributedString(string: product.name + "\n", attributes: [
-                    .font: UIFont.preferredFont(forTextStyle: .title1),
-                    .foregroundColor: UIColor.label
-                ])
-                attributedString.append(NSAttributedString(string:  String(format: "$%.02f", product.price) + "\n", attributes: [
-                    .font: UIFont.preferredFont(forTextStyle: .title2),
-                    .foregroundColor: UIColor.label
-                ]))
-                attributedString.append(NSAttributedString(string: product.location, attributes: [
-                    .font: UIFont.preferredFont(forTextStyle: .title3),
-                    .foregroundColor: UIColor.secondaryLabel
-                ]))
-                
-                selectedItemDetailsLabel.attributedText = attributedString
-            } else {
-                selectedItemDetailsLabel.attributedText = nil
-            }
+            updateSelectedItemDetails()
         }
     }
     
@@ -306,7 +311,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         explainerLabel.isHidden = !showExplainer
         
         if showExplainer {
-            let explainerImageSystemName = searchMode == .text ? "text.magnifyingglass" : "plus.viewfinder"
+            let explainerImageSystemName = searchMode == .text ? "text.magnifyingglass" : "dot.viewfinder"
             let explainerImage = UIImage(systemName: explainerImageSystemName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
             let explainerText = searchMode == .text ? "Search for Item" : "Scan an Item"
             
