@@ -40,8 +40,6 @@ final class AppService {
     private let networkMonitor = NWPathMonitor()
     private let networkQueue = DispatchQueue(label: "NetworkQueue", target: .global())
     
-    private var cancellables = Set<AnyCancellable>()
-    
     struct Endpoint: Equatable {
         let url: URL
         let username: String?
