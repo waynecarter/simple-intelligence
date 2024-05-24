@@ -5,9 +5,11 @@
 
 import UIKit
 import AVFoundation
+import Combine
 
 protocol CameraDelegate {
-    func didCaptureImage(_ image: UIImage)
+    func camera(_ camera: Camera, didCaptureImage image: UIImage)
+    func camera(_ camera: Camera, didFailWithError error: Error)
 }
 
 class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
@@ -21,14 +23,30 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     private var delegate: CameraDelegate?
     
-    private var position: AVCaptureDevice.Position = UIDevice.current.userInterfaceIdiom == .phone ? .back : .back
+    private var position: AVCaptureDevice.Position = Settings.shared.frontCameraEnabled ? .front : .back
+    private var cancellables = Set<AnyCancellable>()
     
     var previewLayer: AVCaptureVideoPreviewLayer?
     
     var isRunning: Bool { session.isRunning }
     
     init(delegate: CameraDelegate) {
+        super.init()
         self.delegate = delegate
+        Settings.shared.$frontCameraEnabled
+            .dropFirst()
+            .sink { [weak self] frontCameraEnabled in
+                guard let self = self else { return }
+                do {
+                    try self.setVideoInputDevice(position: frontCameraEnabled ? .front : .back)
+                } catch {
+                    self.delegate?.camera(self, didFailWithError: error)
+                }
+            }.store(in: &cancellables)
+    }
+    
+    deinit {
+        stop()
     }
     
     func start(_ completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
@@ -50,7 +68,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         if status != .authorized {
-            completion(false, "No permission to use the video device")
+            completion(false, "No permission to use the camera device")
             return
         }
         
@@ -64,7 +82,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         sessionQueue.async {
             self.captureTimestamp = 0
             self.session.startRunning()
-            completion(self.session.isRunning, self.session.isRunning ? nil : "Video capture session cannot start")
+            completion(self.session.isRunning, self.session.isRunning ? nil : "Camera cannot start")
         }
     }
     
@@ -102,7 +120,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                 session.addOutput(videoOutput)
                 updateVideoOutputAngle()
             } else {
-                throw "Could not add video output to the capture session"
+                throw "Could not add video output"
             }
         }
         
@@ -134,7 +152,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         }
         
         guard session.canAddInput(input) else {
-            throw "Could not add video input to the capture session"
+            throw "Could not add video input"
         }
         session.addInput(input)
         
@@ -190,7 +208,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         }
 
         if let delegate = self.delegate {
-            delegate.didCaptureImage(image)
+            delegate.camera(self, didCaptureImage: image)
         }
     }
 }

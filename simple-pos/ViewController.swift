@@ -605,8 +605,11 @@ class ViewController: UICollectionViewController, CameraDelegate {
     // MARK: - Vector Search
     
     private func startVectorSearch() {
-        // TODO: Display error if not success (e.g. no permission)
-        camera.start { success, error in }
+        camera.start { success, error in
+            if let error = error {
+                DispatchQueue.main.async { self.showError(message: error.localizedDescription)}
+            }
+        }
     }
     
     private func stopVectorSearch() {
@@ -614,7 +617,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         clearSearchResults()
     }
     
-    func didCaptureImage(_ image: UIImage) {
+    func camera(_ camera: Camera, didCaptureImage image: UIImage) {
         self.ai.foregroundFeatureEmbedding(for: image, fitTo: CGSize(width: 100, height: 100)) { embedding in
             guard let embedding = embedding else { return }
             
@@ -630,6 +633,10 @@ class ViewController: UICollectionViewController, CameraDelegate {
                 }
             }
         }
+    }
+    
+    func camera(_ camera: Camera, didFailWithError error: any Error) {
+        DispatchQueue.main.async { self.showError(message: error.localizedDescription)}
     }
     
     // MARK: - Pay
@@ -717,6 +724,14 @@ class ViewController: UICollectionViewController, CameraDelegate {
     override var prefersStatusBarHidden: Bool {
         // Hide status bar for fullscreen
         return prefersFullscreen
+    }
+    
+    // MARK: - Alert
+    
+    private func showError(message: String) {
+        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Close", style: .default, handler: nil))
+        self.present(alert, animated: true, completion: nil)
     }
 }
 

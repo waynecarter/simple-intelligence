@@ -12,6 +12,7 @@ class Settings: ObservableObject {
     static let shared = Settings()
     
     @Published var endpoint: AppService.Endpoint?
+    @Published var frontCameraEnabled: Bool = true
     @Published var cartEnabled: Bool = true
     
     private var cancellables = Set<AnyCancellable>()
@@ -19,6 +20,7 @@ class Settings: ObservableObject {
     private init() {
         // Register defaults
         UserDefaults.standard.register(defaults: [
+            "camera_front_enabled": false,
             "cart_enabled": true
         ])
         
@@ -34,6 +36,7 @@ class Settings: ObservableObject {
     
     private func updateSettings() {
         updateEndpoint()
+        updateCamera()
         updateCartEnabled()
     }
     
@@ -55,6 +58,15 @@ class Settings: ObservableObject {
         
         if newEndpoint != endpoint {
             endpoint = newEndpoint
+        }
+    }
+    
+    private func updateCamera() {
+        let userDefaults = UserDefaults.standard
+        let newFrontCameraEnabled = userDefaults.bool(forKey: "camera_front_enabled")
+        
+        if frontCameraEnabled != newFrontCameraEnabled {
+            frontCameraEnabled = newFrontCameraEnabled
         }
     }
     
