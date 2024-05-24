@@ -451,6 +451,60 @@ class ViewController: UICollectionViewController, CameraDelegate {
         self.cancelSearch()
     }
     
+    // MARK: - Actions
+    
+    private func updateActions(cartEnabled: Bool = Settings.shared.cartEnabled) {
+        payButton.isHidden = !cartEnabled
+        
+        if cartEnabled {
+            let showAddToBag = self.searchMode == .text || self.products.count > 0
+            let enableAddToBag = self.products.count > 0
+            
+            addToBagButton.isHidden = !showAddToBag
+            addToBagButton.isEnabled = enableAddToBag
+            
+            if showAddToBag {
+                UIView.animate(withDuration: 0.2, animations: {
+                    self.addToBagButton.alpha = 1
+                })
+            } else {
+                UIView.animate(withDuration: 0.2, animations: {
+                    self.addToBagButton.alpha = 0
+                }, completion: { _ in
+                    self.addToBagButton.isHidden = true
+                })
+            }
+            
+            NSLayoutConstraint.deactivate(cartDisabled_Contraints)
+            NSLayoutConstraint.activate(cartEnabled_Contraints)
+        } else {
+            addToBagButton.isHidden = true
+            addToBagButton.isEnabled = true
+            
+            NSLayoutConstraint.deactivate(cartEnabled_Contraints)
+            NSLayoutConstraint.activate(cartDisabled_Contraints)
+        }
+        
+        let showCancel = self.searchMode == .text || self.products.count > 0
+        let cancelButtonTitle = cartEnabled || searchMode == .text ? "Cancel" : "Done"
+        cancelButton.setTitle(cancelButtonTitle, for: .normal)
+        cancelButton.isHidden = !showCancel
+        cancelButton.tintColor = cartEnabled ? .darkGray : nil
+        if showCancel {
+            UIView.animate(withDuration: 0.2, animations: {
+                self.cancelButton.alpha = 1
+            })
+        } else {
+            UIView.animate(withDuration: 0.2, animations: {
+                self.cancelButton.alpha = 0
+            }, completion: { _ in
+                self.cancelButton.isHidden = true
+            })
+        }
+        
+        updateExplainer()
+    }
+    
     // MARK: - Search
     
     private func cancelSearch() {
@@ -525,60 +579,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
         }
 
         updateActions()
-    }
-    
-    // MARK: - Actions
-    
-    private func updateActions(cartEnabled: Bool = Settings.shared.cartEnabled) {
-        payButton.isHidden = !cartEnabled
-        
-        if cartEnabled {
-            let showAddToBag = self.searchMode == .text || self.products.count > 0
-            let enableAddToBag = self.products.count > 0
-            
-            addToBagButton.isHidden = !showAddToBag
-            addToBagButton.isEnabled = enableAddToBag
-            
-            if showAddToBag {
-                UIView.animate(withDuration: 0.2, animations: {
-                    self.addToBagButton.alpha = 1
-                })
-            } else {
-                UIView.animate(withDuration: 0.2, animations: {
-                    self.addToBagButton.alpha = 0
-                }, completion: { _ in
-                    self.addToBagButton.isHidden = true
-                })
-            }
-            
-            NSLayoutConstraint.deactivate(cartDisabled_Contraints)
-            NSLayoutConstraint.activate(cartEnabled_Contraints)
-        } else {
-            addToBagButton.isHidden = true
-            addToBagButton.isEnabled = true
-            
-            NSLayoutConstraint.deactivate(cartEnabled_Contraints)
-            NSLayoutConstraint.activate(cartDisabled_Contraints)
-        }
-        
-        let showCancel = self.searchMode == .text || self.products.count > 0
-        let cancelButtonTitle = cartEnabled || searchMode == .text ? "Cancel" : "Done"
-        cancelButton.setTitle(cancelButtonTitle, for: .normal)
-        cancelButton.isHidden = !showCancel
-        cancelButton.tintColor = cartEnabled ? .darkGray : nil
-        if showCancel {
-            UIView.animate(withDuration: 0.2, animations: {
-                self.cancelButton.alpha = 1
-            })
-        } else {
-            UIView.animate(withDuration: 0.2, animations: {
-                self.cancelButton.alpha = 0
-            }, completion: { _ in
-                self.cancelButton.isHidden = true
-            })
-        }
-        
-        updateExplainer()
     }
     
     // MARK: - Text Search
