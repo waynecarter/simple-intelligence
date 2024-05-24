@@ -156,18 +156,19 @@ class ViewController: UICollectionViewController, CameraDelegate {
         cancelButton.alpha = 0
         view.addSubview(cancelButton)
 
+        let topMargin: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 20 : 0
         addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor, constant: -margin)
         NSLayoutConstraint.activate([
             searchButton.centerYAnchor.constraint(equalTo: searchTextField.centerYAnchor),
             searchButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             searchButton.widthAnchor.constraint(equalToConstant: searchButtonImageSize * 2.25),
             
-            searchTextField.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
+            searchTextField.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: topMargin),
             searchTextField.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
             searchTextField.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
             searchTextField.heightAnchor.constraint(equalTo: payButton.heightAnchor),
             
-            payButton.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor),
+            payButton.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: topMargin),
             payButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
             
             collectionView.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: margin),
