@@ -12,18 +12,29 @@ class Settings: ObservableObject {
     static let shared = Settings()
     
     @Published var endpoint: AppService.Endpoint?
+    @Published var cartEnabled: Bool = true
     
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
+        // Register defaults
+        UserDefaults.standard.register(defaults: [
+            "cart_enabled": true
+        ])
+        
         // Observe UserDefaults changes
         NotificationCenter.default.publisher(for: UserDefaults.didChangeNotification)
             .sink { [weak self] _ in
-                self?.updateEndpoint()
+                self?.updateSettings()
             }
             .store(in: &cancellables)
         
+        updateSettings()
+    }
+    
+    private func updateSettings() {
         updateEndpoint()
+        updateCartEnabled()
     }
     
     private func updateEndpoint() {
@@ -42,9 +53,17 @@ class Settings: ObservableObject {
             )
         }
         
-        // If the endpoint has changed, update it
         if newEndpoint != endpoint {
             endpoint = newEndpoint
+        }
+    }
+    
+    private func updateCartEnabled() {
+        let userDefaults = UserDefaults.standard
+        let newCartEnabled = userDefaults.bool(forKey: "cart_enabled")
+        
+        if cartEnabled != newCartEnabled {
+            cartEnabled = newCartEnabled
         }
     }
 }

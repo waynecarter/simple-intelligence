@@ -6,10 +6,12 @@
 //
 
 import UIKit
+import Combine
 
 class ViewController: UICollectionViewController, CameraDelegate {
     private lazy var database = { return Database.shared }()
     private lazy var ai = { return AI.shared }()
+    private var camera: Camera!
     
     private let searchButton = UIButton(type: .custom)
     private let searchTextField = UISearchTextField()
@@ -19,8 +21,11 @@ class ViewController: UICollectionViewController, CameraDelegate {
     private let selectedItemDetailsLabel = UILabel()
     
     private let addToBagButton = UIButton(type: .roundedRect)
-    private var addToBagButton_BottomContraint: NSLayoutConstraint!
     private let cancelButton = UIButton(type: .roundedRect)
+    
+    private var addToBagButton_BottomContraint: NSLayoutConstraint!
+    private var cartEnabled_Contraints: [NSLayoutConstraint]!
+    private var cartDisabled_Contraints: [NSLayoutConstraint]!
     
     private let explainerImageView = UIImageView()
     private let explainerLabel = UILabel()
@@ -31,7 +36,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     private let margin: CGFloat = 20
     private let spacing: CGFloat = 10
     
-    private var camera: Camera!
+    private var cancellables = Set<AnyCancellable>()
     
     private var products = [Database.Product]() {
         didSet {
@@ -60,12 +65,20 @@ class ViewController: UICollectionViewController, CameraDelegate {
     deinit {
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillShowNotification, object: nil)
         NotificationCenter.default.removeObserver(self, name: UIResponder.keyboardWillHideNotification, object: nil)
+        cancellables.removeAll()
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
-        searchMode = .vector
+        searchMode = .camera
+        
+        // When the settings for showing/hiding the cart change, update the actions
+        Settings.shared.$cartEnabled
+            .dropFirst()
+            .sink { [weak self] cartEnabled in
+                self?.updateActions(cartEnabled: cartEnabled)
+            }.store(in: &cancellables)
     }
     
     override func viewSafeAreaInsetsDidChange() {
@@ -157,7 +170,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
         view.addSubview(cancelButton)
 
         let topMargin: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 20 : 0
-        addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor, constant: -margin)
         NSLayoutConstraint.activate([
             searchButton.centerYAnchor.constraint(equalTo: searchTextField.centerYAnchor),
             searchButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
@@ -189,25 +201,49 @@ class ViewController: UICollectionViewController, CameraDelegate {
             explainerLabel.centerXAnchor.constraint(equalTo: explainerImageView.centerXAnchor)
         ])
 
-        // Set the width of the add-to-cart and cancel buttons depending on the user interface idiom.
+        // Set the width of the add-to-cart and cancel buttons depending on the
+        // user interface idiom and whether the cart is enabled.
+        addToBagButton_BottomContraint = addToBagButton.bottomAnchor.constraint(equalTo: view.layoutMarginsGuide.bottomAnchor, constant: -margin)
         if UIDevice.current.userInterfaceIdiom == .pad {
-            NSLayoutConstraint.activate([
+            cartEnabled_Contraints = [
                 cancelButton.trailingAnchor.constraint(equalTo: addToBagButton.leadingAnchor, constant: -spacing),
                 cancelButton.bottomAnchor.constraint(equalTo: addToBagButton.bottomAnchor),
                 
                 addToBagButton.widthAnchor.constraint(equalToConstant: 300),
                 addToBagButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
                 addToBagButton_BottomContraint
-            ])
+            ]
+            
+            cartDisabled_Contraints = [
+                cancelButton.widthAnchor.constraint(equalToConstant: 300),
+                cancelButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+                cancelButton.bottomAnchor.constraint(equalTo: addToBagButton.bottomAnchor),
+                
+                addToBagButton_BottomContraint
+            ]
         } else {
-            NSLayoutConstraint.activate([
+            cartEnabled_Contraints = [
                 cancelButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
                 cancelButton.bottomAnchor.constraint(equalTo: addToBagButton.bottomAnchor),
                 
                 addToBagButton.leadingAnchor.constraint(equalTo: cancelButton.trailingAnchor, constant: spacing),
                 addToBagButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
                 addToBagButton_BottomContraint
-            ])
+            ]
+            
+            cartDisabled_Contraints = [
+                cancelButton.leadingAnchor.constraint(equalTo: view.layoutMarginsGuide.leadingAnchor),
+                cancelButton.bottomAnchor.constraint(equalTo: addToBagButton.bottomAnchor),
+                cancelButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+                
+                addToBagButton_BottomContraint
+            ]
+        }
+        // Activate the constraints for the add-to-cart and cancel buttons
+        if Settings.shared.cartEnabled {
+            NSLayoutConstraint.activate(cartEnabled_Contraints)
+        } else {
+            NSLayoutConstraint.activate(cartDisabled_Contraints)
         }
         
         startExplainerAnimation()
@@ -421,7 +457,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         clearSearchResults()
         
         switch searchMode {
-        case .vector: startVectorSearch()
+        case .camera: startVectorSearch()
         case .text: stopTextSearch()
         }
     }
@@ -432,12 +468,12 @@ class ViewController: UICollectionViewController, CameraDelegate {
         }
     }
     
-    private enum SearchMode {
-        case vector
+    enum SearchMode {
+        case camera
         case text
     }
     
-    private var searchMode: SearchMode = .vector {
+    private var searchMode: SearchMode = .camera {
         didSet {
             transitionTo(searchMode: searchMode)
         }
@@ -445,7 +481,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     private func transitionTo(searchMode: SearchMode) {
         switch searchMode {
-        case .vector:
+        case .camera:
             searchTextField.isHidden = false
             cancelButton.isHidden = false
             searchButton.isHidden = false
@@ -491,27 +527,45 @@ class ViewController: UICollectionViewController, CameraDelegate {
         updateActions()
     }
     
-    private func updateActions() {
-        let showAddToBag = self.searchMode == .text || self.products.count > 0
-        let enableAddToBag = self.products.count > 0
-        let showCancel = self.searchMode == .text || self.products.count > 0
-
-        addToBagButton.isHidden = !showAddToBag
-        addToBagButton.isEnabled = enableAddToBag
-        cancelButton.isHidden = !showCancel
-
-        if showAddToBag {
-            UIView.animate(withDuration: 0.2, animations: {
-                self.addToBagButton.alpha = 1
-            })
+    // MARK: - Actions
+    
+    private func updateActions(cartEnabled: Bool = Settings.shared.cartEnabled) {
+        payButton.isHidden = !cartEnabled
+        
+        if cartEnabled {
+            let showAddToBag = self.searchMode == .text || self.products.count > 0
+            let enableAddToBag = self.products.count > 0
+            
+            addToBagButton.isHidden = !showAddToBag
+            addToBagButton.isEnabled = enableAddToBag
+            
+            if showAddToBag {
+                UIView.animate(withDuration: 0.2, animations: {
+                    self.addToBagButton.alpha = 1
+                })
+            } else {
+                UIView.animate(withDuration: 0.2, animations: {
+                    self.addToBagButton.alpha = 0
+                }, completion: { _ in
+                    self.addToBagButton.isHidden = true
+                })
+            }
+            
+            NSLayoutConstraint.deactivate(cartDisabled_Contraints)
+            NSLayoutConstraint.activate(cartEnabled_Contraints)
         } else {
-            UIView.animate(withDuration: 0.2, animations: {
-                self.addToBagButton.alpha = 0
-            }, completion: { _ in
-                self.addToBagButton.isHidden = true
-            })
+            addToBagButton.isHidden = true
+            addToBagButton.isEnabled = true
+            
+            NSLayoutConstraint.deactivate(cartEnabled_Contraints)
+            NSLayoutConstraint.activate(cartDisabled_Contraints)
         }
-
+        
+        let showCancel = self.searchMode == .text || self.products.count > 0
+        let cancelButtonTitle = cartEnabled || searchMode == .text ? "Cancel" : "Done"
+        cancelButton.setTitle(cancelButtonTitle, for: .normal)
+        cancelButton.isHidden = !showCancel
+        cancelButton.tintColor = cartEnabled ? .darkGray : nil
         if showCancel {
             UIView.animate(withDuration: 0.2, animations: {
                 self.cancelButton.alpha = 1
@@ -535,7 +589,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     private func stopTextSearch() {
         clearSearchResults()
-        searchMode = .vector
+        searchMode = .camera
     }
     
     @objc func searchTextFieldDidChange(_ textField: UITextField) {
