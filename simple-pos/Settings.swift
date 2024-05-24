@@ -20,7 +20,7 @@ class Settings: ObservableObject {
     private init() {
         // Register defaults
         UserDefaults.standard.register(defaults: [
-            "camera_front_enabled": false,
+            "front_camera_enabled": false,
             "cart_enabled": true
         ])
         
@@ -63,7 +63,7 @@ class Settings: ObservableObject {
     
     private func updateCamera() {
         let userDefaults = UserDefaults.standard
-        let newFrontCameraEnabled = userDefaults.bool(forKey: "camera_front_enabled")
+        let newFrontCameraEnabled = userDefaults.bool(forKey: "front_camera_enabled")
         
         if frontCameraEnabled != newFrontCameraEnabled {
             frontCameraEnabled = newFrontCameraEnabled
