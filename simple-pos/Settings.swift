@@ -34,6 +34,10 @@ class Settings: ObservableObject {
         updateSettings()
     }
     
+    deinit {
+        cancellables.removeAll()
+    }
+    
     private func updateSettings() {
         updateEndpoint()
         updateCamera()
