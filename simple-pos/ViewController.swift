@@ -717,7 +717,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         selectionFeedbackGenerator.prepare()
     }
     
-    // Full screen
+    // MARK: - Full Screen
     
     private let prefersFullscreen = true
     
