@@ -15,7 +15,6 @@ protocol CameraDelegate {
 class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private let session: AVCaptureSession = AVCaptureSession()
     private let videoOutput = AVCaptureVideoDataOutput()
-    private let videoOutputAngle = UIDevice.current.userInterfaceIdiom == .phone ? 90.0 : 180.0
     private let sessionQueue = DispatchQueue(label: "VideoSessionQueue", qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem)
     
     private let captureInterval: TimeInterval = 0.2
@@ -164,7 +163,12 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private func updateVideoOutputAngle() {
         if session.outputs.count > 0 {
             let connection = videoOutput.connection(with: .video)!
-            connection.videoRotationAngle = videoOutputAngle
+            if (UIDevice.current.userInterfaceIdiom == .pad) {
+                connection.videoRotationAngle = Settings.shared.frontCameraEnabled ? 0.0 : 180.0
+            } else {
+                connection.videoRotationAngle = 90.0
+            }
+            connection.isVideoMirrored = Settings.shared.frontCameraEnabled
         }
     }
     
