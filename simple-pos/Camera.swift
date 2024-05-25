@@ -24,7 +24,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private var captureTimestamp: TimeInterval = 0.0
     
     private var position: AVCaptureDevice.Position = Settings.shared.frontCameraEnabled ? .front : .back
-    private var kiosMode = Settings.shared.kiosModeEnabled
+    private var kioskMode = Settings.shared.kioskModeEnabled
     private var cancellables = Set<AnyCancellable>()
     
     private var lastProducts: [Database.Product]?
@@ -47,11 +47,11 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                 }
             }.store(in: &cancellables)
         
-        Settings.shared.$kiosModeEnabled
+        Settings.shared.$kioskModeEnabled
             .dropFirst()
-            .sink { [weak self] kiosMode in
+            .sink { [weak self] kioskMode in
                 guard let self = self else { return }
-                self.kiosMode = kiosMode
+                self.kioskMode = kioskMode
             }.store(in: &cancellables)
     }
     
@@ -232,7 +232,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                     return
                 }
                 
-                if self.kiosMode {
+                if self.kioskMode {
                     if let lastProducts = self.lastProducts, lastProducts == products {
                         return
                     }

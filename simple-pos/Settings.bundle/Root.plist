@@ -84,9 +84,9 @@
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
-			<string>Kios Mode</string>
+			<string>Kiosk Mode</string>
 			<key>Key</key>
-			<string>kios_mode_enabled</string>
+			<string>kiosk_mode_enabled</string>
 			<key>DefaultValue</key>
 			<false/>
 		</dict>

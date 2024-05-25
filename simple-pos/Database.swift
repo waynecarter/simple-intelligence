@@ -36,6 +36,8 @@ class Database {
     }
     
     private init() {
+        try! CouchbaseLiteSwift.Database.delete(withName: "pos")
+        
         database = try! CouchbaseLiteSwift.Database(name: "pos")
         collection = try! database.defaultCollection()
         
