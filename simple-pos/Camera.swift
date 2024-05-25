@@ -8,11 +8,14 @@ import AVFoundation
 import Combine
 
 protocol CameraDelegate {
-    func camera(_ camera: Camera, didCaptureImage image: UIImage)
+    func camera(_ camera: Camera, didFindProducts products: [Database.Product])
     func camera(_ camera: Camera, didFailWithError error: Error)
 }
 
 class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
+    private lazy var database = { return Database.shared }()
+    private lazy var ai = { return AI.shared }()
+    
     private let session: AVCaptureSession = AVCaptureSession()
     private let videoOutput = AVCaptureVideoDataOutput()
     private let sessionQueue = DispatchQueue(label: "VideoSessionQueue", qos: .userInitiated, attributes: [], autoreleaseFrequency: .workItem)
@@ -20,18 +23,19 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private let captureInterval: TimeInterval = 0.2
     private var captureTimestamp: TimeInterval = 0.0
     
-    private var delegate: CameraDelegate?
-    
     private var position: AVCaptureDevice.Position = Settings.shared.frontCameraEnabled ? .front : .back
+    private var kiosMode = Settings.shared.kiosModeEnabled
     private var cancellables = Set<AnyCancellable>()
     
-    var previewLayer: AVCaptureVideoPreviewLayer?
+    private var lastProducts: [Database.Product]?
     
-    var isRunning: Bool { session.isRunning }
+    private var delegate: CameraDelegate
     
     init(delegate: CameraDelegate) {
-        super.init()
         self.delegate = delegate
+        
+        super.init()
+        
         Settings.shared.$frontCameraEnabled
             .dropFirst()
             .sink { [weak self] frontCameraEnabled in
@@ -39,8 +43,15 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                 do {
                     try self.setVideoInputDevice(position: frontCameraEnabled ? .front : .back)
                 } catch {
-                    self.delegate?.camera(self, didFailWithError: error)
+                    self.delegate.camera(self, didFailWithError: error)
                 }
+            }.store(in: &cancellables)
+        
+        Settings.shared.$kiosModeEnabled
+            .dropFirst()
+            .sink { [weak self] kiosMode in
+                guard let self = self else { return }
+                self.kiosMode = kiosMode
             }.store(in: &cancellables)
     }
     
@@ -60,11 +71,6 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     }
     
     private func startSession(_ completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
-        if self.session.isRunning {
-            completion(true, nil)
-            return
-        }
-        
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         if status != .authorized {
             completion(false, "No permission to use the camera device")
@@ -79,6 +85,11 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         }
         
         sessionQueue.async {
+            if self.session.isRunning {
+                completion(true, nil)
+                return
+            }
+            
             self.captureTimestamp = 0
             self.session.startRunning()
             completion(self.session.isRunning, self.session.isRunning ? nil : "Camera cannot start")
@@ -122,9 +133,6 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                 throw "Could not add video output"
             }
         }
-        
-        previewLayer = AVCaptureVideoPreviewLayer(session: session)
-        previewLayer!.videoGravity = AVLayerVideoGravity.resizeAspectFill
     }
     
     func setVideoInputDevice(position: AVCaptureDevice.Position) throws {
@@ -210,9 +218,32 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         guard let image = imageFromSampleBuffer(sampleBuffer: sampleBuffer) else {
             return
         }
-
-        if let delegate = self.delegate {
-            delegate.camera(self, didCaptureImage: image)
+        
+        self.ai.foregroundFeatureEmbedding(for: image, fitTo: CGSize(width: 100, height: 100)) { embedding in
+            guard let embedding = embedding else { return }
+            
+            self.sessionQueue.async {
+                if !self.session.isRunning { return }
+                
+                let products = self.database.search(vector: embedding)
+                
+                if products.isEmpty {
+                    self.lastProducts = nil
+                    return
+                }
+                
+                if self.kiosMode {
+                    if let lastProducts = self.lastProducts, lastProducts == products {
+                        return
+                    }
+                }
+                
+                self.lastProducts = products
+                
+                self.session.stopRunning()
+                
+                self.delegate.camera(self, didFindProducts: products)
+            }
         }
     }
 }

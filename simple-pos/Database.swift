@@ -17,7 +17,7 @@ class Database {
     
     private var cancellables = Set<AnyCancellable>()
     
-    struct Product {
+    struct Product: Equatable {
         let name: String
         let price: Double
         let location: String
@@ -28,6 +28,10 @@ class Database {
             self.price = price
             self.location = location
             self.image = image
+        }
+        
+        static func == (lhs: Product, rhs: Product) -> Bool {
+            return lhs.name == rhs.name && lhs.location == rhs.location
         }
     }
     

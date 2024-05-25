@@ -617,20 +617,10 @@ class ViewController: UICollectionViewController, CameraDelegate {
         clearSearchResults()
     }
     
-    func camera(_ camera: Camera, didCaptureImage image: UIImage) {
-        self.ai.foregroundFeatureEmbedding(for: image, fitTo: CGSize(width: 100, height: 100)) { embedding in
-            guard let embedding = embedding else { return }
-            
-            let results = self.database.search(vector: embedding)
-            
-            // Ignore empty search results
-            if results.isEmpty { return }
-            
-            DispatchQueue.main.async {
-                if self.products.isEmpty {
-                    self.products = results
-                    self.camera.stop()
-                }
+    func camera(_ camera: Camera, didFindProducts products: [Database.Product]) {
+        DispatchQueue.main.async {
+            if self.products.isEmpty { // TODO: Maybe doesn't need to check
+                self.products = products
             }
         }
     }
