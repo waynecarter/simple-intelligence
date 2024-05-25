@@ -171,8 +171,6 @@ class Database {
                 }
             }
             
-            print("minimumDistance: \(minimumDistance)")
-            
             return filteredProducts
         } catch {
             print("Database.searchVector: \(error.localizedDescription)")
