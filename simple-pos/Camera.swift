@@ -219,7 +219,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             return
         }
         
-        self.ai.foregroundFeatureEmbedding(for: image, fitTo: CGSize(width: 100, height: 100)) { embedding in
+        self.ai.featureEmbedding(for: image) { embedding in
             guard let embedding = embedding else { return }
             
             self.sessionQueue.async {

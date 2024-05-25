@@ -124,7 +124,7 @@ class Database {
             FROM _
             WHERE type = "product"
                 AND VECTOR_MATCH(ImageVectorIndex, $embedding, 10)
-                AND VECTOR_DISTANCE(ImageVectorIndex) < 0.35
+                AND VECTOR_DISTANCE(ImageVectorIndex) < 0.15
             ORDER BY VECTOR_DISTANCE(ImageVectorIndex), name
         """
         
@@ -170,6 +170,8 @@ class Database {
                     filteredProducts.append(product)
                 }
             }
+            
+            print("minimumDistance: \(minimumDistance)")
             
             return filteredProducts
         } catch {
@@ -326,7 +328,7 @@ class Database {
             
             // If the data document has an image, generate an embedding and update the document.
             if let image = image {
-                AI.shared.foregroundFeatureEmbedding(for: image, fitTo: CGSize(width: 100, height: 100)) { embedding in
+                AI.shared.featureEmbedding(for: image) { embedding in
                     if let embedding = embedding {
                         document["embedding"].array = MutableArrayObject(data: embedding)
                         try! collection.save(document: document)
@@ -358,7 +360,7 @@ class Database {
         print()
         
         // Vector search
-        AI.shared.foregroundFeatureEmbedding(for: image(from: "🫑")) { embedding in
+        AI.shared.featureEmbedding(for: image(from: "🫑")) { embedding in
             if let embedding {
                 print("Full text search: \(self.search(vector: embedding))")
                 print()

@@ -12,28 +12,21 @@ struct AI {
     static let shared = AI()
     private init() {}
     
-    func featureEmbedding(for image: UIImage, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
+    func featureEmbedding(for image: UIImage, completion: @escaping ([NSNumber]?) -> Void) {
         guard let cgImage = image.cgImage else {
             completion(nil)
             return
         }
         
-        // Run async on the background queue with high priority.
+        // Process the input image
+        let processedCgImage = process(cgImage: cgImage)
+        
         DispatchQueue.global().async(qos: .userInitiated) {
-            featureEmbedding(for: cgImage, fitTo: fitSize, grayscale: grayscale, completion: completion)
+            featureEmbedding(for: processedCgImage, completion: completion)
         }
     }
         
-    private func featureEmbedding(for cgImage: CGImage, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
-        var cgImage = cgImage
-        
-        // Fit to size if specified.
-        if let fitSize = fitSize,
-           let fitImage = fit(cgImage: cgImage, to: fitSize)
-        {
-            cgImage = fitImage
-        }
-        
+    private func featureEmbedding(for cgImage: CGImage, completion: @escaping ([NSNumber]?) -> Void) {
         let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
         let request = VNGenerateImageFeaturePrintRequest { request, error in
             guard let observation = request.results?.first as? VNFeaturePrintObservation else {
@@ -87,68 +80,51 @@ struct AI {
         }
     }
     
-    func foregroundFeatureEmbedding(for image: UIImage, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
-        guard let cgImage = image.cgImage else {
-            completion(nil)
-            return
-        }
-        
-        // Run async on the background queue with high priority.
-        DispatchQueue.global().async(qos: .userInitiated) {
-            foregroundFeatureEmbedding(for: cgImage, fitTo: fitSize, grayscale: grayscale, completion: completion)
-        }
+    // MARK: - Image Processing
+    
+    private func process(cgImage: CGImage) -> CGImage {
+        var processedImage = cropToSalientRegion(cgImage: cgImage)
+        processedImage = fit(cgImage: processedImage, to: CGSize(width: 100, height: 100))
+        return processedImage
     }
     
-    private func foregroundFeatureEmbedding(for cgImage: CGImage, fitTo fitSize: CGSize? = nil, grayscale: Bool = false, completion: @escaping ([NSNumber]?) -> Void) {
-        var cgImage = cgImage
-        
-        // Fit to size if specified.
-        if let fitSize = fitSize, let fitImage = fit(cgImage: cgImage, to: fitSize) {
-            cgImage = fitImage
-        }
-        
-        // Fit to size if specified.
-        if grayscale, let grayscaleImage = self.grayscale(cgImage: cgImage) {
-            cgImage = grayscaleImage
-        }
-        
-        // Get the foreground subjects as a masked image.
-        let requst = VNGenerateForegroundInstanceMaskRequest()
-        let handler = VNImageRequestHandler(cgImage: cgImage)
+    private func cropToSalientRegion(cgImage: CGImage) -> CGImage {
+        // Perform saliency detection
+        let request = VNGenerateObjectnessBasedSaliencyImageRequest()
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+
         do {
-            try handler.perform([requst])
+            try handler.perform([request])
         } catch {
-            print("Failed to perform the request: \(error.localizedDescription)")
-            completion(nil)
+            return cgImage
         }
-        let foregroundImage: CGImage? = {
-            if let result = requst.results?.first {
-                let maskedImagePixelBuffer = try! result.generateMaskedImage(
-                    ofInstances: result.allInstances,
-                    from: handler,
-                    croppedToInstancesExtent: false
-                )
-                
-                let ciContext = CIContext()
-                let ciImage = CIImage(cvPixelBuffer: maskedImagePixelBuffer)
-                let cgImage = ciContext.createCGImage(ciImage, from: ciImage.extent)
-                
-                return cgImage
-            }
-            
-            return nil
-        }()
+
+        // Get the salient objects
+        guard let observation = request.results?.first as? VNSaliencyImageObservation,
+              let salientObject = observation.salientObjects?.first else {
+            return cgImage
+        }
+
+        // Get the bounding box of the salient region, converting the bounding box from
+        // Vision normalized coordinates to CoreGraphics coordinates
+        let boundingBox = salientObject.boundingBox
+        let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
+        let salientRect = CGRect(
+            x: boundingBox.origin.x * imageSize.width,
+            y: (1 - boundingBox.origin.y - boundingBox.height) * imageSize.height,
+            width: boundingBox.width * imageSize.width,
+            height: boundingBox.height * imageSize.height
+        )
+
+        // Crop the image to the salient region
+        guard let croppedCgImage = cgImage.cropping(to: salientRect) else {
+            return cgImage
+        }
         
-        if let foregroundImage = foregroundImage {
-            featureEmbedding(for: foregroundImage, completion: completion)
-        } else {
-            featureEmbedding(for: cgImage, completion: completion)
-        }
+        return croppedCgImage
     }
     
-    // MARK: - Util
-    
-    func fit(cgImage: CGImage, to targetSize: CGSize) -> CGImage? {
+    private func fit(cgImage: CGImage, to targetSize: CGSize) -> CGImage {
         let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
         
         // Calculate the aspect ratios
@@ -167,24 +143,14 @@ struct AI {
         let rendererSize = CGSize(width: targetSize.width, height: targetSize.height)
 
         let renderer = UIGraphicsImageRenderer(size: rendererSize, format: rendererFormat)
-        let fittedImage = renderer.image { _ in
+        let fitImage = renderer.image { _ in
             UIImage(cgImage: cgImage).draw(in: scaledRect)
         }
         
-        return fittedImage.cgImage
-    }
-    
-    func grayscale(cgImage: CGImage) -> CGImage? {
-        guard let currentFilter = CIFilter(name: "CIColorControls") else { return nil }
-        let ciImage = CIImage(cgImage: cgImage)
-        currentFilter.setValue(ciImage, forKey: kCIInputImageKey)
-        currentFilter.setValue(0.0, forKey: kCIInputSaturationKey)
-
-        let context = CIContext(options: nil)
-        guard let outputImage = currentFilter.outputImage, let cgImage = context.createCGImage(outputImage, from: outputImage.extent) else {
-            return nil
+        guard let fitImage = fitImage.cgImage else {
+            return cgImage
         }
-
-        return cgImage
+        
+        return fitImage
     }
 }
