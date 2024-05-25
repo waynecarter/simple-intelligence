@@ -10,7 +10,6 @@ import Combine
 
 class ViewController: UICollectionViewController, CameraDelegate {
     private lazy var database = { return Database.shared }()
-    private lazy var ai = { return AI.shared }()
     private var camera: Camera!
     
     private let searchButton = UIButton(type: .custom)
