@@ -23,15 +23,12 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private let captureInterval: TimeInterval = 0.2
     private var captureTimestamp: TimeInterval = 0.0
     
-    private var position: AVCaptureDevice.Position = Settings.shared.frontCameraEnabled ? .front : .back
     private var kioskMode = Settings.shared.kioskModeEnabled
     
-    private var frontCameraEnabled: Bool = Settings.shared.frontCameraEnabled {
+    private var position: AVCaptureDevice.Position = Settings.shared.frontCameraEnabled ? .front : .back {
         didSet {
-            do {
-                try setVideoInputDevice(position: frontCameraEnabled ? .front : .back)
-            } catch {
-                delegate.camera(self, didFailWithError: error)
+            if position != oldValue {
+                cameraPositionDidChange()
             }
         }
     }
@@ -50,14 +47,15 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         Settings.shared.$frontCameraEnabled
             .dropFirst()
             .sink { [weak self] frontCameraEnabled in
-                self?.frontCameraEnabled = frontCameraEnabled
+                self?.position = frontCameraEnabled ? .front : .back
             }.store(in: &cancellables)
         
         Settings.shared.$kioskModeEnabled
             .dropFirst()
             .sink { [weak self] kioskMode in
-                guard let self = self else { return }
-                self.kioskMode = kioskMode
+                self?.sessionQueue.async {
+                    self?.kioskMode = kioskMode
+                }
             }.store(in: &cancellables)
     }
     
@@ -65,50 +63,46 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         stop()
     }
     
-    func start(_ completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
+    func start() {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         if status == .notDetermined {
             AVCaptureDevice.requestAccess(for: .video) { [unowned self] granted in
-                self.startSession(completion)
+                self.startSession()
             }
         } else {
-            self.startSession(completion)
+            self.startSession()
         }
     }
     
-    private func startSession(_ completion: @escaping (_ success: Bool, _ error: Error?) -> Void) {
+    private func startSession() {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         if status != .authorized {
-            completion(false, "No permission to use the camera device")
-            return
-        }
-        
-        do {
-            try self.setup()
-        } catch {
-            completion(false, error)
+            self.delegate.camera(self, didFailWithError: "No permission to use the camera device")
             return
         }
         
         sessionQueue.async {
-            if self.session.isRunning {
-                completion(true, nil)
+            if self.session.isRunning { return }
+            
+            do {
+                try self.setup()
+            } catch {
+                self.delegate.camera(self, didFailWithError: error)
                 return
             }
             
             self.captureTimestamp = 0
             self.session.startRunning()
-            completion(self.session.isRunning, self.session.isRunning ? nil : "Camera cannot start")
+            
+            if (!self.session.isRunning) {
+                self.delegate.camera(self, didFailWithError: "Camera cannot start")
+            }
         }
     }
     
-    func stop(_ completion: (() -> Void)? = nil) {
+    func stop() {
         sessionQueue.async {
             self.session.stopRunning()
-            
-            if let completion = completion {
-                completion()
-            }
         }
     }
     
@@ -125,7 +119,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         session.sessionPreset = .vga640x480
         
         if session.inputs.count == 0 {
-            try setVideoInputDevice(position: position)
+            try updateVideoInputDevice()
         }
         
         if session.outputs.count == 0 {
@@ -141,7 +135,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         }
     }
     
-    func setVideoInputDevice(position: AVCaptureDevice.Position) throws {
+    func updateVideoInputDevice() throws {
         session.beginConfiguration()
         defer {
             session.commitConfiguration()
@@ -161,26 +155,36 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                 session.removeInput(currentInput)
             }
         } catch {
-            throw "Could not use video input"
+            throw "Could not get video input"
         }
         
-        guard session.canAddInput(input) else {
+        if !session.canAddInput(input) {
             throw "Could not add video input"
         }
         session.addInput(input)
         
         updateVideoOutputAngle()
-        
-        self.position = position
     }
     
     private func updateVideoOutputAngle() {
-        if session.outputs.count > 0 {
-            let connection = videoOutput.connection(with: .video)!
-            if (UIDevice.current.userInterfaceIdiom == .pad) {
-                connection.videoRotationAngle = frontCameraEnabled ? 0 : 180
-            } else {
-                connection.videoRotationAngle = 90
+        if session.outputs.count == 0 { return }
+        
+        let connection = videoOutput.connection(with: .video)!
+        if (UIDevice.current.userInterfaceIdiom == .pad) {
+            connection.videoRotationAngle = position == .front ? 0 : 180
+        } else {
+            connection.videoRotationAngle = 90
+        }
+    }
+    
+    private func cameraPositionDidChange() {
+        sessionQueue.async {
+            if self.session.inputs.count == 0 { return }
+            
+            do {
+                try self.updateVideoInputDevice()
+            } catch {
+                self.delegate.camera(self, didFailWithError: error)
             }
         }
     }

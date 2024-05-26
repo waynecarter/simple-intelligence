@@ -604,11 +604,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     // MARK: - Vector Search
     
     private func startVectorSearch() {
-        camera.start { success, error in
-            if let error = error {
-                DispatchQueue.main.async { self.showError(message: error.localizedDescription)}
-            }
-        }
+        camera.start()
     }
     
     private func stopVectorSearch() {
