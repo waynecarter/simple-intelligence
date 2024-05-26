@@ -45,13 +45,11 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         super.init()
         
         Settings.shared.$frontCameraEnabled
-            .dropFirst()
             .sink { [weak self] frontCameraEnabled in
                 self?.position = frontCameraEnabled ? .front : .back
             }.store(in: &cancellables)
         
         Settings.shared.$kioskModeEnabled
-            .dropFirst()
             .sink { [weak self] kioskMode in
                 self?.sessionQueue.async {
                     self?.kioskMode = kioskMode
