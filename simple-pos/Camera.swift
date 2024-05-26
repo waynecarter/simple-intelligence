@@ -25,6 +25,17 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     private var position: AVCaptureDevice.Position = Settings.shared.frontCameraEnabled ? .front : .back
     private var kioskMode = Settings.shared.kioskModeEnabled
+    
+    private var frontCameraEnabled: Bool = Settings.shared.frontCameraEnabled {
+        didSet {
+            do {
+                try setVideoInputDevice(position: frontCameraEnabled ? .front : .back)
+            } catch {
+                delegate.camera(self, didFailWithError: error)
+            }
+        }
+    }
+    
     private var cancellables = Set<AnyCancellable>()
     
     private var lastProducts: [Database.Product]?
@@ -39,12 +50,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         Settings.shared.$frontCameraEnabled
             .dropFirst()
             .sink { [weak self] frontCameraEnabled in
-                guard let self = self else { return }
-                do {
-                    try self.setVideoInputDevice(position: frontCameraEnabled ? .front : .back)
-                } catch {
-                    self.delegate.camera(self, didFailWithError: error)
-                }
+                self?.frontCameraEnabled = frontCameraEnabled
             }.store(in: &cancellables)
         
         Settings.shared.$kioskModeEnabled
@@ -172,11 +178,10 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         if session.outputs.count > 0 {
             let connection = videoOutput.connection(with: .video)!
             if (UIDevice.current.userInterfaceIdiom == .pad) {
-                connection.videoRotationAngle = Settings.shared.frontCameraEnabled ? 0.0 : 180.0
+                connection.videoRotationAngle = frontCameraEnabled ? 0 : 180
             } else {
-                connection.videoRotationAngle = 90.0
+                connection.videoRotationAngle = 90
             }
-            connection.isVideoMirrored = Settings.shared.frontCameraEnabled
         }
     }
     
