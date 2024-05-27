@@ -119,7 +119,13 @@ class Database {
         }
     }
     
-    func search(vector: [NSNumber]) -> [Product] {
+    func search(image: UIImage) -> [Product] {
+        guard let embedding = AI.shared.embedding(for: image) else { return [] }
+        let products = search(vector: embedding)
+        return products
+    }
+    
+    private func search(vector: [NSNumber]) -> [Product] {
         // SQL
         let sql = """
             SELECT name, price, location, image, VECTOR_DISTANCE(ImageVectorIndex) AS distance

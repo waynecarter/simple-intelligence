@@ -14,7 +14,6 @@ protocol CameraDelegate {
 
 class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private lazy var database = { return Database.shared }()
-    private lazy var ai = { return AI.shared }()
     
     private let session: AVCaptureSession = AVCaptureSession()
     private let videoOutput = AVCaptureVideoDataOutput()
@@ -228,9 +227,8 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         
         self.sessionQueue.async {
             guard self.session.isRunning else { return }
-            guard let embedding = self.ai.embedding(for: image) else { return }
             
-            let products = self.database.search(vector: embedding)
+            let products = self.database.search(image: image)
             
             if products.isEmpty {
                 self.lastProducts = nil
