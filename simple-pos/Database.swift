@@ -31,7 +31,9 @@ class Database {
         }
         
         static func == (lhs: Product, rhs: Product) -> Bool {
-            return lhs.name == rhs.name && lhs.location == rhs.location
+            return lhs.name == rhs.name
+            && lhs.location == rhs.location
+            && lhs.price == rhs.price
         }
     }
     
