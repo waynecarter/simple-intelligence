@@ -328,8 +328,8 @@ class Database {
             
             // If the data document has an image, generate an embedding and update the document.
             if let image = image {
-                AI.shared.featureEmbedding(for: image, attention: .none) { embedding in
-                    if let embedding = embedding {
+                DispatchQueue.global().async(qos: .userInitiated) {
+                    if let embedding = AI.shared.embedding(for: image, attention: .none) {
                         document["embedding"].array = MutableArrayObject(data: embedding)
                         try! collection.save(document: document)
                     }
@@ -362,11 +362,9 @@ class Database {
         print()
         
         // Vector search
-        AI.shared.featureEmbedding(for: image(from: "🫑")) { embedding in
-            if let embedding {
-                print("Full text search: \(self.search(vector: embedding))")
-                print()
-            }
+        if let embedding = AI.shared.embedding(for: image(from: "🫑")) {
+            print("Full text search: \(self.search(vector: embedding))")
+            print()
         }
         
         // Add to cart and cart total

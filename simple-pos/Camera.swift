@@ -226,31 +226,28 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             return
         }
         
-        self.ai.featureEmbedding(for: image) { embedding in
-            guard let embedding = embedding else { return }
+        self.sessionQueue.async {
+            guard self.session.isRunning else { return }
+            guard let embedding = self.ai.embedding(for: image) else { return }
             
-            self.sessionQueue.async {
-                if !self.session.isRunning { return }
-                
-                let products = self.database.search(vector: embedding)
-                
-                if products.isEmpty {
-                    self.lastProducts = nil
+            let products = self.database.search(vector: embedding)
+            
+            if products.isEmpty {
+                self.lastProducts = nil
+                return
+            }
+            
+            if self.kioskMode {
+                if let lastProducts = self.lastProducts, lastProducts == products {
                     return
                 }
-                
-                if self.kioskMode {
-                    if let lastProducts = self.lastProducts, lastProducts == products {
-                        return
-                    }
-                }
-                
-                self.lastProducts = products
-                
-                self.session.stopRunning()
-                
-                self.delegate.camera(self, didFindProducts: products)
             }
+            
+            self.lastProducts = products
+            
+            self.session.stopRunning()
+            
+            self.delegate.camera(self, didFindProducts: products)
         }
     }
 }

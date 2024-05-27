@@ -16,73 +16,69 @@ struct AI {
         case none, saliency
     }
     
-    func featureEmbedding(for image: UIImage, attention: Attention = .saliency, completion: @escaping ([NSNumber]?) -> Void) {
+    func embedding(for image: UIImage, attention: Attention = .saliency) -> [NSNumber]? {
         guard let cgImage = image.cgImage else {
-            completion(nil)
-            return
+            return nil
         }
         
-        DispatchQueue.global().async(qos: .userInitiated) {
-            // Process the input image
-            let processedCgImage = process(cgImage: cgImage, attention: attention)
-            
-            // Extract the embeddings
-            featureEmbedding(for: processedCgImage, completion: completion)
-        }
+        // Process the input image
+        let processedCgImage = process(cgImage: cgImage, attention: attention)
+        
+        // Extract the embeddings
+        let embedding = embedding(for: processedCgImage)
+        
+        return embedding
     }
         
-    private func featureEmbedding(for cgImage: CGImage, completion: @escaping ([NSNumber]?) -> Void) {
-        let requestHandler = VNImageRequestHandler(cgImage: cgImage, options: [:])
-        let request = VNGenerateImageFeaturePrintRequest { request, error in
-            guard let observation = request.results?.first as? VNFeaturePrintObservation else {
-                completion(nil)
-                return
-            }
-
-            // Access the feature print data
-            let data = observation.data
-            guard data.isEmpty == false else {
-                completion(nil)
-                return
-            }
-
-            // Determine the element type and size
-            let elementType = observation.elementType
-            let elementCount = observation.elementCount
-            let typeSize = VNElementTypeSize(elementType)
-            var embedding: [NSNumber] = []
-            
-            // Handle the different element types
-            switch elementType {
-            case .float where typeSize == MemoryLayout<Float>.size:
-                data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
-                    let buffer = bytes.bindMemory(to: Float.self)
-                    if buffer.count == elementCount {
-                        embedding = buffer.map { NSNumber(value: $0) }
-                    }
-                }
-            case .double where typeSize == MemoryLayout<Double>.size:
-                data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
-                    let buffer = bytes.bindMemory(to: Double.self)
-                    if buffer.count == elementCount {
-                        embedding = buffer.map { NSNumber(value: $0) }
-                    }
-                }
-            default:
-                print("Unsupported VNElementType: \(elementType)")
-                completion(nil)
-                return
-            }
-
-            completion(embedding)
-        }
+    private func embedding(for cgImage: CGImage) -> [NSNumber]? {
+        // Perform saliency detection
+        let request = VNGenerateImageFeaturePrintRequest()
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
 
         do {
-            try requestHandler.perform([request])
+            try handler.perform([request])
         } catch {
-            print("Failed to perform the request: \(error.localizedDescription)")
-            completion(nil)
+            return nil
         }
+        
+        guard let observation = request.results?.first as? VNFeaturePrintObservation else {
+            return nil
+        }
+
+        // Access the feature print data
+        let data = observation.data
+        guard data.isEmpty == false else {
+            return nil
+        }
+
+        // Determine the element type and size
+        let elementType = observation.elementType
+        let elementCount = observation.elementCount
+        let typeSize = VNElementTypeSize(elementType)
+        var embedding: [NSNumber]?
+        
+        // Handle the different element types
+        switch elementType {
+        case .float where typeSize == MemoryLayout<Float>.size:
+            data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
+                let buffer = bytes.bindMemory(to: Float.self)
+                if buffer.count == elementCount {
+                    embedding = buffer.map { NSNumber(value: $0) }
+                }
+            }
+        case .double where typeSize == MemoryLayout<Double>.size:
+            data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
+                let buffer = bytes.bindMemory(to: Double.self)
+                if buffer.count == elementCount {
+                    embedding = buffer.map { NSNumber(value: $0) }
+                }
+            }
+        default:
+            print("Unsupported VNElementType: \(elementType)")
+            return nil
+        }
+
+        return embedding
     }
     
     // MARK: - Image Processing
