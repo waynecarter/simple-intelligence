@@ -50,6 +50,10 @@ class Database {
         let nameIndex = ValueIndexConfiguration(["name"])
         try! collection.createIndex(withName: "NameIndex", config: nameIndex)
         
+        // Initialize the value index on the "barcode" field for fast searching.
+        let barcodeIndex = ValueIndexConfiguration(["barcode"])
+        try! collection.createIndex(withName: "BarcodeIndex", config: barcodeIndex)
+        
         // Initialize the vector index on the "embedding" field for image search.
         var vectorIndex = VectorIndexConfiguration(expression: "embedding", dimensions: 768, centroids: 2)
         vectorIndex.metric = .cosine
@@ -70,9 +74,18 @@ class Database {
     // MARK: - Search
     
     func search(image: UIImage) -> [Product] {
-        guard let embedding = AI.shared.embedding(for: image) else { return [] }
-        let products = search(vector: embedding)
-        return products
+        // Search with barcode
+        if let barcode = AI.shared.barcode(from: image), let product = search(barcode: barcode) {
+            return [product]
+        }
+        
+        // Search with embedding
+        if let embedding = AI.shared.embedding(for: image) {
+            let products = search(vector: embedding)
+            return products
+        }
+        
+        return []
     }
     
     private func search(vector: [NSNumber]) -> [Product] {
@@ -131,9 +144,50 @@ class Database {
             
             return filteredProducts
         } catch {
-            print("Database.searchVector: \(error.localizedDescription)")
+            print("Database.search(vector:): \(error.localizedDescription)")
             return [Product]()
         }
+    }
+    
+    private func search(barcode: String) -> Product? {
+        // SQL
+        let sql = """
+            SELECT name, price, location, image
+            FROM _
+            WHERE type = "product"
+                AND barcode = $barcode
+            LIMIT 1
+        """
+        
+        // Set query parameters
+        let parameters = Parameters()
+        parameters.setString(barcode, forName: "barcode")
+        
+        do {
+            // Create the query.
+            let query = try database.createQuery(sql)
+            query.parameters = parameters
+            
+            // Execute the query and get the results.
+            let results = try query.execute()
+            
+            // Enumerate through the query results and return the first result
+            for result in results {
+                if let name = result["name"].string,
+                   let price = result["price"].number,
+                   let location = result["location"].string,
+                   let imageData = result["image"].blob?.content,
+                   let image = UIImage(data: imageData)
+                {
+                    let product = Product(name: name, price: price.doubleValue, location: location, image: image)
+                    return product
+                }
+            }
+        } catch {
+            print("Database.search(barcode:): \(error.localizedDescription)")
+        }
+        
+        return nil
     }
     
     func search(string: String) -> [Product] {
@@ -267,54 +321,63 @@ class Database {
     // MARK: - Util
     
     private func loadDemoData(in collection: CouchbaseLiteSwift.Collection) {
-        let productsData: [[String : Any]] = [
+        let productsData: [[String: Any]] = [
             // Vegetables
-            ["id":"product:1", "type":"product", "name":"Hot Pepper", "emoji":"🌶️", "color":"red", "category":"Produce", "price":0.99, "location":"Aisle 2"],
-            ["id":"product:2", "type":"product", "name":"Carrot", "emoji":"🥕", "color":"orange", "category":"Produce", "price":0.79, "location":"Aisle 2"],
-            ["id":"product:3", "type":"product", "name":"Lettuce", "emoji":"🥬", "color":"green", "category":"Produce", "price":1.49, "location":"Aisle 2"],
-            ["id":"product:4", "type":"product", "name":"Broccoli", "emoji":"🥦", "color":"green", "category":"Produce", "price":1.69, "location":"Aisle 2"],
-            ["id":"product:5", "type":"product", "name":"Cucumber", "emoji":"🥒", "color":"green", "category":"Produce", "price":0.99, "location":"Aisle 2"],
-            ["id":"product:6", "type":"product", "name":"Salad", "emoji":"🥗", "color":"green", "category":"Produce", "price":2.99, "location":"Aisle 2"],
-            ["id":"product:7", "type":"product", "name":"Corn", "emoji":"🌽", "color":"yellow", "category":"Produce", "price":0.50, "location":"Aisle 2"],
-            ["id":"product:8", "type":"product", "name":"Potato", "emoji":"🥔", "color":"brown", "category":"Produce", "price":0.99, "location":"Aisle 2"],
-            ["id":"product:9", "type":"product", "name":"Garlic", "emoji":"🧄", "color":"brown", "category":"Produce", "price":0.50, "location":"Aisle 2"],
-            ["id":"product:10", "type":"product", "name":"Onion", "emoji":"🧅", "color":"brown", "category":"Produce", "price":0.79, "location":"Aisle 2"],
-            ["id":"product:11", "type":"product", "name":"Tomato", "emoji":"🍅", "color":"red", "category":"Produce", "price":1.29, "location":"Aisle 2"],
-            ["id":"product:12", "type":"product", "name":"Bell Pepper", "emoji":"🫑", "color":"green", "category":"Produce", "price":0.99, "location":"Aisle 2"],
+            ["id": "product:1", "type": "product", "barcode": "000000000001", "name": "Hot Pepper", "emoji": "🌶️", "color": "red", "category": "Produce", "price": 0.99, "location": "Aisle 1"],
+            ["id": "product:2", "type": "product", "barcode": "000000000002", "name": "Carrot", "emoji": "🥕", "color": "orange", "category": "Produce", "price": 0.79, "location": "Aisle 1"],
+            ["id": "product:3", "type": "product", "barcode": "000000000003", "name": "Lettuce", "emoji": "🥬", "color": "green", "category": "Produce", "price": 1.49, "location": "Aisle 1"],
+            ["id": "product:4", "type": "product", "barcode": "000000000004", "name": "Broccoli", "emoji": "🥦", "color": "green", "category": "Produce", "price": 1.69, "location": "Aisle 1"],
+            ["id": "product:5", "type": "product", "barcode": "000000000005", "name": "Cucumber", "emoji": "🥒", "color": "green", "category": "Produce", "price": 0.99, "location": "Aisle 1"],
+            ["id": "product:6", "type": "product", "barcode": "000000000006", "name": "Salad", "emoji": "🥗", "color": "green", "category": "Produce", "price": 2.99, "location": "Aisle 1"],
+            ["id": "product:7", "type": "product", "barcode": "000000000007", "name": "Corn", "emoji": "🌽", "color": "yellow", "category": "Produce", "price": 0.50, "location": "Aisle 1"],
+            ["id": "product:8", "type": "product", "barcode": "000000000008", "name": "Potato", "emoji": "🥔", "color": "brown", "category": "Produce", "price": 0.99, "location": "Aisle 1"],
+            ["id": "product:9", "type": "product", "barcode": "000000000009", "name": "Garlic", "emoji": "🧄", "color": "brown", "category": "Produce", "price": 0.50, "location": "Aisle 1"],
+            ["id": "product:10", "type": "product", "barcode": "000000000010", "name": "Onion", "emoji": "🧅", "color": "brown", "category": "Produce", "price": 0.79, "location": "Aisle 1"],
+            ["id": "product:11", "type": "product", "barcode": "000000000011", "name": "Tomato", "emoji": "🍅", "color": "red", "category": "Produce", "price": 1.29, "location": "Aisle 1"],
+            ["id": "product:12", "type": "product", "barcode": "000000000012", "name": "Bell Pepper", "emoji": "🫑", "color": "green", "category": "Produce", "price": 0.99, "location": "Aisle 1"],
             // Fruit
-            ["id":"product:13", "type":"product", "name":"Cherries", "emoji":"🍒", "color":"red", "category":"Produce", "price":3.99, "location":"Aisle 3"],
-            ["id":"product:14", "type":"product", "name":"Strawberry", "emoji":"🍓", "color":"red", "category":"Produce", "price":2.99, "location":"Aisle 3"],
-            ["id":"product:15", "type":"product", "name":"Grapes", "emoji":"🍇", "color":"purple", "category":"Produce", "price":2.49, "location":"Aisle 3"],
-            ["id":"product:16", "type":"product", "name":"Red Apple", "emoji":"🍎", "color":"red", "category":"Produce", "price":1.99, "location":"Aisle 3"],
-            ["id":"product:17", "type":"product", "name":"Watermelon", "emoji":"🍉", "color":["red", "green"], "category":"Produce", "price":4.99, "location":"Aisle 3"],
-            ["id":"product:18", "type":"product", "name":"Tangerine", "emoji":"🍊", "color":"orange", "category":"Produce", "price":2.49, "location":"Aisle 3"],
-            ["id":"product:19", "type":"product", "name":"Lemon", "emoji":"🍋", "color":"yellow", "category":"Produce", "price":0.99, "location":"Aisle 3"],
-            ["id":"product:20", "type":"product", "name":"Pineapple", "emoji":"🍍", "color":"yellow", "category":"Produce", "price":2.99, "location":"Aisle 3"],
-            ["id":"product:21", "type":"product", "name":"Banana", "emoji":"🍌", "color":"yellow", "category":"Produce", "price":0.49, "location":"Aisle 3"],
-            ["id":"product:22", "type":"product", "name":"Avocado", "emoji":"🥑", "color":["green", "yellow"], "category":"Produce", "price":1.49, "location":"Aisle 3"],
-            ["id":"product:23", "type":"product", "name":"Green Apple", "emoji":"🍏", "color":"green", "category":"Produce", "price":1.99, "location":"Aisle 3"],
-            ["id":"product:24", "type":"product", "name":"Melon", "emoji":"🍈", "color":["green", "yellow"], "category":"Produce", "price":3.49, "location":"Aisle 3"],
-            ["id":"product:25", "type":"product", "name":"Pear", "emoji":"🍐", "color":"green", "category":"Produce", "price":1.49, "location":"Aisle 3"],
-            ["id":"product:26", "type":"product", "name":"Kiwi", "emoji":"🥝", "color":"green", "category":"Produce", "price":1.99, "location":"Aisle 3"],
-            ["id":"product:27", "type":"product", "name":"Mango", "emoji":"🥭", "color":["red", "yellow", "green"], "category":"Produce", "price":1.99, "location":"Aisle 3"],
-            ["id":"product:28", "type":"product", "name":"Coconut", "emoji":"🥥", "color":["brown", "white"], "category":"Produce", "price":2.49, "location":"Aisle 3"],
-            ["id":"product:29", "type":"product", "name":"Blueberries", "emoji":"🫐", "color":"blue", "category":"Produce", "price":3.99, "location":"Aisle 3"],
-            ["id":"product:30", "type":"product", "name":"Ginger Root", "emoji":"🫚", "color":"brown", "category":"Produce", "price":0.89, "location":"Aisle 3"],
+            ["id": "product:13", "type": "product", "barcode": "000000000013", "name": "Cherries", "emoji": "🍒", "color": "red", "category": "Produce", "price": 3.99, "location": "Aisle 2"],
+            ["id": "product:14", "type": "product", "barcode": "000000000014", "name": "Strawberry", "emoji": "🍓", "color": "red", "category": "Produce", "price": 2.99, "location": "Aisle 2"],
+            ["id": "product:15", "type": "product", "barcode": "000000000015", "name": "Grapes", "emoji": "🍇", "color": "purple", "category": "Produce", "price": 2.49, "location": "Aisle 2"],
+            ["id": "product:16", "type": "product", "barcode": "000000000016", "name": "Red Apple", "emoji": "🍎", "color": "red", "category": "Produce", "price": 1.99, "location": "Aisle 2"],
+            ["id": "product:17", "type": "product", "barcode": "000000000017", "name": "Watermelon", "emoji": "🍉", "color": ["red", "green"], "category": "Produce", "price": 4.99, "location": "Aisle 2"],
+            ["id": "product:18", "type": "product", "barcode": "000000000018", "name": "Tangerine", "emoji": "🍊", "color": "orange", "category": "Produce", "price": 2.49, "location": "Aisle 2"],
+            ["id": "product:19", "type": "product", "barcode": "000000000019", "name": "Lemon", "emoji": "🍋", "color": "yellow", "category": "Produce", "price": 0.99, "location": "Aisle 2"],
+            ["id": "product:20", "type": "product", "barcode": "000000000020", "name": "Pineapple", "emoji": "🍍", "color": "yellow", "category": "Produce", "price": 2.99, "location": "Aisle 2"],
+            ["id": "product:21", "type": "product", "barcode": "000000000021", "name": "Banana", "emoji": "🍌", "color": "yellow", "category": "Produce", "price": 0.49, "location": "Aisle 2"],
+            ["id": "product:22", "type": "product", "barcode": "000000000022", "name": "Avocado", "emoji": "🥑", "color": ["green", "yellow"], "category": "Produce", "price": 1.49, "location": "Aisle 2"],
+            ["id": "product:23", "type": "product", "barcode": "000000000023", "name": "Green Apple", "emoji": "🍏", "color": "green", "category": "Produce", "price": 1.99, "location": "Aisle 2"],
+            ["id": "product:24", "type": "product", "barcode": "000000000024", "name": "Melon", "emoji": "🍈", "color": ["green", "yellow"], "category": "Produce", "price": 3.49, "location": "Aisle 2"],
+            ["id": "product:25", "type": "product", "barcode": "000000000025", "name": "Pear", "emoji": "🍐", "color": "green", "category": "Produce", "price": 1.49, "location": "Aisle 2"],
+            ["id": "product:26", "type": "product", "barcode": "000000000026", "name": "Kiwi", "emoji": "🥝", "color": "green", "category": "Produce", "price": 1.99, "location": "Aisle 2"],
+            ["id": "product:27", "type": "product", "barcode": "000000000027", "name": "Mango", "emoji": "🥭", "color": ["red", "yellow", "green"], "category": "Produce", "price": 1.99, "location": "Aisle 2"],
+            ["id": "product:28", "type": "product", "barcode": "000000000028", "name": "Coconut", "emoji": "🥥", "color": ["brown", "white"], "category": "Produce", "price": 2.49, "location": "Aisle 2"],
+            ["id": "product:29", "type": "product", "barcode": "000000000029", "name": "Blueberries", "emoji": "🫐", "color": "blue", "category": "Produce", "price": 3.99, "location": "Aisle 2"],
+            ["id": "product:30", "type": "product", "barcode": "000000000030", "name": "Ginger Root", "emoji": "🫚", "color": "brown", "category": "Produce", "price": 0.89, "location": "Aisle 2"],
             // Bakery
-            ["id":"product:31", "type":"product", "name":"Cake", "emoji":"🍰", "color":["yellow", "white"], "category":"Bakery", "price":5.99, "location":"Aisle 7"],
-            ["id":"product:32", "type":"product", "name":"Cookie", "emoji":"🍪", "color":"brown", "category":"Bakery", "price":2.99, "location":"Aisle 7"],
-            ["id":"product:33", "type":"product", "name":"Doughnut", "emoji":"🍩", "color":"brown", "category":"Bakery", "price":1.99, "location":"Aisle 7"],
-            ["id":"product:34", "type":"product", "name":"Cupcake", "emoji":"🧁", "color":["yellow", "white"], "category":"Bakery", "price":2.99, "location":"Aisle 7"],
-            ["id":"product:35", "type":"product", "name":"Bagel", "emoji":"🥯", "color":"brown", "category":"Bakery", "price":1.49, "location":"Aisle 7"],
-            ["id":"product:36", "type":"product", "name":"Bread", "emoji":"🍞", "color":"brown", "category":"Bakery", "price":2.99, "location":"Aisle 7"],
-            ["id":"product:37", "type":"product", "name":"Baguette", "emoji":"🥖", "color":"brown", "category":"Bakery", "price":2.49, "location":"Aisle 7"],
-            ["id":"product:38", "type":"product", "name":"Pretzel", "emoji":"🥨", "color":"brown", "category":"Bakery", "price":1.99, "location":"Aisle 7"],
-            ["id":"product:39", "type":"product", "name":"Croissant", "emoji":"🥐", "color":"brown", "category":"Bakery", "price":1.89, "location":"Aisle 7"],
+            ["id": "product:31", "type": "product", "barcode": "000000000031", "name": "Cake", "emoji": "🍰", "color": ["yellow", "white"], "category": "Bakery", "price": 5.99, "location": "Aisle 3"],
+            ["id": "product:32", "type": "product", "barcode": "000000000032", "name": "Cookie", "emoji": "🍪", "color": "brown", "category": "Bakery", "price": 2.99, "location": "Aisle 3"],
+            ["id": "product:33", "type": "product", "barcode": "000000000033", "name": "Doughnut", "emoji": "🍩", "color": "brown", "category": "Bakery", "price": 1.99, "location": "Aisle 3"],
+            ["id": "product:34", "type": "product", "barcode": "000000000034", "name": "Cupcake", "emoji": "🧁", "color": ["yellow", "white"], "category": "Bakery", "price": 2.99, "location": "Aisle 3"],
+            ["id": "product:35", "type": "product", "barcode": "000000000035", "name": "Bagel", "emoji": "🥯", "color": "brown", "category": "Bakery", "price": 1.49, "location": "Aisle 3"],
+            ["id": "product:36", "type": "product", "barcode": "000000000036", "name": "Bread", "emoji": "🍞", "color": "brown", "category": "Bakery", "price": 2.99, "location": "Aisle 3"],
+            ["id": "product:37", "type": "product", "barcode": "000000000037", "name": "Baguette", "emoji": "🥖", "color": "brown", "category": "Bakery", "price": 2.49, "location": "Aisle 3"],
+            ["id": "product:38", "type": "product", "barcode": "000000000038", "name": "Pretzel", "emoji": "🥨", "color": "brown", "category": "Bakery", "price": 1.99, "location": "Aisle 3"],
+            ["id": "product:39", "type": "product", "barcode": "000000000039", "name": "Croissant", "emoji": "🥐", "color": "brown", "category": "Bakery", "price": 1.89, "location": "Aisle 3"],
             // Dairy
-            ["id":"product:40", "type":"product", "name":"Cheese", "emoji":"🧀", "color":"yellow", "category":"Dairy", "price":3.99, "location":"Aisle 8"],
-            ["id":"product:41", "type":"product", "name":"Butter", "emoji":"🧈", "color":"yellow", "category":"Dairy", "price":2.99, "location":"Aisle 8"],
-            ["id":"product:42", "type":"product", "name":"Ice Cream", "emoji":"🍨", "color":["white", "brown"], "category":"Dairy", "price":4.99, "location":"Aisle 8"]
+            ["id": "product:40", "type": "product", "barcode": "000000000040", "name": "Cheese", "emoji": "🧀", "color": "yellow", "category": "Dairy", "price": 3.99, "location": "Aisle 4"],
+            ["id": "product:41", "type": "product", "barcode": "000000000041", "name": "Butter", "emoji": "🧈", "color": "yellow", "category": "Dairy", "price": 2.99, "location": "Aisle 4"],
+            ["id": "product:42", "type": "product", "barcode": "000000000042", "name": "Ice Cream", "emoji": "🍨", "color": ["white", "brown"], "category": "Dairy", "price": 4.99, "location": "Aisle 4"],
+            // Home
+            ["id": "product:43", "type": "product", "barcode": "000000000043", "name": "Bolt", "emoji": "🔩", "color": "silver", "category": "Home", "price": 0.50, "location": "Aisle 5"],
+            ["id": "product:44", "type": "product", "barcode": "000000000044", "name": "Hammer", "emoji": "🔨", "color": "black", "category": "Home", "price": 15.99, "location": "Aisle 5"],
+            ["id": "product:45", "type": "product", "barcode": "000000000045", "name": "Wrench", "emoji": "🔧", "color": "silver", "category": "Home", "price": 14.99, "location": "Aisle 5"],
+            // Office
+            ["id": "product:46", "type": "product", "barcode": "000000000046", "name": "Scissors", "emoji": "✂️", "color": "red", "category": "Office", "price": 12.99, "location": "Aisle 6"],
+            ["id": "product:47", "type": "product", "barcode": "000000000047", "name": "Paper Clip", "emoji": "📎", "color": "silver", "category": "Office", "price": 2.99, "location": "Aisle 6"],
+            ["id": "product:48", "type": "product", "barcode": "000000000048", "name": "Push Pin", "emoji": "📌", "color": "red", "category": "Office", "price": 3.49, "location": "Aisle 6"]
         ]
+
         
         // Write data to database.
         for (_, var productData) in productsData.enumerated() {
@@ -375,7 +438,7 @@ class Database {
         
         // Add to cart and cart total
         print("Cart total before adding product: \(cartTotal)")
-        addToCart(product: Product(name: "Broccoli", price: 1.69, location: "Aisle 2", image: image(from: "🥦")))
+        addToCart(product: Product(name: "Broccoli", price: 1.69, location: "Aisle 1", image: image(from: "🥦")))
         print("Cart total after adding product: \(cartTotal)")
         print()
         

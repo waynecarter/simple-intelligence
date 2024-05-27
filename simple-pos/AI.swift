@@ -16,6 +16,8 @@ struct AI {
         case none, saliency
     }
     
+    // MARK: - Embedding
+    
     func embedding(for image: UIImage, attention: Attention = .saliency) -> [NSNumber]? {
         guard let cgImage = image.cgImage else {
             return nil
@@ -79,6 +81,43 @@ struct AI {
         }
 
         return embedding
+    }
+    
+    // MARK: - Barcode
+    
+    func barcode(from image: UIImage) -> String? {
+        guard let cgImage = image.cgImage else {
+            return nil
+        }
+        
+        // Extract the barcode
+        let barcode = barcode(from: cgImage)
+        
+        return barcode
+    }
+    
+    private func barcode(from cgImage: CGImage) -> String? {
+        // Perform barcode detection
+        let request = VNDetectBarcodesRequest()
+        let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+
+        do {
+            try handler.perform([request])
+        } catch {
+            return nil
+        }
+        
+        guard let results = request.results else {
+            return nil
+        }
+        
+        for result in results {
+            if let payloadString = result.payloadStringValue {
+                return payloadString
+            }
+        }
+        
+        return nil
     }
     
     // MARK: - Image Processing
