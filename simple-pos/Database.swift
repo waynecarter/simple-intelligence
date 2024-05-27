@@ -95,7 +95,7 @@ class Database {
             FROM _
             WHERE type = "product"
                 AND VECTOR_MATCH(ImageVectorIndex, $embedding, 10)
-                AND VECTOR_DISTANCE(ImageVectorIndex) < 0.2
+                AND VECTOR_DISTANCE(ImageVectorIndex) < 0.25
             ORDER BY VECTOR_DISTANCE(ImageVectorIndex), name
         """
         
