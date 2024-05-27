@@ -12,16 +12,21 @@ struct AI {
     static let shared = AI()
     private init() {}
     
-    func featureEmbedding(for image: UIImage, completion: @escaping ([NSNumber]?) -> Void) {
+    enum Attention {
+        case none, saliency
+    }
+    
+    func featureEmbedding(for image: UIImage, attention: Attention = .saliency, completion: @escaping ([NSNumber]?) -> Void) {
         guard let cgImage = image.cgImage else {
             completion(nil)
             return
         }
         
-        // Process the input image
-        let processedCgImage = process(cgImage: cgImage)
-        
         DispatchQueue.global().async(qos: .userInitiated) {
+            // Process the input image
+            let processedCgImage = process(cgImage: cgImage, attention: attention)
+            
+            // Extract the embeddings
             featureEmbedding(for: processedCgImage, completion: completion)
         }
     }
@@ -82,9 +87,15 @@ struct AI {
     
     // MARK: - Image Processing
     
-    private func process(cgImage: CGImage) -> CGImage {
-        var processedImage = cropToSalientRegion(cgImage: cgImage)
+    private func process(cgImage: CGImage, attention: Attention) -> CGImage {
+        var processedImage = cgImage
+        
+        if attention == .saliency {
+            processedImage = cropToSalientRegion(cgImage: cgImage)
+        }
+        
         processedImage = fit(cgImage: processedImage, to: CGSize(width: 100, height: 100))
+        
         return processedImage
     }
     
@@ -101,27 +112,36 @@ struct AI {
 
         // Get the salient objects
         guard let observation = request.results?.first as? VNSaliencyImageObservation,
-              let salientObject = observation.salientObjects?.first else {
-            return cgImage
+              let salientObject = observation.salientObjects?.first else
+        {
+            // No salient object detected, crop to the center square
+            let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
+            let sideLength = min(imageSize.width, imageSize.height)
+            let centerRect = CGRect(
+                x: (imageSize.width - sideLength) / 2,
+                y: (imageSize.height - sideLength) / 2,
+                width: sideLength,
+                height: sideLength
+            )
+            
+            return cgImage.cropping(to: centerRect) ?? cgImage
         }
 
-        // Get the bounding box of the salient region, converting the bounding box from
-        // Vision normalized coordinates to CoreGraphics coordinates
+        // Get the bounding box of the salient object and convert the bounding box
+        // from Vision normalized coordinates to CoreGraphics coordinates
         let boundingBox = salientObject.boundingBox
         let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
-        let salientRect = CGRect(
+        var salientRect = CGRect(
             x: boundingBox.origin.x * imageSize.width,
             y: (1 - boundingBox.origin.y - boundingBox.height) * imageSize.height,
             width: boundingBox.width * imageSize.width,
             height: boundingBox.height * imageSize.height
         )
+        // Outset by a margin making the rect slightly larger
+        salientRect = salientRect.insetBy(dx: -16, dy: -16)
 
         // Crop the image to the salient region
-        guard let croppedCgImage = cgImage.cropping(to: salientRect) else {
-            return cgImage
-        }
-        
-        return croppedCgImage
+        return cgImage.cropping(to: salientRect) ?? cgImage
     }
     
     private func fit(cgImage: CGImage, to targetSize: CGSize) -> CGImage {
@@ -130,7 +150,7 @@ struct AI {
         // Calculate the aspect ratios
         let widthRatio = targetSize.width / imageSize.width
         let heightRatio = targetSize.height / imageSize.height
-        let scaleFactor = min(widthRatio, heightRatio) // Use min to fit the content without cropping
+        let scaleFactor = min(widthRatio, heightRatio)
 
         let scaledWidth = imageSize.width * scaleFactor
         let scaledHeight = imageSize.height * scaleFactor
@@ -140,9 +160,8 @@ struct AI {
 
         let rendererFormat = UIGraphicsImageRendererFormat.default()
         rendererFormat.scale = 1 // Use a scale factor of 1 for CGImage
-        let rendererSize = CGSize(width: targetSize.width, height: targetSize.height)
 
-        let renderer = UIGraphicsImageRenderer(size: rendererSize, format: rendererFormat)
+        let renderer = UIGraphicsImageRenderer(size: targetSize, format: rendererFormat)
         let fitImage = renderer.image { _ in
             UIImage(cgImage: cgImage).draw(in: scaledRect)
         }

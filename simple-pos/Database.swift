@@ -326,7 +326,7 @@ class Database {
             
             // If the data document has an image, generate an embedding and update the document.
             if let image = image {
-                AI.shared.featureEmbedding(for: image) { embedding in
+                AI.shared.featureEmbedding(for: image, attention: .none) { embedding in
                     if let embedding = embedding {
                         document["embedding"].array = MutableArrayObject(data: embedding)
                         try! collection.save(document: document)
@@ -340,11 +340,13 @@ class Database {
         let nsString = string as NSString
         let font = UIFont.systemFont(ofSize: 160)
         let stringAttributes = [NSAttributedString.Key.font: font]
-        let imageSize = nsString.size(withAttributes: stringAttributes)
+        let textSize = nsString.size(withAttributes: stringAttributes)
+        let squareSize = max(textSize.width, textSize.height)
 
-        let renderer = UIGraphicsImageRenderer(size: imageSize)
-        let image = renderer.image { _ in
-            nsString.draw( at: CGPoint.zero, withAttributes: stringAttributes)
+        let renderer = UIGraphicsImageRenderer(size: CGSize(width: squareSize, height: squareSize))
+        let image = renderer.image { context in
+            let rect = CGRect(x: (squareSize - textSize.width) / 2, y: (squareSize - textSize.height) / 2, width: textSize.width, height: textSize.height)
+            nsString.draw(in: rect, withAttributes: stringAttributes)
         }
 
         return image
