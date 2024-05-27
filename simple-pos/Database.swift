@@ -49,15 +49,15 @@ class Database {
         // Initialize the value index on the "name" field for fast sorting.
         let nameIndex = ValueIndexConfiguration(["name"])
         try! collection.createIndex(withName: "NameIndex", config: nameIndex)
-
-        // Initialize the full-text search index on the "name" and "category" fields.
-        let ftsIndex = FullTextIndexConfiguration(["name", "category"])
-        try! collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsIndex)
         
         // Initialize the vector index on the "embedding" field for image search.
         var vectorIndex = VectorIndexConfiguration(expression: "embedding", dimensions: 768, centroids: 2)
         vectorIndex.metric = .cosine
         try! collection.createIndex(withName: "ImageVectorIndex", config: vectorIndex)
+        
+        // Initialize the full-text search index on the "name" and "category" fields.
+        let ftsIndex = FullTextIndexConfiguration(["name", "category"])
+        try! collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsIndex)
         
         startAppService()
     }
@@ -68,56 +68,6 @@ class Database {
     }
     
     // MARK: - Search
-    
-    func search(string: String) -> [Product] {
-        var searchString = string.trimmingCharacters(in: .whitespaces)
-        if !searchString.hasSuffix("*") {
-            searchString = searchString.appending("*")
-        }
-        
-        // SQL
-        let sql = """
-            SELECT name, price, location, image
-            FROM _
-            WHERE type = "product"
-                AND MATCH(NameAndCategoryFullTextIndex, $search)
-            ORDER BY RANK(NameAndCategoryFullTextIndex), name
-        """
-        
-        // Set query parameters
-        let parameters = Parameters()
-        parameters.setString(searchString, forName: "search")
-        
-        do {
-            // Create the query.
-            let query = try database.createQuery(sql)
-            query.parameters = parameters
-            
-            // Execute the query and get the results.
-            let results = try query.execute()
-            
-            // Enumerate through the query results.
-            var products = [Product]()
-            for result in results {
-                if let name = result["name"].string,
-                   let price = result["price"].number,
-                   let location = result["location"].string,
-                   let imageData = result["image"].blob?.content,
-                   let image = UIImage(data: imageData)
-                {
-                    let product = Product(name: name, price: price.doubleValue, location: location, image: image)
-                    products.append(product)
-                }
-            }
-            
-            return products
-        } catch {
-            // If the query fails, return an empty result. This is expected when the user is
-            // typing an FTS expression but they haven't completed typing so the query is
-            // invalid. e.g. "(blue OR"
-            return [Product]()
-        }
-    }
     
     func search(image: UIImage) -> [Product] {
         guard let embedding = AI.shared.embedding(for: image) else { return [] }
@@ -182,6 +132,56 @@ class Database {
             return filteredProducts
         } catch {
             print("Database.searchVector: \(error.localizedDescription)")
+            return [Product]()
+        }
+    }
+    
+    func search(string: String) -> [Product] {
+        var searchString = string.trimmingCharacters(in: .whitespaces)
+        if !searchString.hasSuffix("*") {
+            searchString = searchString.appending("*")
+        }
+        
+        // SQL
+        let sql = """
+            SELECT name, price, location, image
+            FROM _
+            WHERE type = "product"
+                AND MATCH(NameAndCategoryFullTextIndex, $search)
+            ORDER BY RANK(NameAndCategoryFullTextIndex), name
+        """
+        
+        // Set query parameters
+        let parameters = Parameters()
+        parameters.setString(searchString, forName: "search")
+        
+        do {
+            // Create the query.
+            let query = try database.createQuery(sql)
+            query.parameters = parameters
+            
+            // Execute the query and get the results.
+            let results = try query.execute()
+            
+            // Enumerate through the query results.
+            var products = [Product]()
+            for result in results {
+                if let name = result["name"].string,
+                   let price = result["price"].number,
+                   let location = result["location"].string,
+                   let imageData = result["image"].blob?.content,
+                   let image = UIImage(data: imageData)
+                {
+                    let product = Product(name: name, price: price.doubleValue, location: location, image: image)
+                    products.append(product)
+                }
+            }
+            
+            return products
+        } catch {
+            // If the query fails, return an empty result. This is expected when the user is
+            // typing an FTS expression but they haven't completed typing so the query is
+            // invalid. e.g. "(blue OR"
             return [Product]()
         }
     }
