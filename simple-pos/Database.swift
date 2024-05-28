@@ -144,24 +144,23 @@ class Database {
         parameters.setString(barcode, forName: "barcode")
         
         do {
-            // Create the query.
+            // Create the query
             let query = try database.createQuery(sql)
             query.parameters = parameters
             
-            // Execute the query and get the results.
+            // Execute the query and get the results
             let results = try query.execute()
             
-            // Enumerate through the query results and return the first result
-            for result in results {
-                if let name = result["name"].string,
-                   let price = result["price"].number,
-                   let location = result["location"].string,
-                   let imageData = result["image"].blob?.content,
-                   let image = UIImage(data: imageData)
-                {
-                    let product = Product(name: name, price: price.doubleValue, location: location, image: image)
-                    return product
-                }
+            // Return the first search result
+            if let result = results.next(),
+               let name = result["name"].string,
+               let price = result["price"].number,
+               let location = result["location"].string,
+               let imageData = result["image"].blob?.content,
+               let image = UIImage(data: imageData)
+            {
+                let product = Product(name: name, price: price.doubleValue, location: location, image: image)
+                return product
             }
         } catch {
             print("Database.search(barcode:): \(error.localizedDescription)")

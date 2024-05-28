@@ -26,9 +26,8 @@ struct AI {
         // Process the input image
         let processedCgImage = process(cgImage: cgImage, attention: attention)
         
-        // Extract the embeddings
+        // Return the embeddings
         let embedding = embedding(for: processedCgImage)
-        
         return embedding
     }
         
@@ -90,9 +89,7 @@ struct AI {
             return nil
         }
         
-        // Extract the barcode
         let barcode = barcode(from: cgImage)
-        
         return barcode
     }
     
@@ -111,10 +108,8 @@ struct AI {
             return nil
         }
         
-        for result in results {
-            if let payloadString = result.payloadStringValue {
-                return payloadString
-            }
+        if let payloadString = results.first(where: { $0.payloadStringValue != nil })?.payloadStringValue {
+            return payloadString
         }
         
         return nil
