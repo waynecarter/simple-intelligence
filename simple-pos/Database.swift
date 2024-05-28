@@ -43,12 +43,13 @@ class Database {
         let ftsIndex = FullTextIndexConfiguration(["name", "category"])
         try! collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsIndex)
         
-        startAppService()
+        // Initialize sync
+        setupSync()
     }
     
     deinit {
         cancellables.removeAll()
-        stopAppService()
+        stopSync()
     }
     
     // MARK: - Search
@@ -297,26 +298,92 @@ class Database {
         }
     }
     
-    // MARK: - App Service
+    // MARK: - Sync
     
-    private var appService: AppService!
+    private var replicator: Replicator?
+    private var backgroundSyncTask: UIBackgroundTaskIdentifier?
     
-    private func startAppService() {
-        // Create the app service with the configured endpoint
-        appService = AppService(database: database, collections: [collection], endpoint: Settings.shared.endpoint)
-        
-        // When the endpoint settings change, update the app service
-        Settings.shared.$endpoint
-            .sink { [weak self] newEndpoint in
-                self?.appService.endpoint = newEndpoint
-            }.store(in: &cancellables)
-        
-        // Start the app service and start syncing with the configured endpoint
-        appService.start()
+    private var endpoint: Settings.Endpoint? {
+        didSet {
+            startSync()
+        }
     }
     
-    private func stopAppService() {
-        appService.stop()
+    private func setupSync() {
+        // When the endpoint settings change, update the replicator
+        Settings.shared.$endpoint
+            .sink { [weak self] newEndpoint in
+                self?.endpoint = newEndpoint
+            }.store(in: &cancellables)
+        
+        // TODO: Do I need to manage the background sync or does setting
+        // ReplicatorConfiguration.allowReplicatingInBackground = true
+        // handle stopping sync when entering the background and restarting
+        // it when reentering the foreground?
+        
+        // When entering the background, manage background sync
+        NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
+            .sink { [weak self] _ in
+                // Sync in the background until the background task expires, then stop
+                self?.backgroundSyncTask = UIApplication.shared.beginBackgroundTask { [weak self] in
+                    self?.stopSync()
+                    if let task = self?.backgroundSyncTask {
+                        UIApplication.shared.endBackgroundTask(task)
+                        self?.backgroundSyncTask = nil
+                    }
+                }
+            }
+            .store(in: &cancellables)
+        
+        // When entering the foreground, start syncing
+        NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
+            .sink { [weak self] _ in
+                if let task = self?.backgroundSyncTask {
+                    UIApplication.shared.endBackgroundTask(task)
+                    self?.backgroundSyncTask = nil
+                }
+                
+                self?.startSync()
+            }
+            .store(in: &cancellables)
+    }
+    
+    private func startSync() {
+        stopSync()
+        
+        // Create and start the replicator
+        replicator = createReplicator()
+        replicator?.start()
+    }
+    
+    private func stopSync() {
+        if let replicator = replicator {
+            // Stop and nullify the replicator
+            replicator.stop()
+            self.replicator = nil
+        }
+    }
+    
+    private func createReplicator() -> Replicator? {
+        guard let endpoint = endpoint else { return nil }
+        
+        // Set up the target endpoint.
+        let target = URLEndpoint(url: endpoint.url)
+        var config = ReplicatorConfiguration(target: target)
+        config.addCollection(collection)
+        config.replicatorType = .pull
+        config.continuous = true
+        config.allowReplicatingInBackground = true
+        
+        // If the endpoint has a username and password then use then assign a basic
+        // authenticator using the credentials.
+        if let username = endpoint.username, let password = endpoint.password {
+            config.authenticator = BasicAuthenticator(username: username, password: password)
+        }
+
+        // Create and return the replicator.
+        let endpointReplicator = Replicator(config: config)
+        return endpointReplicator
     }
     
     // MARK: - Util

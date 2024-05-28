@@ -20,7 +20,6 @@
 		B0EBE56D2BF9165B002FF20C /* CouchbaseLiteVectorSearch.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B0EBE5692BF9165B002FF20C /* CouchbaseLiteVectorSearch.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B0EBE5702BF9167C002FF20C /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EBE56F2BF9167C002FF20C /* Database.swift */; };
 		B0EBE5722BF91CB2002FF20C /* AI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EBE5712BF91CB2002FF20C /* AI.swift */; };
-		B0F3276A2BFEE6F5007376C3 /* AppService.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F327692BFEE6F5007376C3 /* AppService.swift */; };
 		B0F3276C2BFEE7CC007376C3 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B0F3276B2BFEE7CC007376C3 /* Settings.bundle */; };
 		B0F3276E2BFEE8A4007376C3 /* Settings.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0F3276D2BFEE8A4007376C3 /* Settings.swift */; };
 /* End PBXBuildFile section */
@@ -54,7 +53,6 @@
 		B0EBE5692BF9165B002FF20C /* CouchbaseLiteVectorSearch.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteVectorSearch.xcframework; path = "simple-pos/Frameworks/CouchbaseLiteVectorSearch.xcframework"; sourceTree = "<group>"; };
 		B0EBE56F2BF9167C002FF20C /* Database.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
 		B0EBE5712BF91CB2002FF20C /* AI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AI.swift; sourceTree = "<group>"; };
-		B0F327692BFEE6F5007376C3 /* AppService.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = AppService.swift; sourceTree = "<group>"; };
 		B0F3276B2BFEE7CC007376C3 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
 		B0F3276D2BFEE8A4007376C3 /* Settings.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Settings.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -99,7 +97,6 @@
 				B0EBE5712BF91CB2002FF20C /* AI.swift */,
 				40E7CA372BFB20B5004BE7E1 /* Camera.swift */,
 				B0F3276D2BFEE8A4007376C3 /* Settings.swift */,
-				B0F327692BFEE6F5007376C3 /* AppService.swift */,
 				B09602172BF7014700F6A866 /* Main.storyboard */,
 				B096021C2BF7014B00F6A866 /* LaunchScreen.storyboard */,
 				B096021A2BF7014B00F6A866 /* Assets.xcassets */,
@@ -197,7 +194,6 @@
 				B0EBE5702BF9167C002FF20C /* Database.swift in Sources */,
 				B0EBE5722BF91CB2002FF20C /* AI.swift in Sources */,
 				B09602142BF7014700F6A866 /* SceneDelegate.swift in Sources */,
-				B0F3276A2BFEE6F5007376C3 /* AppService.swift in Sources */,
 				40E7CA382BFB20B5004BE7E1 /* Camera.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
