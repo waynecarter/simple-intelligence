@@ -17,26 +17,6 @@ class Database {
     
     private var cancellables = Set<AnyCancellable>()
     
-    struct Product: Equatable {
-        let name: String
-        let price: Double
-        let location: String
-        let image: UIImage
-        
-        fileprivate init(name: String, price: Double, location: String, image: UIImage) {
-            self.name = name
-            self.price = price
-            self.location = location
-            self.image = image
-        }
-        
-        static func == (lhs: Product, rhs: Product) -> Bool {
-            return lhs.name == rhs.name
-            && lhs.location == rhs.location
-            && lhs.price == rhs.price
-        }
-    }
-    
     private init() {
         database = try! CouchbaseLiteSwift.Database(name: "pos")
         collection = try! database.defaultCollection()
@@ -293,6 +273,28 @@ class Database {
             }
         } catch {
             print("Database.clearCart: \(error.localizedDescription)")
+        }
+    }
+    
+    // MARK: - Product
+    
+    struct Product: Equatable {
+        let name: String
+        let price: Double
+        let location: String
+        let image: UIImage
+        
+        fileprivate init(name: String, price: Double, location: String, image: UIImage) {
+            self.name = name
+            self.price = price
+            self.location = location
+            self.image = image
+        }
+        
+        static func == (lhs: Product, rhs: Product) -> Bool {
+            return lhs.name == rhs.name
+            && lhs.location == rhs.location
+            && lhs.price == rhs.price
         }
     }
     
