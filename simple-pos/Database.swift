@@ -37,7 +37,7 @@ class Database {
         // Initialize the vector index on the "embedding" field for image search.
         var vectorIndex = VectorIndexConfiguration(expression: "embedding", dimensions: 768, centroids: 2)
         vectorIndex.metric = .cosine
-        try! collection.createIndex(withName: "ImageVectorIndex", config: vectorIndex)
+        try! collection.createIndex(withName: "EmbeddingVectorIndex", config: vectorIndex)
         
         // Initialize the full-text search index on the "name" and "category" fields.
         let ftsIndex = FullTextIndexConfiguration(["name", "category"])
@@ -72,12 +72,12 @@ class Database {
     private func search(vector: [NSNumber]) -> [Product] {
         // SQL
         let sql = """
-            SELECT name, price, location, image, VECTOR_DISTANCE(ImageVectorIndex) AS distance
+            SELECT name, price, location, image, VECTOR_DISTANCE(EmbeddingVectorIndex) AS distance
             FROM _
             WHERE type = "product"
-                AND VECTOR_MATCH(ImageVectorIndex, $embedding, 10)
-                AND VECTOR_DISTANCE(ImageVectorIndex) < 0.25
-            ORDER BY VECTOR_DISTANCE(ImageVectorIndex), name
+                AND VECTOR_MATCH(EmbeddingVectorIndex, $embedding, 10)
+                AND VECTOR_DISTANCE(EmbeddingVectorIndex) < 0.25
+            ORDER BY VECTOR_DISTANCE(EmbeddingVectorIndex), name
         """
         
         // Set query parameters
