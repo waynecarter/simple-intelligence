@@ -119,15 +119,12 @@ func search(string: String) -> [Product] {
     parameters.setString(searchString, forName: "search")
     
     // Create the query.
-    let query = try database.createQuery(sql)
+    let query = database.createQuery(sql)
     query.parameters = parameters
-    
-    // Execute the query and get the results.
-    let results = try query.execute()
     
     // Enumerate through the query results.
     var products = [Product]()
-    for result in results {
+    for result in query.execute() {
         if let name = result["name"].string,
            let price = result["price"].number,
            let location = result["location"].string,
@@ -150,20 +147,20 @@ The `Database` class demonstrates initilizing indexes.
 ```swift
 // Initialize the value index on the "name" field for fast sorting.
 let nameIndex = ValueIndexConfiguration(["name"])
-try! collection.createIndex(withName: "NameIndex", config: nameIndex)
+collection.createIndex(withName: "NameIndex", config: nameIndex)
 
 // Initialize the value index on the "barcode" field for fast searching.
 let barcodeIndex = ValueIndexConfiguration(["barcode"])
-try! collection.createIndex(withName: "BarcodeIndex", config: barcodeIndex)
+collection.createIndex(withName: "BarcodeIndex", config: barcodeIndex)
 
 // Initialize the vector index on the "embedding" field for image search.
 var vectorIndex = VectorIndexConfiguration(expression: "embedding", dimensions: 768, centroids: 2)
 vectorIndex.metric = .cosine
-try! collection.createIndex(withName: "EmbeddingVectorIndex", config: vectorIndex)
+collection.createIndex(withName: "EmbeddingVectorIndex", config: vectorIndex)
 
 // Initialize the full-text search index on the "name" and "category" fields.
 let ftsIndex = FullTextIndexConfiguration(["name", "category"])
-try! collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsIndex)
+collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsIndex)
 ```
 
 ## Sync
