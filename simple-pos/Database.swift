@@ -80,14 +80,11 @@ class Database {
             ORDER BY VECTOR_DISTANCE(EmbeddingVectorIndex), name
         """
         
-        // Set query parameters
-        let parameters = Parameters()
-        parameters.setArray(MutableArrayObject(data: vector), forName: "embedding")
-        
         do {
             // Create the query.
             let query = try database.createQuery(sql)
-            query.parameters = parameters
+            query.parameters = Parameters()
+                .setArray(MutableArrayObject(data: vector), forName: "embedding")
             
             // Execute the query and get the results.
             let results = try query.execute()
@@ -140,14 +137,11 @@ class Database {
             LIMIT 1
         """
         
-        // Set query parameters
-        let parameters = Parameters()
-        parameters.setString(barcode, forName: "barcode")
-        
         do {
             // Create the query
             let query = try database.createQuery(sql)
-            query.parameters = parameters
+            query.parameters = Parameters()
+                .setString(barcode, forName: "barcode")
             
             // Execute the query and get the results
             let results = try query.execute()
@@ -185,14 +179,11 @@ class Database {
             ORDER BY RANK(NameAndCategoryFullTextIndex), name
         """
         
-        // Set query parameters
-        let parameters = Parameters()
-        parameters.setString(searchString, forName: "search")
-        
         do {
             // Create the query.
             let query = try database.createQuery(sql)
-            query.parameters = parameters
+            query.parameters = Parameters()
+                .setString(searchString, forName: "search")
             
             // Execute the query and get the results.
             let results = try query.execute()
