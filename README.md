@@ -7,12 +7,12 @@ The `Database.search(image: Image)` function demonstrates AI search and indexing
 ```swift
 func search(image: UIImage) -> [Product] {
     // Search with barcode
-    if let barcode = AI.shared.barcode(from: image), let product = search(barcode: barcode) {
+    if let barcode = AI.barcode(from: image), let product = search(barcode: barcode) {
         return [product]
     }
     
     // Search with embedding
-    if let embedding = AI.shared.embedding(for: image) {
+    if let embedding = AI.embedding(for: image) {
         let products = search(vector: embedding)
         return products
     }
