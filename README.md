@@ -36,13 +36,10 @@ func search(vector: [NSNumber]) -> [Product] {
         ORDER BY VECTOR_DISTANCE(EmbeddingVectorIndex), name
     """
     
-    // Set query parameters
-    let parameters = Parameters()
-    parameters.setArray(vector, forName: "embedding")
-    
     // Create the query.
     let query = database.createQuery(sql)
-    query.parameters = parameters
+    query.parameters = Parameters()
+        .setArray(vector, forName: "embedding")
     
     // Execute the query and get the results.
     var products = [Product]()
@@ -76,13 +73,10 @@ private func search(barcode: String) -> Product? {
         LIMIT 1
     """
     
-    // Set query parameters
-    let parameters = Parameters()
-    parameters.setString(barcode, forName: "barcode")
-    
     // Create the query
     let query = database.createQuery(sql)
-    query.parameters = parameters
+    query.parameters = Parameters()
+        .setString(barcode, forName: "barcode")
     
     // Return the first search result
     if let result = query.execute().next(),
@@ -114,13 +108,10 @@ func search(string: String) -> [Product] {
         ORDER BY RANK(NameAndCategoryFullTextIndex), name
     """
     
-    // Set query parameters
-    let parameters = Parameters()
-    parameters.setString(searchString, forName: "search")
-    
     // Create the query.
     let query = database.createQuery(sql)
-    query.parameters = parameters
+    query.parameters = Parameters()
+        .setString(searchString, forName: "search")
     
     // Enumerate through the query results.
     var products = [Product]()
