@@ -32,7 +32,7 @@ func search(vector: [NSNumber]) -> [Product] {
         SELECT name, price, location, image
         FROM products
         WHERE VECTOR_MATCH(EmbeddingVectorIndex, $embedding, 10)
-            AND VECTOR_DISTANCE(EmbeddingVectorIndex) < 0.25
+          AND VECTOR_DISTANCE(EmbeddingVectorIndex) < 0.25
         ORDER BY VECTOR_DISTANCE(EmbeddingVectorIndex), name
     """
     
