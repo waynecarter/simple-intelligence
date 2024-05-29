@@ -168,16 +168,18 @@ collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsInde
 The `Database.startSync()` function demonstrates how to sync with a Couchbase Capella cloud endpoint.
 
 ```swift
-// Set up the sync endpoint.
-let target = URLEndpoint(url: endpoint.url)
-var config = ReplicatorConfiguration(target: target)
-config.addCollection(collection)
-config.replicatorType = .pull
-config.authenticator = BasicAuthenticator(username: endpoint.username, password: endpoint.password)
+private func startSync() {
+    // Set up the sync endpoint.
+    let target = URLEndpoint(url: endpoint.url)
+    var config = ReplicatorConfiguration(target: target)
+    config.addCollection(collection)
+    config.replicatorType = .pull
+    config.authenticator = BasicAuthenticator(username: endpoint.username, password: endpoint.password)
 
-// Create and start the replicator.
-let replicator = Replicator(config: config)
-replicator.start()
+    // Create and start the replicator.
+    let replicator = Replicator(config: config)
+    replicator.start()
+}
 ```
 
 ## Run the Project
