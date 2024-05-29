@@ -144,3 +144,17 @@ config.authenticator = BasicAuthenticator(username: endpoint.username, password:
 let replicator = Replicator(config: config)
 replicator.start()
 ```
+
+## Run the Project
+
+1. Clone or download this repository
+2. [Download](https://www.couchbase.com/downloads/?family=couchbase-lite) the latest `CouchbaseLiteSwift.xcframework` and `CouchbaseLiteVectorSearch.xcframework`, and copy them to the project's `Frameworks` directory.
+3. Open the project in Xcode.
+4. Run the app on a phone or tablet.
+
+### Source Files
+
+To explore the code, start with the following source files:
+
+* `Database.swift`: Manages the search and sync feature.
+* `AI.swift`: Provides the AI features.
