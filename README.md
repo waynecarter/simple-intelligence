@@ -182,7 +182,7 @@ These setups work well for stationary kiosks and wall displays. Some use cases i
 
 ![iPad Demo Setup](images/ipad-demo-setup.png)
 
-This is the stand that I'm using or the iPad setup. You can find it [here](https://www.amazon.com/dp/B0C1MZGG1P) on Amazon.
+This is the stand that I'm using for the iPad setup. You can find it [here](https://www.amazon.com/dp/B0C1MZGG1P) on Amazon.
 
 ![iPad Stand](images/ipad-stand.png)
 
