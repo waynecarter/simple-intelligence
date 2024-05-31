@@ -172,6 +172,25 @@ private func startSync() {
     replicator.start()
 }
 ```
+## Demo the Project
+
+The demo app is designed to be run on an iPhone or iPad in the following configurations:
+
+### iPad
+
+These setups work well for stationary kiosks and wall displays. Some use cases include point-of-sale, self checkout, self check-in, price lookup, ticket validation, and more.
+
+![iPad Demo Setup](images/ipad-demo-setup.png)
+
+This is the stand that I'm using or the iPad setup. You can find it [here](https://www.amazon.com/dp/B0C1MZGG1P) on Amazon.
+
+![iPad Stand](images/ipad-stand.png)
+
+### iPhone
+
+These setups work well for mobile use. Some use cases include personal shopping, self checkout, order collection, package delivery, and ticket validation.
+
+![iPhone Demo Setup](images/iphone-demo-setup.png)
 
 ## Run the Project
 
