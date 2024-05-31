@@ -194,7 +194,7 @@ These setups work well for mobile use. Some use cases include personal shopping,
 
 ### Demo Cards
 
-The demo app is trained to recognize the products in it's catalog using the camera. To help demonstrating these capabilities, you can download the PDF of demo cards [here](images/demo-cards.pdf) and use them from your computer or print them out on physical cards. Here are a few examples of cards from the set:
+The demo app is trained to recognize the products in it's catalog using the camera. To help demonstrating these capabilities, [download the demo cards PDF](images/demo-cards.pdf) and use them from your computer or print them out. Here are a few examples of cards from the set:
 
 ![Demo Card Examples](images/demo-card-examples.png)
 
