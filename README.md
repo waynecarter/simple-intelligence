@@ -209,5 +209,6 @@ The demo app is trained to recognize the products in it's catalog using the came
 
 To explore the code, start with the following source files:
 
-* `Database.swift`: Manages the search and sync feature.
+* `Database.swift`: Manages the search and sync features.
 * `AI.swift`: Provides the AI features.
+* `Camera.swift`: Manages the camera.
