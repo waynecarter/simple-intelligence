@@ -176,7 +176,7 @@ private func startSync() {
 
 The demo app is designed to be run on an iPhone or iPad in the following configurations:
 
-### iPad
+### iPad Setup
 
 These setups work well for stationary kiosks and wall displays. Some use cases include point-of-sale, self checkout, self check-in, price lookup, ticket validation, and more.
 
@@ -186,11 +186,17 @@ This is the stand that I'm using or the iPad setup. You can find it [here](https
 
 ![iPad Stand](images/ipad-stand.png)
 
-### iPhone
+### iPhone Setup
 
 These setups work well for mobile use. Some use cases include personal shopping, self checkout, order collection, package delivery, and ticket validation.
 
 ![iPhone Demo Setup](images/iphone-demo-setup.png)
+
+### Demo Cards
+
+The demo app is trained to recognize the products in it's catalog using the camera. To help demonstrating these capabilities, you can download the PDF of demo cards [here](images/demo-cards.pdf) and use them from your computer or print them out on physical cards. Here are a few examples of cards from the set:
+
+![Demo Card Examples](images/demo-card-examples.png)
 
 ## Run the Project
 
