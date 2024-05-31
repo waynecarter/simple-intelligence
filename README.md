@@ -188,7 +188,7 @@ This is the stand that I'm using for the iPad setup. You can find it [here](http
 
 ### iPhone Setup
 
-These setups work well for mobile use. Some use cases include personal shopping, self checkout, order collection, package delivery, and ticket validation.
+These setups work well for mobile use. Some use cases include personal shopping, self checkout, order collection, package delivery, ticket validation, and more.
 
 ![iPhone Demo Setup](images/iphone-demo-setup.png)
 
