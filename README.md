@@ -1,4 +1,4 @@
-# simple-pos
+# Simple Point-of-Sale
 
 ## AI Search
 
