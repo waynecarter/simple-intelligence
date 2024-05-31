@@ -59,7 +59,7 @@ func search(vector: [NSNumber]) -> [Product] {
 }
 ```
 
-## Barcode Search
+## SQL Query
 
 The `Database.search(barcode: String)` function demonstrates SQL query capabilities.
 
