@@ -2,7 +2,7 @@
 
 ## AI Search
 
-The `Database.search(image: Image)` function demonstrates AI search capabilities. It utilizes SQL and Vector Search to find database results base on AI predictions from an image.
+The `Database.search(image: Image)` function demonstrates AI search capabilities. It utilizes the SQL and Vector Search functions below to find database results base on AI predictions from an image.
 
 ```swift
 func search(image: UIImage) -> [Product] {
