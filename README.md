@@ -145,7 +145,7 @@ let barcodeIndex = ValueIndexConfiguration(["barcode"])
 collection.createIndex(withName: "BarcodeIndex", config: barcodeIndex)
 
 // Initialize the vector index on the "embedding" field for image search.
-var vectorIndex = VectorIndexConfiguration(expression: "embedding", dimensions: 768, centroids: 2)
+var vectorIndex = VectorIndexConfiguration(expression: "embedding", dimensions: 768, centroids: 1000)
 vectorIndex.metric = .cosine
 collection.createIndex(withName: "EmbeddingVectorIndex", config: vectorIndex)
 
