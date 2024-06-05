@@ -1,6 +1,16 @@
 # Simple Point-of-Sale
 
-## AI Search
+Simple Point-of-Sale is a demonstration of how to read, write, search, and sync data using [Couchbase Capella](https://www.couchbase.com/products/capella/). This repository provides a comprehensive demonstration of queries, searches, and data sync with the cloud.
+
+The [Simple Point-of-Sale](https://apps.apple.com/us/app/simple-pos/id???) app is available for download from the App Store. You can download and run the app on your device without any additional setup and see these features in action.
+
+[<img alt="Download on the App Store" src="images/download.svg" width="120" height="40" />](https://apps.apple.com/us/app/simple-pos/id???)
+
+## Introduction
+
+The code is divided into the following six areas demonstrating AI search, vector search, SQL queries, full-text search, indexing, and data sync with the cloud:
+
+### AI Search
 
 The `Database.search(image: Image)` function demonstrates AI search capabilities. It uses the SQL and Vector Search functions below to find database results base on AI predictions from an image.
 
@@ -21,7 +31,7 @@ func search(image: UIImage) -> [Product] {
 }
 ```
 
-## Vector Search
+### Vector Search
 
 The `Database.search(vector: [Double])` function demonstrates the vector search capabilities.
 
@@ -59,7 +69,7 @@ func search(vector: [NSNumber]) -> [Product] {
 }
 ```
 
-## SQL Query
+### SQL Query
 
 The `Database.search(barcode: String)` function demonstrates SQL query capabilities.
 
@@ -94,7 +104,7 @@ private func search(barcode: String) -> Product? {
 }
 ```
 
-## Full-Text Search
+### Full-Text Search
 
 The `Database.search(search: String)` function demonstrates full-text search capabilities.
 
@@ -131,7 +141,7 @@ func search(string: String) -> [Product] {
 }
 ```
 
-## Indexing
+### Indexing
 
 The `Database` class demonstrates creating indexes for fast searches.
 
@@ -154,7 +164,7 @@ let ftsIndex = FullTextIndexConfiguration(["name", "category"])
 collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsIndex)
 ```
 
-## Sync
+### Sync
 
 The `Database.startSync()` function demonstrates how to sync with a Couchbase Capella cloud endpoint.
 
