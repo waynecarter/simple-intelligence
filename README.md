@@ -133,7 +133,7 @@ func search(string: String) -> [Product] {
 
 ## Indexing
 
-The `Database` class demonstrates initilizing indexes.
+The `Database` class demonstrates creating indexes for fast searches.
 
 ```swift
 // Initialize the value index on the "name" field for fast sorting.
@@ -178,7 +178,7 @@ The demo app is designed to be run on an iPhone or iPad in the following configu
 
 ### iPad Setup
 
-These setups work well for stationary kiosks and wall displays. Some use cases include point-of-sale, self checkout, self check-in, price lookup, ticket validation, and more.
+These setups work well for stationary kiosks and wall displays. Use cases include point-of-sale, self checkout, self check-in, price lookup, ticket validation, and more.
 
 ![iPad Demo Setup](images/ipad-demo-setup.png)
 
@@ -188,7 +188,7 @@ This is the stand that I'm using for the iPad setup. You can find it [here](http
 
 ### iPhone Setup
 
-These setups work well for mobile use. Some use cases include personal shopping, self checkout, order collection, package delivery, ticket validation, and more.
+These setups work well for mobile use. Use cases include personal shopping, self checkout, order collection, package delivery, ticket validation, and more.
 
 ![iPhone Demo Setup](images/iphone-demo-setup.png)
 
