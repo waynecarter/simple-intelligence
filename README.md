@@ -188,7 +188,7 @@ The demo app is designed to be run on an iPhone or iPad in the following configu
 
 ### iPad Setup
 
-These setups work well for stationary kiosks and wall displays. Use cases include point-of-sale, self checkout, self check-in, price lookup, ticket validation, and more.
+The iPad setups work well for stationary kiosks and wall displays. Use cases include point-of-sale, self checkout, self check-in, price lookup, ticket validation, and more.
 
 ![iPad Demo Setup](images/ipad-demo-setup.png)
 
@@ -198,7 +198,7 @@ This is the stand that I'm using for the iPad setup. You can find it [here](http
 
 ### iPhone Setup
 
-These setups work well for mobile use. Use cases include personal shopping, self checkout, order collection, package delivery, ticket validation, and more.
+The iPhone setups work well for mobile use. Use cases include personal shopping, self checkout, order collection, package delivery, ticket validation, and more.
 
 ![iPhone Demo Setup](images/iphone-demo-setup.png)
 
