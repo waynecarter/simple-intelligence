@@ -192,7 +192,7 @@ The iPad setups work well for stationary kiosks and wall displays. Use cases inc
 
 ![iPad Demo Setup](images/ipad-demo-setup.png)
 
-This is the stand that I'm using for the iPad setup. You can find it [here](https://www.amazon.com/dp/B0C1MZGG1P) on Amazon.
+This is the stand that I'm using for my iPad Pro (12.9-inch, 3rd generation). You can find it [here](https://www.amazon.com/dp/B0C1MZGG1P) on Amazon.
 
 ![iPad Stand](images/ipad-stand.png)
 
