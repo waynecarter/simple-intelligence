@@ -13,7 +13,6 @@ class Settings: ObservableObject {
     
     @Published var endpoint: Endpoint?
     @Published var frontCameraEnabled: Bool = true
-    @Published var kioskModeEnabled: Bool = false
     @Published var cartEnabled: Bool = true
     
     struct Endpoint: Equatable {
@@ -34,7 +33,6 @@ class Settings: ObservableObject {
         // Register defaults
         UserDefaults.standard.register(defaults: [
             "front_camera_enabled": false,
-            "kiosk_mode_enabled": false,
             "cart_enabled": true
         ])
         
@@ -82,14 +80,9 @@ class Settings: ObservableObject {
     private func updateCamera() {
         let userDefaults = UserDefaults.standard
         let newFrontCameraEnabled = userDefaults.bool(forKey: "front_camera_enabled")
-        let newKioskModeEnabled = userDefaults.bool(forKey: "kiosk_mode_enabled")
         
         if frontCameraEnabled != newFrontCameraEnabled {
             frontCameraEnabled = newFrontCameraEnabled
-        }
-        
-        if kioskModeEnabled != newKioskModeEnabled {
-            kioskModeEnabled = newKioskModeEnabled
         }
     }
     

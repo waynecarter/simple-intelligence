@@ -22,8 +22,6 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private let captureInterval: TimeInterval = 0.2
     private var captureTimestamp: TimeInterval = 0.0
     
-    private var kioskMode = Settings.shared.kioskModeEnabled
-    
     private var position: AVCaptureDevice.Position = Settings.shared.frontCameraEnabled ? .front : .back {
         didSet {
             if position != oldValue {
@@ -46,13 +44,6 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         Settings.shared.$frontCameraEnabled
             .sink { [weak self] frontCameraEnabled in
                 self?.position = frontCameraEnabled ? .front : .back
-            }.store(in: &cancellables)
-        
-        Settings.shared.$kioskModeEnabled
-            .sink { [weak self] kioskMode in
-                self?.sessionQueue.async {
-                    self?.kioskMode = kioskMode
-                }
             }.store(in: &cancellables)
     }
     
@@ -235,12 +226,12 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
                 return
             }
             
-            if self.kioskMode {
-                if let lastProducts = self.lastProducts, lastProducts == products {
-                    return
-                }
+            // Don't find the same exact products twice. This ensures that when an item
+            // is scanned and added to the cart, the same item isn't instantly scanned
+            // and shown again.
+            if let lastProducts = self.lastProducts, lastProducts == products {
+                return
             }
-            
             self.lastProducts = products
             
             self.session.stopRunning()
