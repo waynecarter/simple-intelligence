@@ -172,7 +172,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         
         infoButton.configuration = UIButton.Configuration.plain()
         infoButton.configuration?.image = UIImage(systemName: "info.circle")
-        infoButton.configuration?.baseForegroundColor = .tertiaryLabel
+        infoButton.configuration?.baseForegroundColor = .quaternaryLabel
         infoButton.translatesAutoresizingMaskIntoConstraints = false
         infoButton.addAction(UIAction(title: "Show Info") { [weak self] _ in self?.showInfo() }, for: .touchUpInside)
         view.addSubview(infoButton)
