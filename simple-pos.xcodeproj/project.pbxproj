@@ -41,6 +41,7 @@
 
 /* Begin PBXFileReference section */
 		40E7CA372BFB20B5004BE7E1 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
+		B05F80C82C1A9CB300C48B60 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B096020E2BF7014700F6A866 /* simple-pos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "simple-pos.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B09602112BF7014700F6A866 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B09602132BF7014700F6A866 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -107,9 +108,10 @@
 				40E7CA372BFB20B5004BE7E1 /* Camera.swift */,
 				B0F3276D2BFEE8A4007376C3 /* Settings.swift */,
 				B05F80C72C1A967300C48B60 /* UI */,
+				B0F3276B2BFEE7CC007376C3 /* Settings.bundle */,
 				B096021A2BF7014B00F6A866 /* Assets.xcassets */,
 				B096021F2BF7014B00F6A866 /* Info.plist */,
-				B0F3276B2BFEE7CC007376C3 /* Settings.bundle */,
+				B05F80C82C1A9CB300C48B60 /* PrivacyInfo.xcprivacy */,
 			);
 			path = "simple-pos";
 			sourceTree = "<group>";
