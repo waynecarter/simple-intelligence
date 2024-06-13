@@ -162,7 +162,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         cancelButton.configuration?.attributedTitle?.font = bodyFont
         cancelButton.configuration?.buttonSize = .large
         cancelButton.tintColor = .darkGray
-        cancelButton.setContentHuggingPriority(.defaultHigh, for: .horizontal)
+        cancelButton.setContentHuggingPriority(.defaultHigh, for: .horizontal) // Hug the side of the screen during layout.
         cancelButton.translatesAutoresizingMaskIntoConstraints = false
         cancelButton.addAction(UIAction(title: "Cancel Search") { [weak self] _ in self?.cancelSearch() }, for: .touchUpInside)
         cancelButton.alpha = 0
@@ -485,8 +485,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
         }
         
         let showCancel = self.searchMode == .text || self.products.count > 0
-        let cancelButtonTitle = cartEnabled || searchMode == .text ? "Cancel" : "Done"
-        cancelButton.setTitle(cancelButtonTitle, for: .normal)
+        var cancelButtonTitle: AttributedString = cartEnabled || searchMode == .text ? "Cancel" : "Done"
+        cancelButtonTitle.font = bodyFont
+        cancelButton.configuration?.attributedTitle = cancelButtonTitle
         cancelButton.isHidden = !showCancel
         cancelButton.tintColor = cartEnabled ? .darkGray : nil
         if showCancel {
