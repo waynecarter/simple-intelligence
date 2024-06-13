@@ -349,7 +349,7 @@
 				DEVELOPMENT_TEAM = FMV3C84SQX;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "simple-pos/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Point of Sale";
+				INFOPLIST_KEY_CFBundleDisplayName = POS;
 				INFOPLIST_KEY_NSCameraUsageDescription = "To enable you to capture photos and search for similar items, we need access to your camera.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -380,7 +380,7 @@
 				DEVELOPMENT_TEAM = FMV3C84SQX;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "simple-pos/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = "Point of Sale";
+				INFOPLIST_KEY_CFBundleDisplayName = POS;
 				INFOPLIST_KEY_NSCameraUsageDescription = "To enable you to capture photos and search for similar items, we need access to your camera.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
