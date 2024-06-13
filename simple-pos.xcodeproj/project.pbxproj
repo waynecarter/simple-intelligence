@@ -70,6 +70,18 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		B05F80C72C1A967300C48B60 /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				B09602112BF7014700F6A866 /* AppDelegate.swift */,
+				B09602132BF7014700F6A866 /* SceneDelegate.swift */,
+				B09602152BF7014700F6A866 /* ViewController.swift */,
+				B09602172BF7014700F6A866 /* Main.storyboard */,
+				B096021C2BF7014B00F6A866 /* LaunchScreen.storyboard */,
+			);
+			path = UI;
+			sourceTree = "<group>";
+		};
 		B09602052BF7014700F6A866 = {
 			isa = PBXGroup;
 			children = (
@@ -90,15 +102,11 @@
 		B09602102BF7014700F6A866 /* simple-pos */ = {
 			isa = PBXGroup;
 			children = (
-				B09602112BF7014700F6A866 /* AppDelegate.swift */,
-				B09602132BF7014700F6A866 /* SceneDelegate.swift */,
-				B09602152BF7014700F6A866 /* ViewController.swift */,
 				B0EBE56F2BF9167C002FF20C /* Database.swift */,
 				B0EBE5712BF91CB2002FF20C /* AI.swift */,
 				40E7CA372BFB20B5004BE7E1 /* Camera.swift */,
 				B0F3276D2BFEE8A4007376C3 /* Settings.swift */,
-				B09602172BF7014700F6A866 /* Main.storyboard */,
-				B096021C2BF7014B00F6A866 /* LaunchScreen.storyboard */,
+				B05F80C72C1A967300C48B60 /* UI */,
 				B096021A2BF7014B00F6A866 /* Assets.xcassets */,
 				B096021F2BF7014B00F6A866 /* Info.plist */,
 				B0F3276B2BFEE7CC007376C3 /* Settings.bundle */,
