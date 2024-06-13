@@ -99,7 +99,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         searchButton.configuration = UIButton.Configuration.plain()
         searchButton.configuration?.buttonSize = .large
         searchButton.configuration?.image = UIImage(systemName: "magnifyingglass")?.withConfiguration(UIImage.SymbolConfiguration(pointSize: searchButtonImageSize))
-        searchButton.tintColor = .label
+        searchButton.tintColor = .tertiaryLabel
         searchButton.translatesAutoresizingMaskIntoConstraints = false
         searchButton.addAction(UIAction(title: "Open Search") { [weak self] _ in self?.startTextSearch() }, for: .touchUpInside)
         view.addSubview(searchButton)
@@ -140,13 +140,13 @@ class ViewController: UICollectionViewController, CameraDelegate {
         view.addSubview(selectedItemDetailsLabel)
         
         explainerImageView.contentMode = .scaleAspectFit
-        explainerImageView.tintColor = .tertiaryLabel
+        explainerImageView.tintColor = .label
         explainerImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(explainerImageView)
         
         explainerLabel.font = explainerFont
         explainerLabel.adjustsFontForContentSizeCategory = true
-        explainerLabel.textColor = .tertiaryLabel
+        explainerLabel.textColor = .label
         explainerLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(explainerLabel)
         
@@ -172,7 +172,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         
         infoButton.configuration = UIButton.Configuration.plain()
         infoButton.configuration?.image = UIImage(systemName: "info.circle")
-        infoButton.configuration?.baseForegroundColor = .quaternaryLabel
+        infoButton.configuration?.baseForegroundColor = .tertiaryLabel
         infoButton.translatesAutoresizingMaskIntoConstraints = false
         infoButton.addAction(UIAction(title: "Show Info") { [weak self] _ in self?.showInfo() }, for: .touchUpInside)
         view.addSubview(infoButton)
@@ -386,7 +386,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
     }
     
     private func startExplainerAnimation() {
-        explainerImageView.tintColor = .tertiaryLabel
         explainerImageView.layer.masksToBounds = false
         explainerImageView.layer.shadowColor = UIColor.black.cgColor
         explainerImageView.layer.shadowOffset = CGSize(width: 0, height: 2)
@@ -396,9 +395,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
         func breathe() {
             // Inhale
             UIView.animate(withDuration: 2, delay: 0, options: [.curveEaseInOut], animations: {
-                self.explainerImageView.transform = CGAffineTransform(scaleX: 1.13, y: 1.13)
-                self.explainerImageView.layer.shadowOpacity = 1
-                self.explainerImageView.layer.shadowRadius = 3
+                self.explainerImageView.transform = CGAffineTransform(scaleX: 1.15, y: 1.15)
+                self.explainerImageView.layer.shadowOpacity = 0.4
+                self.explainerImageView.layer.shadowRadius = 4
             }) { _ in
                 // Exhale
                 UIView.animate(withDuration: 2, delay: 0, options: [.curveEaseInOut], animations: {
