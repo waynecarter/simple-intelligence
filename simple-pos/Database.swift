@@ -306,37 +306,6 @@ class Database {
             .sink { [weak self] newEndpoint in
                 self?.endpoint = newEndpoint
             }.store(in: &cancellables)
-        
-        // TODO: Do I need to manage the background sync or does setting
-        // ReplicatorConfiguration.allowReplicatingInBackground = true
-        // handle stopping sync when entering the background and restarting
-        // it when reentering the foreground?
-        
-        // When entering the background, manage background sync
-        NotificationCenter.default.publisher(for: UIApplication.didEnterBackgroundNotification)
-            .sink { [weak self] _ in
-                // Sync in the background until the background task expires, then stop
-                self?.backgroundSyncTask = UIApplication.shared.beginBackgroundTask { [weak self] in
-                    self?.stopSync()
-                    if let task = self?.backgroundSyncTask {
-                        UIApplication.shared.endBackgroundTask(task)
-                        self?.backgroundSyncTask = nil
-                    }
-                }
-            }
-            .store(in: &cancellables)
-        
-        // When entering the foreground, start syncing
-        NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)
-            .sink { [weak self] _ in
-                if let task = self?.backgroundSyncTask {
-                    UIApplication.shared.endBackgroundTask(task)
-                    self?.backgroundSyncTask = nil
-                }
-                
-                self?.startSync()
-            }
-            .store(in: &cancellables)
     }
     
     private func startSync() {
@@ -364,7 +333,6 @@ class Database {
         config.addCollection(collection)
         config.replicatorType = .pull
         config.continuous = true
-        config.allowReplicatingInBackground = true
         
         // If the endpoint has a username and password then use then assign a basic
         // authenticator using the credentials.
