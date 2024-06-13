@@ -2,9 +2,9 @@
 
 Simple Point-of-Sale is a demonstration of how to read, write, search, and sync data using [Couchbase Capella](https://www.couchbase.com/products/capella/). This repository provides a comprehensive demonstration of queries, searches, and data sync with the cloud.
 
-The [Simple Point-of-Sale](https://apps.apple.com/us/app/simple-pos/id???) app is available for download from the App Store. You can download and run the app on your device without any additional setup and see these features in action.
+The [Simple Point-of-Sale](https://apps.apple.com/us/app/simple-pos/id6504311724) app is available for download from the App Store. You can download and run the app on your device without any additional setup and see these features in action.
 
-[<img alt="Download on the App Store" src="images/download.svg" width="120" height="40" />](https://apps.apple.com/us/app/simple-pos/id???)
+[<img alt="Download on the App Store" src="images/download.svg" width="120" height="40" />](https://apps.apple.com/us/app/simple-pos/id6504311724)
 
 ## Introduction
 
