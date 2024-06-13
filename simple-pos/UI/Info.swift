@@ -21,6 +21,7 @@ class Info {
         }
         
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
+        alert.title = "Scan an item with the camera and\nsearch visually using AI"
         alert.addAction(createOpenURLAction(title: "Explore the Code", urlString: "https://github.com/waynecarter/simple-pos/blob/main/README.md"))
         alert.addAction(UIAlertAction(title: "Share", style: .default) { action in
             let appStoreURL = "https://apps.apple.com/us/app/simple-pos/id6504311724"
