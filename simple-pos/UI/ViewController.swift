@@ -29,6 +29,8 @@ class ViewController: UICollectionViewController, CameraDelegate {
     private let explainerImageView = UIImageView()
     private let explainerLabel = UILabel()
     
+    private let infoButton = UIButton(type: .system)
+    
     private let bodyFont = UIFont.preferredFont(forTextStyle: .title3)
     private let explainerFont = UIFont.preferredFont(forTextStyle: .title2)
     
@@ -167,6 +169,13 @@ class ViewController: UICollectionViewController, CameraDelegate {
         cancelButton.addAction(UIAction(title: "Cancel Search") { [weak self] _ in self?.cancelSearch() }, for: .touchUpInside)
         cancelButton.alpha = 0
         view.addSubview(cancelButton)
+        
+        infoButton.configuration = UIButton.Configuration.plain()
+        infoButton.configuration?.image = UIImage(systemName: "info.circle")
+        infoButton.configuration?.baseForegroundColor = .tertiaryLabel
+        infoButton.translatesAutoresizingMaskIntoConstraints = false
+        infoButton.addAction(UIAction(title: "Show Info") { [weak self] _ in self?.showInfo() }, for: .touchUpInside)
+        view.addSubview(infoButton)
 
         let topMargin: CGFloat = UIDevice.current.userInterfaceIdiom == .pad ? 20 : 0
         NSLayoutConstraint.activate([
@@ -181,6 +190,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
             
             payButton.topAnchor.constraint(equalTo: view.layoutMarginsGuide.topAnchor, constant: topMargin),
             payButton.trailingAnchor.constraint(equalTo: view.layoutMarginsGuide.trailingAnchor),
+            
+            infoButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            infoButton.bottomAnchor.constraint(equalTo: addToBagButton.bottomAnchor),
             
             collectionView.topAnchor.constraint(equalTo: payButton.bottomAnchor, constant: margin),
             collectionView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
@@ -502,6 +514,9 @@ class ViewController: UICollectionViewController, CameraDelegate {
             })
         }
         
+        let showInfo = cancelButton.isHidden && addToBagButton.isHidden
+        infoButton.isHidden = !showInfo
+        
         updateExplainer()
     }
     
@@ -642,6 +657,12 @@ class ViewController: UICollectionViewController, CameraDelegate {
         self.payButton.setTotal(0)
         clearSearchResults()
         startVectorSearch()
+    }
+    
+    // MARK: - Info
+    
+    private func showInfo() {
+        Info.shared.show(for: self, sourceView: infoButton)
     }
     
     // MARK: - Scrolling
