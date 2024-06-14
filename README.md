@@ -12,7 +12,7 @@ The code is divided into the following six areas demonstrating AI search, vector
 
 ### AI Search
 
-The `Database.search(image: Image)` function demonstrates AI search capabilities. It uses the SQL and Vector Search functions below to find database results base on AI predictions from an image.
+The `Database.search(image: UIImage)` function demonstrates AI search capabilities. It uses the SQL and Vector Search functions below to find database results base on AI predictions from an image.
 
 ```swift
 func search(image: UIImage) -> [Product] {
