@@ -12,8 +12,12 @@ class Settings: ObservableObject {
     static let shared = Settings()
     
     @Published var endpoint: Endpoint?
-    @Published var frontCameraEnabled: Bool = true
-    @Published var cartEnabled: Bool = true
+    @Published var frontCameraEnabled: Bool = false
+    @Published var useCase: UseCase = .pointOfSale
+    
+    enum UseCase: String {
+        case pointOfSale, itemLookup
+    }
     
     struct Endpoint: Equatable {
         let url: URL
@@ -33,7 +37,7 @@ class Settings: ObservableObject {
         // Register defaults
         UserDefaults.standard.register(defaults: [
             "front_camera_enabled": false,
-            "cart_enabled": true
+            "use_case": UseCase.pointOfSale.rawValue
         ])
         
         // Observe UserDefaults changes
@@ -53,7 +57,7 @@ class Settings: ObservableObject {
     private func updateSettings() {
         updateEndpoint()
         updateCamera()
-        updateCartEnabled()
+        updateUseCase()
     }
     
     private func updateEndpoint() {
@@ -86,12 +90,13 @@ class Settings: ObservableObject {
         }
     }
     
-    private func updateCartEnabled() {
+    private func updateUseCase() {
         let userDefaults = UserDefaults.standard
-        let newCartEnabled = userDefaults.bool(forKey: "cart_enabled")
+        let useCaseRawValue = userDefaults.string(forKey: "use_case") ?? UseCase.pointOfSale.rawValue
+        let newUseCase: UseCase = UseCase(rawValue: useCaseRawValue) ?? .pointOfSale
         
-        if cartEnabled != newCartEnabled {
-            cartEnabled = newCartEnabled
+        if useCase != newUseCase {
+            useCase = newUseCase
         }
     }
 }

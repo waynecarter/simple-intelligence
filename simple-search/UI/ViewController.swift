@@ -70,12 +70,12 @@ class ViewController: UICollectionViewController {
         setupUI()
         searchMode = .camera
         
-        // When the settings for the cart change, update the actions
-        Settings.shared.$cartEnabled
+        // When the use-case settings change, update the actions
+        Settings.shared.$useCase
             .dropFirst()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] cartEnabled in
-                self?.updateActions(cartEnabled: cartEnabled)
+            .sink { [weak self] useCase in
+                self?.updateActions(useCase: useCase)
             }.store(in: &cancellables)
         
         // When the settings for the front-facing camera change, update the explainer
@@ -272,7 +272,8 @@ class ViewController: UICollectionViewController {
             ]
         }
         // Activate the constraints for the add-to-cart and cancel buttons
-        if Settings.shared.cartEnabled {
+        let cartEnabled = Settings.shared.useCase == .pointOfSale
+        if cartEnabled {
             NSLayoutConstraint.activate(cartEnabled_Contraints)
         } else {
             NSLayoutConstraint.activate(cartDisabled_Contraints)
@@ -535,7 +536,8 @@ class ViewController: UICollectionViewController {
     
     // MARK: - Actions
     
-    private func updateActions(cartEnabled: Bool = Settings.shared.cartEnabled) {
+    private func updateActions(useCase: Settings.UseCase = Settings.shared.useCase) {
+        let cartEnabled = useCase == .pointOfSale
         payButton.isHidden = !cartEnabled
         
         if cartEnabled {

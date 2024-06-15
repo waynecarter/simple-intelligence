@@ -6,7 +6,43 @@
 	<array>
 		<dict>
 			<key>Title</key>
-			<string>Endpoint</string>
+			<string>Features</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Use Case</string>
+			<key>Key</key>
+			<string>use_case</string>
+			<key>DefaultValue</key>
+			<string>pointOfSale</string>
+			<key>Values</key>
+			<array>
+				<string>pointOfSale</string>
+				<string>itemLookup</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Point-of-Sale</string>
+				<string>Item Lookup</string>
+			</array>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Front Camera</string>
+			<key>Key</key>
+			<string>front_camera_enabled</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Title</key>
+			<string>Sync Endpoint</string>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
 		</dict>
@@ -53,32 +89,6 @@
 			<string>Enabled</string>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
-		</dict>
-		<dict>
-			<key>Title</key>
-			<string>Features</string>
-			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-		</dict>
-		<dict>
-			<key>DefaultValue</key>
-			<true/>
-			<key>Key</key>
-			<string>cart_enabled</string>
-			<key>Title</key>
-			<string>Shopping Bag</string>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSToggleSwitchSpecifier</string>
-			<key>Title</key>
-			<string>Front Camera</string>
-			<key>Key</key>
-			<string>front_camera_enabled</string>
-			<key>DefaultValue</key>
-			<false/>
 		</dict>
 	</array>
 	<key>StringsTable</key>
