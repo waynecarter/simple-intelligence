@@ -1,10 +1,14 @@
-# Simple Point-of-Sale
+# Simple Search
 
-Simple Point-of-Sale is a demonstration of how to read, write, search, and sync data using [Couchbase Capella](https://www.couchbase.com/products/capella/). This repository provides a comprehensive demonstration of queries, searches, and data sync with the cloud.
+Simple Search is a demo app that showcases the capabilities of [Couchbase Capella](https://www.couchbase.com/products/capella/) for data search and synchronization. It provides a comprehensive view of search using AI, vectors, full-text, SQL, indexing, and syncing data with the Capella cloud.
 
-The [Simple Point-of-Sale](https://apps.apple.com/us/app/simple-pos/id6504311724) app is available for download from the App Store. You can download and run the app on your device without any additional setup and see these features in action.
+The app is designed to demonstrate real-time search using the devices camera coupled with AI and Capella's search and sync capabilities, making it an excellent utility for experiencing these capabilities and their unique ability to turbocharge the speed and reliability of business critical applications.
 
-[<img alt="Download on the App Store" src="images/download.svg" width="120" height="40" />](https://apps.apple.com/us/app/simple-pos/id6504311724)
+The [Simple Search](https://apps.apple.com/us/app/simple-search/id6504311724) app is available for download from the App Store. You can download and run the app on your device without any additional setup and see these features in action.
+
+[<img alt="Download on the App Store" src="images/download.svg" width="120" height="40" />](https://apps.apple.com/us/app/simple-search/id6504311724)
+
+Download Simple Search today and explore the power of Couchbase Capella's AI, search, and sync capabilities right from the palm of your hand.
 
 ## Introduction
 
@@ -204,7 +208,7 @@ The iPhone setups work well for mobile use. Use cases include personal shopping,
 
 ### Demo Cards
 
-The demo app is trained to recognize the products in it's catalog using the camera. To help demonstrating these capabilities, [download the demo cards](https://raw.githubusercontent.com/waynecarter/simple-pos/main/images/demo-cards.pdf), display them from your computer or print them out, and scan the cards to find the corresponding products in the app. Here are a few examples of cards from the set:
+The demo app is trained to recognize the products in it's catalog using the camera. To help demonstrating these capabilities, [download the demo cards](https://raw.githubusercontent.com/waynecarter/simple-search/main/images/demo-cards.pdf), display them from your computer or print them out, and scan the cards to find the corresponding products in the app. Here are a few examples of cards from the set:
 
 ![Demo Card Examples](images/demo-card-examples.png)
 
