@@ -32,7 +32,8 @@ class ViewController: UICollectionViewController, CameraDelegate {
     private let infoButton = UIButton(type: .system)
     
     private let bodyFont = UIFont.preferredFont(forTextStyle: .title3)
-    private let explainerFont = UIFont.preferredFont(forTextStyle: .title2)
+    private let explainerActionFont = UIFont.preferredFont(forTextStyle: .title2)
+    private let explainerInstructionsFont = UIFont.preferredFont(forTextStyle: .callout)
     
     private let margin: CGFloat = 20
     private let spacing: CGFloat = 10
@@ -144,9 +145,8 @@ class ViewController: UICollectionViewController, CameraDelegate {
         explainerImageView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(explainerImageView)
         
-        explainerLabel.font = explainerFont
-        explainerLabel.adjustsFontForContentSizeCategory = true
-        explainerLabel.textColor = .label
+        explainerLabel.numberOfLines = 0
+        explainerLabel.lineBreakMode = .byWordWrapping
         explainerLabel.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(explainerLabel)
         
@@ -205,11 +205,12 @@ class ViewController: UICollectionViewController, CameraDelegate {
             
             explainerImageView.centerYAnchor.constraint(equalTo: collectionView.centerYAnchor, constant: -searchButtonImageSize),
             explainerImageView.centerXAnchor.constraint(equalTo: collectionView.centerXAnchor),
-            explainerImageView.widthAnchor.constraint(equalTo: explainerLabel.heightAnchor, multiplier: 2.5),
-            explainerImageView.heightAnchor.constraint(equalTo: explainerLabel.heightAnchor, multiplier: 2.5),
+            explainerImageView.widthAnchor.constraint(equalToConstant: 75),
+            explainerImageView.heightAnchor.constraint(equalToConstant: 75),
             
             explainerLabel.topAnchor.constraint(equalToSystemSpacingBelow: explainerImageView.bottomAnchor, multiplier: 0.5),
-            explainerLabel.centerXAnchor.constraint(equalTo: explainerImageView.centerXAnchor)
+            explainerLabel.centerXAnchor.constraint(equalTo: explainerImageView.centerXAnchor),
+            explainerLabel.widthAnchor.constraint(equalToConstant: 320)
         ])
 
         // Set the width of the add-to-cart and cancel buttons depending on the
@@ -358,18 +359,41 @@ class ViewController: UICollectionViewController, CameraDelegate {
 
         explainerImageView.isHidden = !showExplainer
         explainerLabel.isHidden = !showExplainer
-        
+
         if showExplainer {
             let explainerImageSystemName = searchMode == .text ? "text.magnifyingglass" : "dot.viewfinder"
             let explainerImage = UIImage(systemName: explainerImageSystemName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
-            let explainerText = searchMode == .text ? "Search for Item" : "Scan an Item"
             
+            let explainerParagraphStyle = NSMutableParagraphStyle()
+            explainerParagraphStyle.alignment = .center
+            
+            let actionText = searchMode == .text ? "Search for Item" : "Scan an Item"
+            let actionAttributes: [NSAttributedString.Key: Any] = [
+                .font: explainerActionFont,
+                .foregroundColor: UIColor.label,
+                .paragraphStyle: explainerParagraphStyle
+            ]
+            
+            let explainerString = NSMutableAttributedString(string: actionText, attributes: actionAttributes)
+            
+            // When in camera mode, provide additional instructions on how to scan an item.
+            if searchMode == .camera {
+                let cameraPositionText = Settings.shared.frontCameraEnabled ? "front-facing" : "back-facing"
+                let instructionsText = "Position an item in front of the \(cameraPositionText) camera. The camera is active and scanning."
+                let instructionsAttributes: [NSAttributedString.Key: Any] = [
+                    .font: explainerInstructionsFont,
+                    .foregroundColor: UIColor.tertiaryLabel,
+                    .paragraphStyle: explainerParagraphStyle
+                ]
+                explainerString.append(NSMutableAttributedString(string: "\n\n\(instructionsText)", attributes: instructionsAttributes))
+            }
+
             UIView.animate(withDuration: 0.6, animations: {
                 self.explainerImageView.alpha = 1
                 self.explainerLabel.alpha = 1
-                
+
                 self.explainerImageView.image = explainerImage
-                self.explainerLabel.text = explainerText
+                self.explainerLabel.attributedText = explainerString
             })
         } else {
             UIView.animate(withDuration: 0.2, animations: {
@@ -378,7 +402,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
             }, completion: { _ in
                 self.explainerImageView.isHidden = true
                 self.explainerLabel.isHidden = true
-                
+
                 self.explainerImageView.image = nil
                 self.explainerLabel.text = nil
             })
