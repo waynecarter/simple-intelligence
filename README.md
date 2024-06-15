@@ -4,7 +4,7 @@ Simple Search is a demo app that showcases the capabilities of [Couchbase Capell
 
 The app is designed to demonstrate real-time search using the devices camera coupled with AI and Capella's search and sync capabilities, making it an excellent utility for experiencing their unique ability to turbocharge the speed and reliability of business critical applications.
 
-[Download](https://apps.apple.com/us/app/simple-search/id6504311724) Simple Search from the App Store today and experience the power of Couchbase Capella's AI, search, and sync capabilities right from the palm of your hand—with no additional setup.
+[Download](https://apps.apple.com/us/app/simple-search/id6504311724) Simple Search from the App Store today and experience the power of Couchbase Capella's AI, search, and sync capabilities right from the palm of your hand—no additional setup.
 
 [<img alt="Download on the App Store" src="images/download.svg" width="120" height="40" />](https://apps.apple.com/us/app/simple-search/id6504311724)
 ## Introduction
