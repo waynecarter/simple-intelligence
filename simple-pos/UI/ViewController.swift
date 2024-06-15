@@ -386,20 +386,24 @@ class ViewController: UICollectionViewController {
             
             // Set the explainer image
             let imageName: String = {
-                if cameraAuthorized == false {
+                if searchMode == .text {
+                    return "text.magnifyingglass"
+                } else if cameraAuthorized == false {
                     return "exclamationmark.triangle"
                 } else {
-                    return searchMode == .text ? "text.magnifyingglass" : "dot.viewfinder"
+                    return "dot.viewfinder"
                 }
             }()
             let image = UIImage(systemName: imageName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
             
             // Set the action text
             let actionText: String = {
-                if cameraAuthorized == false {
+                if searchMode == .text {
+                    return "Search for Item"
+                } else if cameraAuthorized == false {
                     return "Authorize Camera Access"
                 } else {
-                    return searchMode == .text ? "Search for Item" : "Scan an Item"
+                    return "Scan an Item"
                 }
             }()
             let actionAttributes: [NSAttributedString.Key: Any] = [
@@ -412,14 +416,13 @@ class ViewController: UICollectionViewController {
             
             // Set instructions text
             let instructionsText: String? = {
-                // When the camera is not authorized, provide additional instructions on how to authorize
-                if cameraAuthorized == false {
-                    return "Camera access is not authorized. Enable camera access in device settings to use the visual search feature."
-                }
-                
                 // When searching with the camera, provide additional instructions on how to scan an item
                 if searchMode == .camera {
-                    return "Position an item in front of the \(frontCameraEnabled ? "front-facing" : "back-facing") camera. The camera is active and scanning."
+                    if cameraAuthorized == false {
+                        return "Camera access is not authorized. Enable camera access in device settings to use the visual search feature."
+                    } else {
+                        return "Position an item in front of the \(frontCameraEnabled ? "front-facing" : "back-facing") camera. The camera is active and scanning."
+                    }
                 }
                 
                 return nil
