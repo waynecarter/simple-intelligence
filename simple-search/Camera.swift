@@ -1,6 +1,6 @@
 //
 //  Camera.swift
-//  simple-pos
+//  simple-search
 //
 
 import UIKit

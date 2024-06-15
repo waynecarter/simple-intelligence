@@ -1,6 +1,6 @@
 //
 //  Info.swift
-//  simple-pos
+//  simple-search
 //
 //  Created by Wayne Carter on 6/13/24.
 //
@@ -23,10 +23,10 @@ class Info {
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         alert.popoverPresentationController?.sourceView = sourceView
         alert.title = "Scan an item with the camera and\nsearch visually using AI"
-        alert.addAction(createOpenURLAction(title: "Explore the Code", urlString: "https://github.com/waynecarter/simple-pos/blob/main/README.md"))
+        alert.addAction(createOpenURLAction(title: "Explore the Code", urlString: "https://github.com/waynecarter/simple-search/blob/main/README.md"))
         alert.addAction(UIAlertAction(title: "Share", style: .default) { action in
-            let appStoreURL = "https://apps.apple.com/us/app/simple-pos/id6504311724"
-            let qrCodeActivity = QRCodeActivity(for: viewController, title: "Simple Point-of-Sale", appURL: appStoreURL)
+            let appStoreURL = "https://apps.apple.com/us/app/simple-search/id6504311724"
+            let qrCodeActivity = QRCodeActivity(for: viewController, title: "Simple Search", appURL: appStoreURL)
             let activityViewController = UIActivityViewController(activityItems: [appStoreURL], applicationActivities: [qrCodeActivity])
             activityViewController.popoverPresentationController?.sourceView = sourceView
             
@@ -34,7 +34,7 @@ class Info {
         })
         alert.addAction(createOpenURLAction(title: "Settings", urlString: UIApplication.openSettingsURLString))
         alert.addAction(createOpenURLAction(title: "Terms of Use", urlString: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"))
-        alert.addAction(createOpenURLAction(title: "Privacy Policy", urlString: "https://github.com/waynecarter/simple-pos/blob/main/PRIVACY"))
+        alert.addAction(createOpenURLAction(title: "Privacy Policy", urlString: "https://github.com/waynecarter/simple-search/blob/main/PRIVACY"))
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { action in
             alert.dismiss(animated: true)
         })

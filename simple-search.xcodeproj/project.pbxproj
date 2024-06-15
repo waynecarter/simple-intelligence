@@ -15,10 +15,10 @@
 		B09602192BF7014700F6A866 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B09602172BF7014700F6A866 /* Main.storyboard */; };
 		B096021B2BF7014B00F6A866 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B096021A2BF7014B00F6A866 /* Assets.xcassets */; };
 		B096021E2BF7014B00F6A866 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B096021C2BF7014B00F6A866 /* LaunchScreen.storyboard */; };
-		B0EBE56A2BF9165B002FF20C /* CouchbaseLiteSwift.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0EBE5682BF9165B002FF20C /* CouchbaseLiteSwift.xcframework */; };
-		B0EBE56B2BF9165B002FF20C /* CouchbaseLiteSwift.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B0EBE5682BF9165B002FF20C /* CouchbaseLiteSwift.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		B0EBE56C2BF9165B002FF20C /* CouchbaseLiteVectorSearch.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0EBE5692BF9165B002FF20C /* CouchbaseLiteVectorSearch.xcframework */; };
-		B0EBE56D2BF9165B002FF20C /* CouchbaseLiteVectorSearch.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B0EBE5692BF9165B002FF20C /* CouchbaseLiteVectorSearch.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B0E094012C1E408400708B33 /* CouchbaseLiteSwift.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0E093FD2C1E402200708B33 /* CouchbaseLiteSwift.xcframework */; };
+		B0E094022C1E408400708B33 /* CouchbaseLiteSwift.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B0E093FD2C1E402200708B33 /* CouchbaseLiteSwift.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B0E094032C1E408600708B33 /* CouchbaseLiteVectorSearch.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0E093FE2C1E402200708B33 /* CouchbaseLiteVectorSearch.xcframework */; };
+		B0E094042C1E408600708B33 /* CouchbaseLiteVectorSearch.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B0E093FE2C1E402200708B33 /* CouchbaseLiteVectorSearch.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B0EBE5702BF9167C002FF20C /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EBE56F2BF9167C002FF20C /* Database.swift */; };
 		B0EBE5722BF91CB2002FF20C /* AI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EBE5712BF91CB2002FF20C /* AI.swift */; };
 		B0F3276C2BFEE7CC007376C3 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B0F3276B2BFEE7CC007376C3 /* Settings.bundle */; };
@@ -32,8 +32,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				B0EBE56D2BF9165B002FF20C /* CouchbaseLiteVectorSearch.xcframework in Embed Frameworks */,
-				B0EBE56B2BF9165B002FF20C /* CouchbaseLiteSwift.xcframework in Embed Frameworks */,
+				B0E094042C1E408600708B33 /* CouchbaseLiteVectorSearch.xcframework in Embed Frameworks */,
+				B0E094022C1E408400708B33 /* CouchbaseLiteSwift.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -44,7 +44,7 @@
 		40E7CA372BFB20B5004BE7E1 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		B05F80C82C1A9CB300C48B60 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B07994DC2C1B921E005B9B39 /* Info.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Info.swift; sourceTree = "<group>"; };
-		B096020E2BF7014700F6A866 /* simple-pos.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "simple-pos.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B096020E2BF7014700F6A866 /* simple-search.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "simple-search.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B09602112BF7014700F6A866 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B09602132BF7014700F6A866 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		B09602152BF7014700F6A866 /* ViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ViewController.swift; sourceTree = "<group>"; };
@@ -52,8 +52,8 @@
 		B096021A2BF7014B00F6A866 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		B096021D2BF7014B00F6A866 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		B096021F2BF7014B00F6A866 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
-		B0EBE5682BF9165B002FF20C /* CouchbaseLiteSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteSwift.xcframework; path = "simple-pos/Frameworks/CouchbaseLiteSwift.xcframework"; sourceTree = "<group>"; };
-		B0EBE5692BF9165B002FF20C /* CouchbaseLiteVectorSearch.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteVectorSearch.xcframework; path = "simple-pos/Frameworks/CouchbaseLiteVectorSearch.xcframework"; sourceTree = "<group>"; };
+		B0E093FD2C1E402200708B33 /* CouchbaseLiteSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteSwift.xcframework; path = "simple-search/Frameworks/CouchbaseLiteSwift.xcframework"; sourceTree = "<group>"; };
+		B0E093FE2C1E402200708B33 /* CouchbaseLiteVectorSearch.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteVectorSearch.xcframework; path = "simple-search/Frameworks/CouchbaseLiteVectorSearch.xcframework"; sourceTree = "<group>"; };
 		B0EBE56F2BF9167C002FF20C /* Database.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
 		B0EBE5712BF91CB2002FF20C /* AI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AI.swift; sourceTree = "<group>"; };
 		B0F3276B2BFEE7CC007376C3 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
@@ -65,8 +65,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B0EBE56C2BF9165B002FF20C /* CouchbaseLiteVectorSearch.xcframework in Frameworks */,
-				B0EBE56A2BF9165B002FF20C /* CouchbaseLiteSwift.xcframework in Frameworks */,
+				B0E094032C1E408600708B33 /* CouchbaseLiteVectorSearch.xcframework in Frameworks */,
+				B0E094012C1E408400708B33 /* CouchbaseLiteSwift.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -89,7 +89,7 @@
 		B09602052BF7014700F6A866 = {
 			isa = PBXGroup;
 			children = (
-				B09602102BF7014700F6A866 /* simple-pos */,
+				B09602102BF7014700F6A866 /* simple-search */,
 				B096020F2BF7014700F6A866 /* Products */,
 				B0EBE5672BF9165A002FF20C /* Frameworks */,
 			);
@@ -98,12 +98,12 @@
 		B096020F2BF7014700F6A866 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B096020E2BF7014700F6A866 /* simple-pos.app */,
+				B096020E2BF7014700F6A866 /* simple-search.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B09602102BF7014700F6A866 /* simple-pos */ = {
+		B09602102BF7014700F6A866 /* simple-search */ = {
 			isa = PBXGroup;
 			children = (
 				B0EBE56F2BF9167C002FF20C /* Database.swift */,
@@ -116,14 +116,14 @@
 				B096021F2BF7014B00F6A866 /* Info.plist */,
 				B05F80C82C1A9CB300C48B60 /* PrivacyInfo.xcprivacy */,
 			);
-			path = "simple-pos";
+			path = "simple-search";
 			sourceTree = "<group>";
 		};
 		B0EBE5672BF9165A002FF20C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B0EBE5682BF9165B002FF20C /* CouchbaseLiteSwift.xcframework */,
-				B0EBE5692BF9165B002FF20C /* CouchbaseLiteVectorSearch.xcframework */,
+				B0E093FD2C1E402200708B33 /* CouchbaseLiteSwift.xcframework */,
+				B0E093FE2C1E402200708B33 /* CouchbaseLiteVectorSearch.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -131,9 +131,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B096020D2BF7014700F6A866 /* simple-pos */ = {
+		B096020D2BF7014700F6A866 /* simple-search */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B09602222BF7014B00F6A866 /* Build configuration list for PBXNativeTarget "simple-pos" */;
+			buildConfigurationList = B09602222BF7014B00F6A866 /* Build configuration list for PBXNativeTarget "simple-search" */;
 			buildPhases = (
 				B096020A2BF7014700F6A866 /* Sources */,
 				B096020B2BF7014700F6A866 /* Frameworks */,
@@ -144,9 +144,9 @@
 			);
 			dependencies = (
 			);
-			name = "simple-pos";
+			name = "simple-search";
 			productName = "simple-pos";
-			productReference = B096020E2BF7014700F6A866 /* simple-pos.app */;
+			productReference = B096020E2BF7014700F6A866 /* simple-search.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -164,7 +164,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B09602092BF7014700F6A866 /* Build configuration list for PBXProject "simple-pos" */;
+			buildConfigurationList = B09602092BF7014700F6A866 /* Build configuration list for PBXProject "simple-search" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -177,7 +177,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B096020D2BF7014700F6A866 /* simple-pos */,
+				B096020D2BF7014700F6A866 /* simple-search */,
 			);
 		};
 /* End PBXProject section */
@@ -362,8 +362,8 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = FMV3C84SQX;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "simple-pos/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = POS;
+				INFOPLIST_FILE = "simple-search/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Search;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -393,8 +393,8 @@
 				CURRENT_PROJECT_VERSION = 10;
 				DEVELOPMENT_TEAM = FMV3C84SQX;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "simple-pos/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = POS;
+				INFOPLIST_FILE = "simple-search/Info.plist";
+				INFOPLIST_KEY_CFBundleDisplayName = Search;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.developer-tools";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
@@ -418,7 +418,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B09602092BF7014700F6A866 /* Build configuration list for PBXProject "simple-pos" */ = {
+		B09602092BF7014700F6A866 /* Build configuration list for PBXProject "simple-search" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B09602202BF7014B00F6A866 /* Debug */,
@@ -427,7 +427,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B09602222BF7014B00F6A866 /* Build configuration list for PBXNativeTarget "simple-pos" */ = {
+		B09602222BF7014B00F6A866 /* Build configuration list for PBXNativeTarget "simple-search" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B09602232BF7014B00F6A866 /* Debug */,

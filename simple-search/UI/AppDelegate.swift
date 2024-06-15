@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  simple-pos
+//  simple-search
 //
 //  Created by Wayne Carter on 5/16/24.
 //

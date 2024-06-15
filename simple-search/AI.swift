@@ -1,6 +1,6 @@
 //
 //  AI.swift
-//  simple-pos
+//  simple-search
 //
 //  Created by Wayne Carter on 5/18/24.
 //
