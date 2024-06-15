@@ -75,11 +75,18 @@ class ViewController: UICollectionViewController, CameraDelegate {
         setupUI()
         searchMode = .camera
         
-        // When the settings for showing/hiding the cart change, update the actions
+        // When the settings for the cart change, update the actions
         Settings.shared.$cartEnabled
             .dropFirst()
             .sink { [weak self] cartEnabled in
                 self?.updateActions(cartEnabled: cartEnabled)
+            }.store(in: &cancellables)
+        
+        // When the settings for the front-facing camera change, update the explainer
+        Settings.shared.$frontCameraEnabled
+            .dropFirst()
+            .sink { [weak self] frontCameraEnabled in
+                self?.updateExplainer(frontCameraEnabled: frontCameraEnabled)
             }.store(in: &cancellables)
     }
     
@@ -354,7 +361,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     // MARK: - Explainer
     
-    private func updateExplainer() {
+    private func updateExplainer(frontCameraEnabled: Bool = Settings.shared.frontCameraEnabled) {
         let showExplainer = self.products.count == 0
 
         explainerImageView.isHidden = !showExplainer
@@ -378,7 +385,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
             
             // When in camera mode, provide additional instructions on how to scan an item.
             if searchMode == .camera {
-                let cameraPositionText = Settings.shared.frontCameraEnabled ? "front-facing" : "back-facing"
+                let cameraPositionText = frontCameraEnabled ? "front-facing" : "back-facing"
                 let instructionsText = "Position an item in front of the \(cameraPositionText) camera. The camera is active and scanning."
                 let instructionsAttributes: [NSAttributedString.Key: Any] = [
                     .font: explainerInstructionsFont,
