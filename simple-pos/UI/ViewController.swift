@@ -389,7 +389,7 @@ class ViewController: UICollectionViewController {
                 if searchMode == .text {
                     return "text.magnifyingglass"
                 } else if cameraAuthorized == false {
-                    return "exclamationmark.triangle"
+                    return "info.circle"
                 } else {
                     return "dot.viewfinder"
                 }
@@ -401,7 +401,7 @@ class ViewController: UICollectionViewController {
                 if searchMode == .text {
                     return "Search for Item"
                 } else if cameraAuthorized == false {
-                    return "Authorize Camera Access"
+                    return "Enable Camera Access"
                 } else {
                     return "Scan an Item"
                 }
@@ -419,7 +419,7 @@ class ViewController: UICollectionViewController {
                 // When searching with the camera, provide additional instructions on how to scan an item
                 if searchMode == .camera {
                     if cameraAuthorized == false {
-                        return "Camera access is not authorized. Enable camera access in device settings to use the visual search feature."
+                        return "Camera access is not enabled. To use the visual search feature, enable camera access in device settings."
                     } else {
                         return "Position an item in front of the \(frontCameraEnabled ? "front-facing" : "back-facing") camera. The camera is active and scanning."
                     }
@@ -768,7 +768,7 @@ class ViewController: UICollectionViewController {
         }
     }
     
-    // MARK: - Haptic Feedback
+    // MARK: - Haptics
     
     private let impactFeedbackGenerator = UIImpactFeedbackGenerator(style: .medium)
     private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
