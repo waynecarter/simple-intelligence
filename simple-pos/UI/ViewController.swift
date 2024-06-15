@@ -416,7 +416,7 @@ class ViewController: UICollectionViewController {
             
             // Set instructions text
             let instructionsText: String? = {
-                // When searching with the camera, provide additional instructions on how to scan an item
+                // When searching with the camera, provide additional instructions
                 if searchMode == .camera {
                     if cameraAuthorized == false {
                         return "Camera access is not enabled. To use the visual search feature, enable camera access in device settings."
