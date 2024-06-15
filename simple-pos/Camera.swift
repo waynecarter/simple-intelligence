@@ -61,11 +61,9 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         if status == .notDetermined {
             AVCaptureDevice.requestAccess(for: .video) { [unowned self] granted in
-                DispatchQueue.main.async {
-                    self.updateCameraAuthorization()
-                    if granted {
-                        self.startSession()
-                    }
+                self.updateCameraAuthorization()
+                if granted {
+                    self.startSession()
                 }
             }
         } else {
