@@ -8,10 +8,7 @@
 import UIKit
 import Combine
 
-class ViewController: UICollectionViewController, CameraDelegate {
-    private lazy var database = { return Database.shared }()
-    private var camera: Camera!
-    
+class ViewController: UICollectionViewController {
     private let searchButton = UIButton(type: .custom)
     private let searchTextField = UISearchTextField()
     
@@ -56,8 +53,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     init() {
         super.init(collectionViewLayout: CenteredFlowLayout())
-        
-        camera = Camera(delegate: self)
     }
     
     required init?(coder: NSCoder) {
@@ -78,6 +73,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         // When the settings for the cart change, update the actions
         Settings.shared.$cartEnabled
             .dropFirst()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] cartEnabled in
                 self?.updateActions(cartEnabled: cartEnabled)
             }.store(in: &cancellables)
@@ -85,8 +81,25 @@ class ViewController: UICollectionViewController, CameraDelegate {
         // When the settings for the front-facing camera change, update the explainer
         Settings.shared.$frontCameraEnabled
             .dropFirst()
+            .receive(on: DispatchQueue.main)
             .sink { [weak self] frontCameraEnabled in
                 self?.updateExplainer(frontCameraEnabled: frontCameraEnabled)
+            }.store(in: &cancellables)
+        
+        // When the authorization for the camera changes, update the explainer
+        Camera.shared.$authorized
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] authorized in
+                self?.updateExplainer(cameraAuthorized: authorized)
+            }.store(in: &cancellables)
+        
+        // When the products from the camera change, update the products
+        Camera.shared.$products
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] products in
+                self?.products = products
             }.store(in: &cancellables)
     }
     
@@ -128,7 +141,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         searchTextField.alpha = 0
         view.addSubview(searchTextField)
         
-        payButton.setTotal(database.cartTotal, animated: false)
+        payButton.setTotal(Database.shared.cartTotal, animated: false)
         payButton.addAction(UIAction(title: "Pay") { [weak self] _ in self?.pay() }, for: .touchUpInside)
         payButton.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(payButton)
@@ -361,46 +374,71 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     // MARK: - Explainer
     
-    private func updateExplainer(frontCameraEnabled: Bool = Settings.shared.frontCameraEnabled) {
+    private func updateExplainer(frontCameraEnabled: Bool = Settings.shared.frontCameraEnabled, cameraAuthorized: Bool = Camera.shared.authorized) {
         let showExplainer = self.products.count == 0
 
         explainerImageView.isHidden = !showExplainer
         explainerLabel.isHidden = !showExplainer
 
         if showExplainer {
-            let explainerImageSystemName = searchMode == .text ? "text.magnifyingglass" : "dot.viewfinder"
-            let explainerImage = UIImage(systemName: explainerImageSystemName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
-            
             let explainerParagraphStyle = NSMutableParagraphStyle()
             explainerParagraphStyle.alignment = .center
             
-            let actionText = searchMode == .text ? "Search for Item" : "Scan an Item"
+            // Set the explainer image
+            let imageName: String = {
+                if cameraAuthorized == false {
+                    return "exclamationmark.triangle"
+                } else {
+                    return searchMode == .text ? "text.magnifyingglass" : "dot.viewfinder"
+                }
+            }()
+            let image = UIImage(systemName: imageName)?.withConfiguration(UIImage.SymbolConfiguration(weight: .thin))
+            
+            // Set the action text
+            let actionText: String = {
+                if cameraAuthorized == false {
+                    return "Authorize Camera Access"
+                } else {
+                    return searchMode == .text ? "Search for Item" : "Scan an Item"
+                }
+            }()
             let actionAttributes: [NSAttributedString.Key: Any] = [
                 .font: explainerActionFont,
                 .foregroundColor: UIColor.label,
                 .paragraphStyle: explainerParagraphStyle
             ]
             
-            let explainerString = NSMutableAttributedString(string: actionText, attributes: actionAttributes)
+            let explainerText = NSMutableAttributedString(string: actionText, attributes: actionAttributes)
             
-            // When in camera mode, provide additional instructions on how to scan an item.
-            if searchMode == .camera {
-                let cameraPositionText = frontCameraEnabled ? "front-facing" : "back-facing"
-                let instructionsText = "Position an item in front of the \(cameraPositionText) camera. The camera is active and scanning."
+            // Set instructions text
+            let instructionsText: String? = {
+                // When the camera is not authorized, provide additional instructions on how to authorize
+                if cameraAuthorized == false {
+                    return "Camera access is not authorized. Enable camera access in device settings to use the visual search feature."
+                }
+                
+                // When searching with the camera, provide additional instructions on how to scan an item
+                if searchMode == .camera {
+                    return "Position an item in front of the \(frontCameraEnabled ? "front-facing" : "back-facing") camera. The camera is active and scanning."
+                }
+                
+                return nil
+            }()
+            if let instructionsText = instructionsText {
                 let instructionsAttributes: [NSAttributedString.Key: Any] = [
                     .font: explainerInstructionsFont,
                     .foregroundColor: UIColor.tertiaryLabel,
                     .paragraphStyle: explainerParagraphStyle
                 ]
-                explainerString.append(NSMutableAttributedString(string: "\n\n\(instructionsText)", attributes: instructionsAttributes))
+                explainerText.append(NSMutableAttributedString(string: "\n\n\(instructionsText)", attributes: instructionsAttributes))
             }
 
             UIView.animate(withDuration: 0.6, animations: {
                 self.explainerImageView.alpha = 1
                 self.explainerLabel.alpha = 1
 
-                self.explainerImageView.image = explainerImage
-                self.explainerLabel.attributedText = explainerString
+                self.explainerImageView.image = image
+                self.explainerLabel.attributedText = explainerText
             })
         } else {
             UIView.animate(withDuration: 0.2, animations: {
@@ -479,7 +517,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
                 imageView.isHidden = false
                 
                 // Set the new cart total.
-                self.payButton.setTotal(self.database.cartTotal)
+                self.payButton.setTotal(Database.shared.cartTotal)
             })
         }
         
@@ -488,7 +526,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
         
         // Add the product to the cart and close the search.
         let product = self.products[selectedItemIndexPath.item]
-        self.database.addToCart(product: product)
+        Database.shared.addToCart(product: product)
         self.cancelSearch()
     }
     
@@ -639,7 +677,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     
     @objc func searchTextFieldDidChange(_ textField: UITextField) {
         if let text = textField.text {
-            self.products = database.search(string: text)
+            self.products = Database.shared.search(string: text)
         }
     }
     
@@ -650,24 +688,12 @@ class ViewController: UICollectionViewController, CameraDelegate {
     // MARK: - Vector Search
     
     private func startVectorSearch() {
-        camera.start()
+        Camera.shared.start()
     }
     
     private func stopVectorSearch() {
-        camera.stop()
+        Camera.shared.stop()
         clearSearchResults()
-    }
-    
-    func camera(_ camera: Camera, didFindProducts products: [Database.Product]) {
-        DispatchQueue.main.async {
-            if self.products.isEmpty { // TODO: Maybe doesn't need to check
-                self.products = products
-            }
-        }
-    }
-    
-    func camera(_ camera: Camera, didFailWithError error: any Error) {
-        DispatchQueue.main.async { self.showError(message: error.localizedDescription)}
     }
     
     // MARK: - Pay
@@ -683,7 +709,7 @@ class ViewController: UICollectionViewController, CameraDelegate {
     }
     
     private func clearCart() {
-        self.database.clearCart()
+        Database.shared.clearCart()
         self.payButton.setTotal(0)
         clearSearchResults()
         startVectorSearch()
@@ -761,14 +787,6 @@ class ViewController: UICollectionViewController, CameraDelegate {
     override var prefersStatusBarHidden: Bool {
         // Hide status bar for fullscreen
         return prefersFullscreen
-    }
-    
-    // MARK: - Alert
-    
-    private func showError(message: String) {
-        let alert = UIAlertController(title: "Error", message: message, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "Close", style: .default, handler: nil))
-        self.present(alert, animated: true, completion: nil)
     }
 }
 

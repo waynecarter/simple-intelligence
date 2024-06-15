@@ -7,13 +7,8 @@ import UIKit
 import AVFoundation
 import Combine
 
-protocol CameraDelegate {
-    func camera(_ camera: Camera, didFindProducts products: [Database.Product])
-    func camera(_ camera: Camera, didFailWithError error: Error)
-}
-
 class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
-    private lazy var database = { return Database.shared }()
+    static let shared = Camera()
     
     private let session: AVCaptureSession = AVCaptureSession()
     private let videoOutput = AVCaptureVideoDataOutput()
@@ -21,6 +16,9 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     private let captureInterval: TimeInterval = 0.2
     private var captureTimestamp: TimeInterval = 0.0
+    
+    @Published var authorized: Bool = false
+    @Published var products: [Database.Product] = []
     
     private var position: AVCaptureDevice.Position = Settings.shared.frontCameraEnabled ? .front : .back {
         didSet {
@@ -32,13 +30,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     
     private var cancellables = Set<AnyCancellable>()
     
-    private var lastProducts: [Database.Product]?
-    
-    private var delegate: CameraDelegate
-    
-    init(delegate: CameraDelegate) {
-        self.delegate = delegate
-        
+    private override init() {
         super.init()
         
         Settings.shared.$frontCameraEnabled
@@ -51,40 +43,52 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         stop()
     }
     
+    private func updateCameraAuthorization() {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        switch status {
+        case .authorized:
+            if !authorized {
+                authorized = true
+            }
+        default:
+            if authorized {
+                authorized = false
+            }
+        }
+    }
+    
     func start() {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         if status == .notDetermined {
             AVCaptureDevice.requestAccess(for: .video) { [unowned self] granted in
-                self.startSession()
+                DispatchQueue.main.async {
+                    self.updateCameraAuthorization()
+                    if granted {
+                        self.startSession()
+                    }
+                }
             }
         } else {
-            self.startSession()
+            self.updateCameraAuthorization()
+            if status == .authorized {
+                self.startSession()
+            }
         }
     }
     
     private func startSession() {
-        let status = AVCaptureDevice.authorizationStatus(for: .video)
-        if status != .authorized {
-            self.delegate.camera(self, didFailWithError: "No permission to use the camera device")
-            return
-        }
-        
         sessionQueue.async {
             if self.session.isRunning { return }
             
             do {
                 try self.setup()
             } catch {
-                self.delegate.camera(self, didFailWithError: error)
+                print(error.localizedDescription)
                 return
             }
             
             self.captureTimestamp = 0
             self.session.startRunning()
-            
-            if (!self.session.isRunning) {
-                self.delegate.camera(self, didFailWithError: "Camera cannot start")
-            }
         }
     }
     
@@ -172,7 +176,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             do {
                 try self.updateVideoInputDevice()
             } catch {
-                self.delegate.camera(self, didFailWithError: error)
+                print(error.localizedDescription)
             }
         }
     }
@@ -219,24 +223,23 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         self.sessionQueue.async {
             guard self.session.isRunning else { return }
             
-            let products = self.database.search(image: image)
-            
-            if products.isEmpty {
-                self.lastProducts = nil
-                return
-            }
+            // Find the products
+            let products = Database.shared.search(image: image)
             
             // Don't find the same exact products twice. This ensures that when an item
             // is scanned and added to the cart, the same item isn't instantly scanned
             // and shown again.
-            if let lastProducts = self.lastProducts, lastProducts == products {
+            if self.products == products {
                 return
             }
-            self.lastProducts = products
             
-            self.session.stopRunning()
+            // If we found new products, stop the camera
+            if !products.isEmpty {
+                self.session.stopRunning()
+            }
             
-            self.delegate.camera(self, didFindProducts: products)
+            // Update the products
+            self.products = products
         }
     }
 }
