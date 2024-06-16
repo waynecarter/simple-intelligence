@@ -18,7 +18,7 @@ class Database {
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
-        database = try! CouchbaseLiteSwift.Database(name: "pos")
+        database = try! CouchbaseLiteSwift.Database(name: "search")
         collection = try! database.defaultCollection()
         
         // If the database is empty, initialize it with the demo data.
