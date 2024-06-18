@@ -199,7 +199,7 @@ This is the stand that I'm using for my iPad Pro (12.9-inch, 3rd generation). Yo
 
 ### iPhone Setup
 
-The iPhone setups work well for mobile use. Use cases include personal shopping, self checkout, order collection, package delivery, ticket validation, and more.
+The iPhone setups work well for mobile use. Use cases include inventory, personal shopping, self checkout, order collection, package delivery, ticket validation, and more.
 
 ![iPhone Demo Setup](images/iphone-demo-setup.png)
 
