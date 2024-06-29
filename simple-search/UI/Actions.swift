@@ -1,5 +1,5 @@
 //
-//  Info.swift
+//  Actions.swift
 //  simple-search
 //
 //  Created by Wayne Carter on 6/13/24.
@@ -7,11 +7,33 @@
 
 import UIKit
 
-class Info {
-    static let shared = Info()
-    private init() {}
+class Actions {
+    static let shared = Actions()
     
-    func show(for viewController: UIViewController, sourceView: UIView) {
+    // MARK: - Pay
+    
+    func pay(for viewController: UIViewController, sourceItem: UIBarButtonItem, completion: (() -> Void)? = nil) {
+        let alert = UIAlertController(title: "Are you sure you want to clear the cart?", message: nil, preferredStyle: .actionSheet)
+        alert.popoverPresentationController?.sourceItem = sourceItem
+        alert.addAction(UIAlertAction(title: "Clear Cart", style: .destructive, handler: { action in
+            Database.shared.clearCart()
+            completion?()
+        }))
+        alert.addAction(UIAlertAction(title: "Cancel", style: .cancel, handler: nil))
+        viewController.present(alert, animated: true, completion: nil)
+    }
+    
+    // MARK: - Info
+    
+    func showInfo(for viewController: UIViewController, sourceView: UIView) {
+        showInfo(for: viewController, sourceView: sourceView, sourceItem: nil)
+    }
+    
+    func showInfo(for viewController: UIViewController, sourceItem: UIBarButtonItem) {
+        showInfo(for: viewController, sourceView: nil, sourceItem: sourceItem)
+    }
+    
+    private func showInfo(for viewController: UIViewController, sourceView: UIView?, sourceItem: UIBarButtonItem?) {
         func createOpenURLAction(title: String, urlString: String) -> UIAlertAction {
             return UIAlertAction(title: title, style: .default) { action in
                 if let url = URL(string: urlString) {
@@ -22,16 +44,9 @@ class Info {
         
         let alert = UIAlertController(title: nil, message: nil, preferredStyle: .actionSheet)
         alert.popoverPresentationController?.sourceView = sourceView
+        alert.popoverPresentationController?.sourceItem = sourceItem
         alert.title = "Scan an item with the camera and\nsearch visually using AI"
         alert.addAction(createOpenURLAction(title: "Explore the Code", urlString: "https://github.com/waynecarter/simple-search/blob/main/README.md"))
-        alert.addAction(UIAlertAction(title: "Share", style: .default) { action in
-            let appStoreURL = "https://apps.apple.com/us/app/simple-search/id6504311724"
-            let qrCodeActivity = QRCodeActivity(for: viewController, title: "Simple Search", appURL: appStoreURL)
-            let activityViewController = UIActivityViewController(activityItems: [appStoreURL], applicationActivities: [qrCodeActivity])
-            activityViewController.popoverPresentationController?.sourceView = sourceView
-            
-            viewController.present(activityViewController, animated: true)
-        })
         alert.addAction(createOpenURLAction(title: "Settings", urlString: UIApplication.openSettingsURLString))
         alert.addAction(createOpenURLAction(title: "Terms of Use", urlString: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"))
         alert.addAction(createOpenURLAction(title: "Privacy Policy", urlString: "https://github.com/waynecarter/simple-search/blob/main/PRIVACY"))
@@ -41,6 +56,17 @@ class Info {
         
         viewController.present(alert, animated: true)
         
+    }
+    
+    // MARK: - Share
+    
+    func showShare(for viewController: UIViewController, sourceItem: UIBarButtonItem) {
+        let appStoreURL = "https://apps.apple.com/us/app/simple-search/id6504311724"
+        let qrCodeActivity = QRCodeActivity(for: viewController, title: "Simple Search", appURL: appStoreURL)
+        let activityViewController = UIActivityViewController(activityItems: [appStoreURL], applicationActivities: [qrCodeActivity])
+        activityViewController.popoverPresentationController?.sourceItem = sourceItem
+        
+        viewController.present(activityViewController, animated: true)
     }
     
     private class QRCodeActivity: UIActivity {

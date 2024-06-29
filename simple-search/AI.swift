@@ -12,13 +12,9 @@ struct AI {
     static let shared = AI()
     private init() {}
     
-    enum Attention {
-        case none, saliency
-    }
-    
     // MARK: - Embedding
     
-    func embedding(for image: UIImage, attention: Attention = .saliency) -> [NSNumber]? {
+    func embedding(for image: UIImage, attention: Attention = .none) -> [NSNumber]? {
         guard let cgImage = image.cgImage else {
             return nil
         }
@@ -117,10 +113,17 @@ struct AI {
     
     // MARK: - Image Processing
     
-    private func process(cgImage: CGImage, attention: Attention) -> CGImage {
+    enum Attention {
+        case none, saliency
+    }
+    
+    func process(cgImage: CGImage, attention: Attention) -> CGImage {
         var processedImage = cgImage
         
-        if attention == .saliency {
+        switch attention {
+        case .none:
+            _ = processedImage // No attention, do nothing.
+        case .saliency:
             processedImage = cropToSalientRegion(cgImage: cgImage)
         }
         
