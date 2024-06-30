@@ -20,7 +20,7 @@ class CameraViewController: ProductsViewController {
     private var cancellables = Set<AnyCancellable>()
     
     private func setup() {
-        // Check the camera authorization and display the explainer if neede
+        // Check the camera authorization and display the explainer if needed
         updateCameraAuthorization()
         
         camera.preview.frame = view.bounds
