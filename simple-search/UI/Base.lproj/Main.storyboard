@@ -85,7 +85,7 @@
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f7N-GT-Eny">
-                                <rect key="frame" x="74" y="321" width="244" height="196"/>
+                                <rect key="frame" x="74.666666666666686" y="320.66666666666669" width="244" height="196.00000000000006"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Search for items by name and category" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="f11-Pb-Eku">
                                         <rect key="frame" x="20" y="118" width="204" height="58"/>
@@ -191,15 +191,6 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <visualEffectView opaque="NO" alpha="0.0" contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="eVr-VA-I5L">
-                                <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                                <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO" id="GRi-ge-8t4">
-                                    <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
-                                    <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
-                                </view>
-                                <blurEffect style="systemMaterial"/>
-                            </visualEffectView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XRk-pX-bZd" customClass="ProductsView" customModule="simple_search" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="103" width="393" height="583"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
@@ -291,7 +282,6 @@
                     <connections>
                         <outlet property="actionsView" destination="pbE-uz-K74" id="nly-8P-Sd3"/>
                         <outlet property="addToBagButton" destination="1v7-fc-oU7" id="xvm-eA-Y0N"/>
-                        <outlet property="blurEffectView" destination="eVr-VA-I5L" id="uYG-KZ-XlJ"/>
                         <outlet property="cancelButton" destination="JUn-zD-j2j" id="Bj3-H5-Sjo"/>
                         <outlet property="doneButton" destination="pTC-23-29s" id="fAC-72-2fx"/>
                         <outlet property="explainerView" destination="uH8-xx-3Hw" id="pd6-Nx-LCY"/>
@@ -327,13 +317,13 @@
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="quaternaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.1764705882" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.17647058823529413" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="tertiaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29803921568627451" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
