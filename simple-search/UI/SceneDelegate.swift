@@ -61,27 +61,28 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     private func transitionRootViewController(to toViewController: UIViewController) {
-        guard let window,
+        guard let window = self.window,
               let rootViewController = window.rootViewController,
-              toViewController != rootViewController
-        else { return }
-        
-        toViewController.view.frame = rootViewController.view.frame
-        toViewController.view.layoutIfNeeded()
-        
+              toViewController != rootViewController else { return }
+
+        // Prepare the toViewController
+        toViewController.view.frame = window.bounds
+
+        // Begin transitions for appearance
+        rootViewController.beginAppearanceTransition(false, animated: true)
+        toViewController.beginAppearanceTransition(true, animated: true)
+
+        // Perform the transition
         UIView.transition(with: window, duration: 0.4, options: [.transitionCrossDissolve, .allowAnimatedContent], animations: {
             let oldAnimationsEnabled = UIView.areAnimationsEnabled
             UIView.setAnimationsEnabled(false)
             
-            rootViewController.beginAppearanceTransition(false, animated: true)
-            toViewController.beginAppearanceTransition(true, animated: true)
-            
             window.rootViewController = toViewController
             
+            UIView.setAnimationsEnabled(oldAnimationsEnabled)
+        }, completion: { finished in
             rootViewController.endAppearanceTransition()
             toViewController.endAppearanceTransition()
-            
-            UIView.setAnimationsEnabled(oldAnimationsEnabled)
         })
     }
 
