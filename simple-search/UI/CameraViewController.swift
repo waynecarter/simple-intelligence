@@ -15,7 +15,7 @@ class CameraViewController: ProductsViewController {
     private var cancellables = Set<AnyCancellable>()
     
     private func setup() {
-        view.backgroundColor = .secondarySystemBackground
+        view.backgroundColor = UIColor(red: 0.17, green: 0.17, blue: 0.17, alpha: 1)
         
         // Check the camera authorization and display the explainer if needed
         updateCameraAuthorization()
