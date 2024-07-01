@@ -12,8 +12,6 @@ import Combine
 class CameraViewController: ProductsViewController {
     @IBOutlet weak var explainerView: UIView!
     
-    private let camera: Camera = .shared
-    
     private var cancellables = Set<AnyCancellable>()
     
     private func setup() {
@@ -22,6 +20,7 @@ class CameraViewController: ProductsViewController {
         // Check the camera authorization and display the explainer if needed
         updateCameraAuthorization()
         
+        let camera = Camera.shared
         camera.preview.frame = view.bounds
         camera.preview.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         camera.preview.previewLayer.videoGravity = .resizeAspectFill
@@ -51,13 +50,7 @@ class CameraViewController: ProductsViewController {
     }
     
     private func updateStyleForProducts() {
-        func updateStyleForCamera(isRunning: Bool) {
-            if isRunning {
-                tabBarController?.tabBar.backgroundColor = .black.withAlphaComponent(0.7)
-            } else {
-                tabBarController?.tabBar.backgroundColor = nil
-            }
-        }
+        let camera = Camera.shared
         
         if products.count > 0 {
             if camera.isRunning {
@@ -65,25 +58,41 @@ class CameraViewController: ProductsViewController {
                 camera.stop()
                 // Hide the preview
                 camera.preview.hide(animations: {
-                    updateStyleForCamera(isRunning: false)
+                    self.updateStyleForCamera(isRunning: false)
                 })
             }
         } else {
             if camera.isRunning == false {
                 // Hide the preview
-                camera.preview.hide(completion: {
+                camera.preview.hide(animations: {
+                    self.updateStyleForCamera(isRunning: false)
+                }, completion: {
                     // Start the camera
-                    self.camera.start()
-                    // Show the preview
-                    self.camera.preview.show(animations: {
-                        updateStyleForCamera(isRunning: true)
-                    })
+                    camera.start {
+                        // If the camera is enabled, show the preview
+                        if camera.authorized {
+                            DispatchQueue.main.async {
+                                camera.preview.show(animations: {
+                                    self.updateStyleForCamera(isRunning: true)
+                                })
+                            }
+                        }
+                    }
                 })
             }
         }
     }
     
+    func updateStyleForCamera(isRunning: Bool) {
+        if isRunning {
+            tabBarController?.tabBar.backgroundColor = .black.withAlphaComponent(0.7)
+        } else {
+            tabBarController?.tabBar.backgroundColor = nil
+        }
+    }
+    
     private func updateCameraAuthorization(_ authorized: Bool? = nil) {
+        let camera = Camera.shared
         let authorized = authorized ?? camera.authorized
         
         // If the camera is not enabled, show the explainer and hide the camera
@@ -123,10 +132,9 @@ class CameraViewController: ProductsViewController {
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
         
-        // If the camera is running, stop it
-        if camera.isRunning {
-            camera.stop()
-            camera.preview.hide()
-        }
+        // Stop the camera
+        Camera.shared.stop()
+        Camera.shared.preview.hide(animated: false)
+        updateStyleForCamera(isRunning: false)
     }
 }

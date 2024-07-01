@@ -12,18 +12,46 @@ import Combine
 class Database {
     static let shared = Database()
     
-    private let database: CouchbaseLiteSwift.Database
-    private let collection: CouchbaseLiteSwift.Collection
+    private var database: CouchbaseLiteSwift.Database!
+    private var collection: CouchbaseLiteSwift.Collection!
     
     private var cancellables = Set<AnyCancellable>()
     
     private init() {
-        database = try! CouchbaseLiteSwift.Database(name: "search")
-        collection = try! database.defaultCollection()
+        setupDatabase()
+        endpoint = Settings.shared.endpoint
         
-        // If the database is empty, initialize it with the demo data.
-        if collection.count == 0  {
-            loadDemoData(in: collection)
+        // When the demo is enabled/disabled, update the database and sync
+        Settings.shared.$isDemoEnabled
+            .dropFirst()
+            .sink { [weak self] isDemoEnabled in
+                self?.stopSync()
+                self?.setupDatabase(isDemoEnabled: isDemoEnabled)
+                self?.startSync()
+            }.store(in: &cancellables)
+        
+        // When the endpoint settings change, update the sync endpoint
+        Settings.shared.$endpoint
+            .dropFirst()
+            .sink { [weak self] newEndpoint in
+                self?.endpoint = newEndpoint
+            }.store(in: &cancellables)
+    }
+    
+    private func setupDatabase(isDemoEnabled: Bool = Settings.shared.isDemoEnabled) {
+        let database: CouchbaseLiteSwift.Database
+        let collection: CouchbaseLiteSwift.Collection
+        if isDemoEnabled {
+            database = try! CouchbaseLiteSwift.Database(name: "demo")
+            collection = try! database.defaultCollection()
+            
+            // If the database is empty, initialize it with the demo data.
+            if collection.count == 0  {
+                loadDemoData(in: collection)
+            }
+        } else {
+            database = try! CouchbaseLiteSwift.Database(name: "search")
+            collection = try! database.defaultCollection()
         }
         
         // Initialize the value index on the "name" field for fast sorting.
@@ -43,8 +71,8 @@ class Database {
         let ftsIndex = FullTextIndexConfiguration(["name", "category"])
         try! collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsIndex)
         
-        // Initialize sync
-        setupSync()
+        self.database = database
+        self.collection = collection
     }
     
     deinit {
@@ -82,7 +110,7 @@ class Database {
         
         do {
             // Create the query.
-            let query = try database.createQuery(sql)
+            let query = try collection.database.createQuery(sql)
             query.parameters = Parameters()
                 .setArray(MutableArrayObject(data: vector), forName: "embedding")
             
@@ -139,7 +167,7 @@ class Database {
         
         do {
             // Create the query
-            let query = try database.createQuery(sql)
+            let query = try collection.database.createQuery(sql)
             query.parameters = Parameters()
                 .setString(barcode, forName: "barcode")
             
@@ -181,7 +209,7 @@ class Database {
         
         do {
             // Create the query.
-            let query = try database.createQuery(sql)
+            let query = try collection.database.createQuery(sql)
             query.parameters = Parameters()
                 .setString(searchString, forName: "search")
             
@@ -300,14 +328,6 @@ class Database {
         }
     }
     
-    private func setupSync() {
-        // When the endpoint settings change, update the replicator
-        Settings.shared.$endpoint
-            .sink { [weak self] newEndpoint in
-                self?.endpoint = newEndpoint
-            }.store(in: &cancellables)
-    }
-    
     private func startSync() {
         stopSync()
         
@@ -326,6 +346,7 @@ class Database {
     
     private func createReplicator() -> Replicator? {
         guard let endpoint = endpoint else { return nil }
+        guard endpoint.url.scheme == "ws" || endpoint.url.scheme == "wss" else { return nil }
         
         // Set up the target endpoint.
         let target = URLEndpoint(url: endpoint.url)
@@ -345,7 +366,7 @@ class Database {
         return endpointReplicator
     }
     
-    // MARK: - Util
+    // MARK: - Demo
     
     private func loadDemoData(in collection: CouchbaseLiteSwift.Collection) {
         let productsData: [[String: Any]] = [

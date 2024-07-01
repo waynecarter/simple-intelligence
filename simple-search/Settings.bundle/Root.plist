@@ -5,32 +5,6 @@
 	<key>PreferenceSpecifiers</key>
 	<array>
 		<dict>
-			<key>Title</key>
-			<string>Features</string>
-			<key>Type</key>
-			<string>PSGroupSpecifier</string>
-		</dict>
-		<dict>
-			<key>Type</key>
-			<string>PSMultiValueSpecifier</string>
-			<key>Title</key>
-			<string>Use Case</string>
-			<key>Key</key>
-			<string>use_case</string>
-			<key>DefaultValue</key>
-			<string>pointOfSale</string>
-			<key>Values</key>
-			<array>
-				<string>pointOfSale</string>
-				<string>itemLookup</string>
-			</array>
-			<key>Titles</key>
-			<array>
-				<string>Point-of-Sale</string>
-				<string>Item Lookup</string>
-			</array>
-		</dict>
-		<dict>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
 			<key>Title</key>
@@ -45,6 +19,16 @@
 			<string>Sync Endpoint</string>
 			<key>Type</key>
 			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
+			<key>DefaultValue</key>
+			<false/>
+			<key>Key</key>
+			<string>endpoint_enabled</string>
+			<key>Title</key>
+			<string>Enabled</string>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
 		</dict>
 		<dict>
 			<key>DefaultValue</key>
@@ -81,14 +65,40 @@
 			<string>PSTextFieldSpecifier</string>
 		</dict>
 		<dict>
-			<key>DefaultValue</key>
-			<false/>
-			<key>Key</key>
-			<string>endpoint_enabled</string>
 			<key>Title</key>
-			<string>Enabled</string>
+			<string>Demo</string>
+			<key>Type</key>
+			<string>PSGroupSpecifier</string>
+		</dict>
+		<dict>
 			<key>Type</key>
 			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>Enabled</string>
+			<key>Key</key>
+			<string>demo_enabled</string>
+			<key>DefaultValue</key>
+			<false/>
+		</dict>
+		<dict>
+			<key>Type</key>
+			<string>PSMultiValueSpecifier</string>
+			<key>Title</key>
+			<string>Use Case</string>
+			<key>Key</key>
+			<string>use_case</string>
+			<key>DefaultValue</key>
+			<string>itemLookup</string>
+			<key>Values</key>
+			<array>
+				<string>itemLookup</string>
+				<string>pointOfSale</string>
+			</array>
+			<key>Titles</key>
+			<array>
+				<string>Item Lookup</string>
+				<string>Point-of-Sale</string>
+			</array>
 		</dict>
 	</array>
 	<key>StringsTable</key>

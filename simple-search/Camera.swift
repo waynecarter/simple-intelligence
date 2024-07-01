@@ -40,9 +40,68 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private func setup() {
         updateCameraAuthorization()
         
-        if session.inputs.count > 0 && session.outputs.count > 0 {
-            return
+        Settings.shared.$frontCameraEnabled
+            .sink { [weak self] frontCameraEnabled in
+                self?.position = frontCameraEnabled ? .front : .back
+            }.store(in: &cancellables)
+    }
+    
+    private var position: AVCaptureDevice.Position = Settings.shared.frontCameraEnabled ? .front : .back {
+        didSet {
+            if position != oldValue {
+                cameraPositionDidChange()
+            }
         }
+    }
+    
+    private func updateCameraAuthorization() {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        switch status {
+        case .authorized: if !authorized { authorized = true }
+        default: if authorized { authorized = false }
+        }
+    }
+    
+    var isRunning: Bool {
+        return session.isRunning
+    }
+    
+    func start(completion: (() -> Void)? = nil) {
+        let status = AVCaptureDevice.authorizationStatus(for: .video)
+        if status == .notDetermined {
+            AVCaptureDevice.requestAccess(for: .video) { [unowned self] granted in
+                self.updateCameraAuthorization()
+                if granted {
+                    self.startSession()
+                }
+                completion?()
+            }
+        } else {
+            if status == .authorized {
+                self.startSession()
+            }
+            completion?()
+        }
+    }
+    
+    func stop() {
+        sessionQueue.async {
+            self.session.stopRunning()
+        }
+    }
+    
+    private func startSession() {
+        sessionQueue.async {
+            guard self.session.isRunning == false else { return }
+            
+            self.setupSession()
+            self.captureTimestamp = 0
+            self.session.startRunning()
+        }
+    }
+    
+    private func setupSession() {
+        guard session.inputs.count == 0 && session.outputs.count == 0 else { return }
         
         session.beginConfiguration()
         defer { session.commitConfiguration() }
@@ -70,62 +129,6 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             }
         } catch {
             print(error.localizedDescription)
-        }
-        
-        Settings.shared.$frontCameraEnabled
-            .sink { [weak self] frontCameraEnabled in
-                self?.position = frontCameraEnabled ? .front : .back
-            }.store(in: &cancellables)
-    }
-    
-    private var position: AVCaptureDevice.Position = Settings.shared.frontCameraEnabled ? .front : .back {
-        didSet {
-            if position != oldValue {
-                cameraPositionDidChange()
-            }
-        }
-    }
-    
-    private func updateCameraAuthorization() {
-        let status = AVCaptureDevice.authorizationStatus(for: .video)
-        switch status {
-        case .authorized: if !authorized { authorized = true }
-        default: if authorized { authorized = false }
-        }
-    }
-    
-    var isRunning: Bool {
-        return session.isRunning
-    }
-    
-    func start() {
-        let status = AVCaptureDevice.authorizationStatus(for: .video)
-        if status == .notDetermined {
-            AVCaptureDevice.requestAccess(for: .video) { [unowned self] granted in
-                self.updateCameraAuthorization()
-                if granted {
-                    self.startSession()
-                }
-            }
-        } else {
-            self.updateCameraAuthorization()
-            if status == .authorized {
-                self.startSession()
-            }
-        }
-    }
-    
-    private func startSession() {
-        sessionQueue.async {
-            guard self.session.isRunning == false else { return }
-            self.captureTimestamp = 0
-            self.session.startRunning()
-        }
-    }
-    
-    func stop() {
-        sessionQueue.async {
-            self.session.stopRunning()
         }
     }
     

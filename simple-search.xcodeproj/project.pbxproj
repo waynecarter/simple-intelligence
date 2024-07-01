@@ -26,6 +26,7 @@
 		B0E094022C1E408400708B33 /* CouchbaseLiteSwift.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B0E093FD2C1E402200708B33 /* CouchbaseLiteSwift.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B0E094032C1E408600708B33 /* CouchbaseLiteVectorSearch.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0E093FE2C1E402200708B33 /* CouchbaseLiteVectorSearch.xcframework */; };
 		B0E094042C1E408600708B33 /* CouchbaseLiteVectorSearch.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B0E093FE2C1E402200708B33 /* CouchbaseLiteVectorSearch.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B0E7EBDA2C32181C00659321 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E7EBD92C32181C00659321 /* LoginViewController.swift */; };
 		B0EBE5702BF9167C002FF20C /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EBE56F2BF9167C002FF20C /* Database.swift */; };
 		B0EBE5722BF91CB2002FF20C /* AI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EBE5712BF91CB2002FF20C /* AI.swift */; };
 		B0F3276C2BFEE7CC007376C3 /* Settings.bundle in Resources */ = {isa = PBXBuildFile; fileRef = B0F3276B2BFEE7CC007376C3 /* Settings.bundle */; };
@@ -68,6 +69,7 @@
 		B0CA3AB12C2BF19000A12EDF /* PayBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayBarButtonItem.swift; sourceTree = "<group>"; };
 		B0E093FD2C1E402200708B33 /* CouchbaseLiteSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteSwift.xcframework; path = "simple-search/Frameworks/CouchbaseLiteSwift.xcframework"; sourceTree = "<group>"; };
 		B0E093FE2C1E402200708B33 /* CouchbaseLiteVectorSearch.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteVectorSearch.xcframework; path = "simple-search/Frameworks/CouchbaseLiteVectorSearch.xcframework"; sourceTree = "<group>"; };
+		B0E7EBD92C32181C00659321 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		B0EBE56F2BF9167C002FF20C /* Database.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
 		B0EBE5712BF91CB2002FF20C /* AI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AI.swift; sourceTree = "<group>"; };
 		B0F3276B2BFEE7CC007376C3 /* Settings.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = Settings.bundle; sourceTree = "<group>"; };
@@ -94,6 +96,7 @@
 				B096021C2BF7014B00F6A866 /* LaunchScreen.storyboard */,
 				B09602112BF7014700F6A866 /* AppDelegate.swift */,
 				B09602132BF7014700F6A866 /* SceneDelegate.swift */,
+				B0E7EBD92C32181C00659321 /* LoginViewController.swift */,
 				B09DB42E2C1E89C600FBCB95 /* TabBarController.swift */,
 				B09DB4302C1E99B300FBCB95 /* NavigationController.swift */,
 				B00A52EA2C29C1900092F639 /* TextViewController.swift */,
@@ -234,6 +237,7 @@
 				B0C3622E2C2CE08A00EA28F5 /* ProductsViewController.swift in Sources */,
 				B09DB4312C1E99B300FBCB95 /* NavigationController.swift in Sources */,
 				B09602142BF7014700F6A866 /* SceneDelegate.swift in Sources */,
+				B0E7EBDA2C32181C00659321 /* LoginViewController.swift in Sources */,
 				B0C3622C2C2CD10800EA28F5 /* Haptics.swift in Sources */,
 				40E7CA382BFB20B5004BE7E1 /* Camera.swift in Sources */,
 				B0CA3AB22C2BF19000A12EDF /* PayBarButtonItem.swift in Sources */,

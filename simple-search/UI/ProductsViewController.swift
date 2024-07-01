@@ -35,6 +35,11 @@ class ProductsViewController: UIViewController {
             ])
         }
         
+        // Set up the cancel button
+        if let cancelButton {
+            cancelButton.tintColor = .darkGray
+        }
+        
         // Set up the done button
         if let doneButton {
             doneButton.translatesAutoresizingMaskIntoConstraints = false

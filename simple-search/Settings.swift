@@ -14,6 +14,13 @@ class Settings: ObservableObject {
     @Published var endpoint: Endpoint?
     @Published var frontCameraEnabled: Bool = false
     @Published var useCase: UseCase = .pointOfSale
+    @Published var isDemoEnabled: Bool = false {
+        didSet {
+            let userDefaults = UserDefaults.standard
+            userDefaults.setValue(isDemoEnabled, forKey: "demo_enabled")
+        }
+    }
+    @Published var isLoggedIn: Bool = false
     
     enum UseCase: String {
         case pointOfSale, itemLookup
@@ -37,7 +44,8 @@ class Settings: ObservableObject {
         // Register defaults
         UserDefaults.standard.register(defaults: [
             "front_camera_enabled": false,
-            "use_case": UseCase.pointOfSale.rawValue
+            "use_case": UseCase.itemLookup.rawValue,
+            "demo_enabled": false
         ])
         
         // Observe UserDefaults changes
@@ -57,7 +65,8 @@ class Settings: ObservableObject {
     private func updateSettings() {
         updateEndpoint()
         updateCamera()
-        updateUseCase()
+        updateDemo()
+        updateIsLoggedIn()
     }
     
     private func updateEndpoint() {
@@ -90,13 +99,31 @@ class Settings: ObservableObject {
         }
     }
     
-    private func updateUseCase() {
+    private func updateDemo() {
         let userDefaults = UserDefaults.standard
-        let useCaseRawValue = userDefaults.string(forKey: "use_case") ?? UseCase.pointOfSale.rawValue
-        let newUseCase: UseCase = UseCase(rawValue: useCaseRawValue) ?? .pointOfSale
+        let isDemoEnabled = userDefaults.bool(forKey: "demo_enabled")
+        let useCase: UseCase
         
-        if useCase != newUseCase {
-            useCase = newUseCase
+        if isDemoEnabled {
+            let demoUseCaseRawValue = userDefaults.string(forKey: "use_case") ?? UseCase.itemLookup.rawValue
+            useCase = UseCase(rawValue: demoUseCaseRawValue) ?? .itemLookup
+        } else {
+            useCase = .itemLookup
         }
+        
+        if self.useCase != useCase {
+            self.useCase = useCase
+        }
+        
+        if self.isDemoEnabled != isDemoEnabled {
+            self.isDemoEnabled = isDemoEnabled
+        }
+    }
+    
+    private func updateIsLoggedIn() {
+        let isDemoEnabled = self.isDemoEnabled
+        let isEndpointEnabled = self.endpoint != nil
+        
+        isLoggedIn = isDemoEnabled || isEndpointEnabled
     }
 }
