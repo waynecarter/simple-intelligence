@@ -21,10 +21,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         self.window = window
         
-        // Get the main view controller from the storyboard
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        
         // Create the main view controller
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
         mainViewController = storyboard.instantiateInitialViewController()!
         
         // Create the login view controller
@@ -44,16 +42,16 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // show the login view controller
         let initialViewController = Settings.shared.isLoggedIn ? mainViewController : loginViewController
         
-        // If the user logs in or enables the demo, show the app
+        // When the user logs in or enables the demo, show the app
         isLoggedInListener = Settings.shared.$isLoggedIn
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isLoggedIn in
                 guard let self else { return }
                 if isLoggedIn {
-                    self.transition(from: self.loginViewController, to: self.mainViewController, push: true)
+                    self.transitionRootViewController(to: self.mainViewController)
                 } else {
-                    self.transition(from: mainViewController, to: self.loginViewController)
+                    self.transitionRootViewController(to: self.loginViewController)
                 }
             }
         
@@ -62,64 +60,21 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         window.makeKeyAndVisible()
     }
     
-    private func transition(from fromViewController: UIViewController, to toViewController: UIViewController, push: Bool = false) {
-        guard let window, window.rootViewController != toViewController else { return }
+    private func transitionRootViewController(to toViewController: UIViewController) {
+        guard let window, let rootViewController = window.rootViewController else { return }
         
-        // Set up the main view controller frame and layout margins
-        toViewController.view.frame = fromViewController.view.frame
-        let loginViewLayoutMargins = fromViewController.view.layoutMargins
-        let mainViewControlleAdditionalSafeAreaInsets = toViewController.additionalSafeAreaInsets
-        toViewController.additionalSafeAreaInsets = UIEdgeInsets(
-            top: 0,
-            left: loginViewLayoutMargins.left,
-            bottom: 0,
-            right: loginViewLayoutMargins.right)
+        toViewController.view.frame = rootViewController.view.frame
+        toViewController.view.layoutIfNeeded()
         
-        // Get a snapshot of the view controllers and add them to the window
-        guard let fromSnapshot = fromViewController.view.snapshotView(afterScreenUpdates: true),
-              let toSnapshot = toViewController.view.snapshotView(afterScreenUpdates: true)
-        else {
-            fromViewController.beginAppearanceTransition(false, animated: false)
-            toViewController.beginAppearanceTransition(true, animated: false)
+        UIView.transition(with: window, duration: 0.3, options: [.transitionCrossDissolve, .allowAnimatedContent], animations: {
+            rootViewController.beginAppearanceTransition(false, animated: true)
+            toViewController.beginAppearanceTransition(true, animated: true)
             
             window.rootViewController = toViewController
             
-            fromViewController.endAppearanceTransition()
-            toViewController.endAppearanceTransition()
-            
-            return
-        }
-        window.addSubview(fromSnapshot)
-        toSnapshot.frame = toViewController.view.frame
-        if push {
-            toSnapshot.frame.origin.x = fromViewController.view.frame.maxX
-        } else {
-            toSnapshot.alpha = 0
-        }
-        window.addSubview(toSnapshot)
-        
-        // Reset the target view controllers layout margins
-        toViewController.additionalSafeAreaInsets = mainViewControlleAdditionalSafeAreaInsets
-
-        // Transition to the target view controller
-        UIView.animate(withDuration: 0.2, animations: {
-            if push {
-                toSnapshot.frame.origin.x = fromViewController.view.frame.origin.x
-                fromSnapshot.frame.origin.x -= fromViewController.view.frame.width
-            } else {
-                toSnapshot.alpha = 0
-            }
-        }, completion: { _ in
-            fromSnapshot.removeFromSuperview()
-            toSnapshot.removeFromSuperview()
-            
-            fromViewController.beginAppearanceTransition(false, animated: false)
-            toViewController.beginAppearanceTransition(true, animated: false)
-            window.rootViewController = toViewController
-            fromViewController.endAppearanceTransition()
+            rootViewController.endAppearanceTransition()
             toViewController.endAppearanceTransition()
         })
-
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
