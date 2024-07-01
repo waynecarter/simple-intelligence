@@ -61,12 +61,18 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     }
     
     private func transitionRootViewController(to toViewController: UIViewController) {
-        guard let window, let rootViewController = window.rootViewController else { return }
+        guard let window,
+              let rootViewController = window.rootViewController,
+              toViewController != rootViewController
+        else { return }
         
         toViewController.view.frame = rootViewController.view.frame
         toViewController.view.layoutIfNeeded()
         
-        UIView.transition(with: window, duration: 0.3, options: [.transitionCrossDissolve, .allowAnimatedContent], animations: {
+        UIView.transition(with: window, duration: 0.5, options: [.transitionCrossDissolve, .allowAnimatedContent], animations: {
+            let oldAnimationsEnabled = UIView.areAnimationsEnabled
+            UIView.setAnimationsEnabled(false)
+            
             rootViewController.beginAppearanceTransition(false, animated: true)
             toViewController.beginAppearanceTransition(true, animated: true)
             
@@ -74,6 +80,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             
             rootViewController.endAppearanceTransition()
             toViewController.endAppearanceTransition()
+            
+            UIView.setAnimationsEnabled(oldAnimationsEnabled)
         })
     }
 
