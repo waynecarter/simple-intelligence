@@ -8,15 +8,16 @@
 import UIKit
 
 class LoginViewController: UIViewController {
-    var onLogin: (() -> Void)?
-    var onTryNow: (() -> Void)?
-    
     @IBAction func login(_ sender: Any) {
-        onLogin?()
+        // When the user chooses to log in, launch the endpoint config settings
+        if let url = URL(string: UIApplication.openSettingsURLString) {
+            UIApplication.shared.open(url)
+        }
     }
     
     @IBAction func tryNow(_ sender: Any) {
-        onTryNow?()
+        // When the user chooses to try now, enable the demo
+        Settings.shared.isDemoEnabled = true
     }
     
     override var prefersStatusBarHidden: Bool {

@@ -11,9 +11,15 @@ import Combine
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     var window: UIWindow?
     
-    private var mainViewController: UIViewController!
-    private var loginViewController: LoginViewController!
-    private var isLoggedInListener: AnyCancellable?
+    private lazy var mainViewController: UIViewController = {
+        UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController()!
+    }()
+    
+    private lazy var loginViewController: LoginViewController! = {
+        UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "LoginViewController") as! LoginViewController
+    }()
+    
+    private var cancellables = Set<AnyCancellable>()
     
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
         guard let windowScene = (scene as? UIWindowScene) else { return }
@@ -21,68 +27,48 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         self.window = window
         
-        // Create the main view controller
-        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-        mainViewController = storyboard.instantiateInitialViewController()!
-        
-        // Create the login view controller
-        loginViewController = storyboard.instantiateViewController(withIdentifier: "LoginViewController") as? LoginViewController
-        loginViewController.onLogin = {
-            // If the user chooses to log in, launch the endpoint config settings
-            if let url = URL(string: UIApplication.openSettingsURLString) {
-                UIApplication.shared.open(url)
-            }
-        }
-        loginViewController.onTryNow = {
-            // If the user chooses to try now, enable the demo and show the app
-            Settings.shared.isDemoEnabled = true
-        }
-        
         // If the user is logged in then initially show the main view controller, otherwise
         // show the login view controller
         let initialViewController = Settings.shared.isLoggedIn ? mainViewController : loginViewController
         
-        // When the user logs in or enables the demo, show the app
-        isLoggedInListener = Settings.shared.$isLoggedIn
+        // When the user logs in or out, update the root view controller
+        Settings.shared.$isLoggedIn
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isLoggedIn in
-                guard let self else { return }
-                if isLoggedIn {
-                    self.transitionRootViewController(to: self.mainViewController)
-                } else {
-                    self.transitionRootViewController(to: self.loginViewController)
-                }
+                self?.transitionRootViewController(for: isLoggedIn)
             }
+            .store(in: &cancellables)
         
         // Show the initial view controller
         window.rootViewController = initialViewController
         window.makeKeyAndVisible()
     }
     
-    private func transitionRootViewController(to toViewController: UIViewController) {
+    private func transitionRootViewController(for isLoggedIn: Bool) {
         guard let window = self.window,
-              let rootViewController = window.rootViewController,
-              toViewController != rootViewController else { return }
+              let oldRootViewController = window.rootViewController,
+              let newRootViewController = isLoggedIn ? mainViewController : loginViewController
+        else { return }
 
         // Prepare the toViewController
-        toViewController.view.frame = window.bounds
+        newRootViewController.view.frame = window.bounds
 
         // Begin transitions for appearance
-        rootViewController.beginAppearanceTransition(false, animated: true)
-        toViewController.beginAppearanceTransition(true, animated: true)
+        oldRootViewController.beginAppearanceTransition(false, animated: true)
+        newRootViewController.beginAppearanceTransition(true, animated: true)
 
         // Perform the transition
         UIView.transition(with: window, duration: 0.4, options: [.transitionCrossDissolve, .allowAnimatedContent], animations: {
             let oldAnimationsEnabled = UIView.areAnimationsEnabled
             UIView.setAnimationsEnabled(false)
             
-            window.rootViewController = toViewController
+            window.rootViewController = newRootViewController
             
             UIView.setAnimationsEnabled(oldAnimationsEnabled)
         }, completion: { finished in
-            rootViewController.endAppearanceTransition()
-            toViewController.endAppearanceTransition()
+            oldRootViewController.endAppearanceTransition()
+            newRootViewController.endAppearanceTransition()
         })
     }
 
