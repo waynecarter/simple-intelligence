@@ -480,6 +480,7 @@ Cg
                     <connections>
                         <outlet property="actionsView" destination="c5s-x7-YEk" id="Qcb-Rr-M9f"/>
                         <outlet property="addToBagButton" destination="r9s-kv-mjY" id="6Ev-W1-0N9"/>
+                        <outlet property="doneButton" destination="gDZ-5x-MOK" id="BiE-9N-vKe"/>
                         <outlet property="explainerView" destination="f7N-GT-Eny" id="OqY-lW-yOZ"/>
                         <outlet property="infoButton" destination="dOq-Gl-hsQ" id="OPv-v5-Shd"/>
                         <outlet property="payButton" destination="n1f-cD-F0G" id="V1g-CP-XSN"/>
@@ -492,6 +493,16 @@ Cg
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="yTB-W9-XnQ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
+                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="gDZ-5x-MOK">
+                    <rect key="frame" x="0.0" y="0.0" width="361" height="51"/>
+                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                    <state key="normal" title="Button"/>
+                    <buttonConfiguration key="configuration" style="filled" title="Done" buttonSize="large"/>
+                    <connections>
+                        <action selector="cancel:" destination="vyr-NJ-tVD" eventType="touchUpInside" id="8vA-Xh-T7T"/>
+                        <action selector="cancel:" destination="wTG-eq-G6h" eventType="touchUpInside" id="EGe-dZ-h2k"/>
+                    </connections>
+                </button>
             </objects>
             <point key="canvasLocation" x="1359.5419847328244" y="124.64788732394366"/>
         </scene>

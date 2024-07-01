@@ -120,7 +120,12 @@ class TextViewController: ProductsViewController, UISearchBarDelegate {
             // After the animation completes, update the explainer
             self.updateExplainer(animated: true)
         })
-
+    }
+    
+    override func cancel(_ sender: UIButton) {
+        super.cancel(sender)
+        // Clear the search
+        searchBar.text = nil
     }
     
     // MARK: - Explainer
