@@ -69,7 +69,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         toViewController.view.frame = rootViewController.view.frame
         toViewController.view.layoutIfNeeded()
         
-        UIView.transition(with: window, duration: 0.5, options: [.transitionCrossDissolve, .allowAnimatedContent], animations: {
+        UIView.transition(with: window, duration: 0.4, options: [.transitionCrossDissolve, .allowAnimatedContent], animations: {
             let oldAnimationsEnabled = UIView.areAnimationsEnabled
             UIView.setAnimationsEnabled(false)
             
