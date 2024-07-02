@@ -8,7 +8,7 @@ The app provides real-time search using the devices camera coupled with AI and C
 
 [<img alt="Download on the App Store" src="images/download.svg" width="120" height="40" />](https://apps.apple.com/us/app/simple-search/id6504311724)
 
-## Try the Demo
+# Try the Demo
 
 The app includes a "Try Now" button on the splash screen that will log you in using the demo account and provides full access to the features and functionality of the app. Follow these steps to see the AI powered visual search in action:
 
@@ -20,11 +20,11 @@ The app includes a "Try Now" button on the splash screen that will log you in us
 5) Aim the back-facing camera at one of demo images displayed on your computer
 7) See the corresponding item instantly appear on the screen
 
-## Code Introduction
+# Code
 
 The code is divided into the following six areas demonstrating AI search, vector search, SQL queries, full-text search, indexing, and data sync with the cloud:
 
-### AI Search
+## AI Search
 
 The `Database.search(image: UIImage)` function demonstrates AI search capabilities. It uses the SQL and Vector Search functions below to find database results base on AI predictions from an image.
 
@@ -45,7 +45,7 @@ func search(image: UIImage) -> [Product] {
 }
 ```
 
-### Vector Search
+## Vector Search
 
 The `Database.search(vector: [NSNumber])` function demonstrates the vector search capabilities.
 
@@ -83,7 +83,7 @@ func search(vector: [NSNumber]) -> [Product] {
 }
 ```
 
-### SQL Query
+## SQL Query
 
 The `Database.search(barcode: String)` function demonstrates SQL query capabilities.
 
@@ -118,7 +118,7 @@ private func search(barcode: String) -> Product? {
 }
 ```
 
-### Full-Text Search
+## Full-Text Search
 
 The `Database.search(search: String)` function demonstrates full-text search capabilities.
 
@@ -155,7 +155,7 @@ func search(string: String) -> [Product] {
 }
 ```
 
-### Indexing
+## Indexing
 
 The `Database` class demonstrates creating indexes for fast searches.
 
@@ -178,7 +178,7 @@ let ftsIndex = FullTextIndexConfiguration(["name", "category"])
 collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsIndex)
 ```
 
-### Sync
+## Sync
 
 The `Database.startSync()` function demonstrates how to sync with a Couchbase Capella cloud endpoint.
 
@@ -196,11 +196,11 @@ private func startSync() {
     replicator.start()
 }
 ```
-## Demo the Project
+# Demo the Project
 
 The demo app is designed to be run on an iPhone or iPad in the following configurations:
 
-### iPad Setup
+## iPad Setup
 
 The iPad setups work well for stationary kiosks and wall displays. Use cases include point-of-sale, self checkout, self check-in, price lookup, ticket validation, and more.
 
@@ -210,26 +210,26 @@ This is the stand that I'm using for my iPad Pro (12.9-inch, 3rd generation). Yo
 
 ![iPad Stand](images/ipad-stand.png)
 
-### iPhone Setup
+## iPhone Setup
 
 The iPhone setups work well for mobile use. Use cases include inventory, personal shopping, self checkout, order collection, package delivery, ticket validation, and more.
 
 ![iPhone Demo Setup](images/iphone-demo-setup.png)
 
-### Demo Cards
+## Demo Cards
 
 The demo app is trained to recognize the products in it's catalog using the camera. To help demonstrating these capabilities, [download the demo cards](https://raw.githubusercontent.com/waynecarter/simple-search/main/images/demo-cards.pdf), display them from your computer or print them out, and scan the cards to find the corresponding products in the app. Here are a few examples of cards from the set:
 
 ![Demo Card Examples](images/demo-card-examples.png)
 
-## Run the Project
+# Build the Project
 
 1. Clone or download this repository
 2. [Download](https://www.couchbase.com/downloads/?family=couchbase-lite) the latest `CouchbaseLiteSwift.xcframework` and `CouchbaseLiteVectorSearch.xcframework`, and copy them to the project's `Frameworks` directory.
 3. Open the project in Xcode.
 4. Run the app on a phone or tablet.
 
-### Source Files
+## Source Files
 
 To explore the code, start with the following source files:
 
