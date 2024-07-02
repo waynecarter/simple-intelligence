@@ -57,6 +57,7 @@ class CameraViewController: ProductsViewController {
                 camera.stop()
                 // Hide the preview
                 camera.preview.hide(animations: {
+                    // Style the view for the products to be showing
                     self.view.backgroundColor = UIColor(red: 0.15, green: 0.15, blue: 0.15, alpha: 1)
                     self.updateStyleForCamera(isRunning: false)
                 })
@@ -66,6 +67,7 @@ class CameraViewController: ProductsViewController {
             if !camera.isRunning {
                 // Hide the preview
                 camera.preview.hide(animations: {
+                    // Style the view for the camera to be showing
                     self.view.backgroundColor = .black
                     self.updateStyleForCamera(isRunning: true)
                 }, completion: {
