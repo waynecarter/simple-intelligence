@@ -66,21 +66,26 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         return session.isRunning
     }
     
-    func start(completion: (() -> Void)? = nil) {
+    func start(completion: ((_ started: Bool) -> Void)? = nil) {
         let status = AVCaptureDevice.authorizationStatus(for: .video)
         if status == .notDetermined {
             AVCaptureDevice.requestAccess(for: .video) { [unowned self] granted in
                 self.updateCameraAuthorization()
                 if granted {
                     self.startSession()
+                    completion?(true)
+                } else {
+                    completion?(false)
                 }
-                completion?()
             }
         } else {
             if status == .authorized {
                 self.startSession()
+                completion?(true)
+            } else {
+                completion?(false)
             }
-            completion?()
+            
         }
     }
     

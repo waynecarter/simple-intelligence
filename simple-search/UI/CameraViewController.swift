@@ -70,9 +70,9 @@ class CameraViewController: ProductsViewController {
                     self.updateStyleForCamera(isRunning: true)
                 }, completion: {
                     // Then, start the camera
-                    camera.start {
-                        // Finally, if the camera is enabled, show the preview
-                        if camera.authorized {
+                    camera.start { started in
+                        // Finally, if the camera was started successfully, show the preview
+                        if started {
                             DispatchQueue.main.async {
                                 camera.preview.show()
                             }
