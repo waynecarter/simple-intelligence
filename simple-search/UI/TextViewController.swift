@@ -124,8 +124,7 @@ class TextViewController: ProductsViewController, UISearchBarDelegate {
     
     override func cancel(_ sender: UIButton) {
         super.cancel(sender)
-        // Clear the search
-        searchBar.text = nil
+        endSearch()
     }
     
     // MARK: - Explainer
