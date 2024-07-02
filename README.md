@@ -1,12 +1,25 @@
 # Simple Search
 
-Simple Search is a demo app that showcases the capabilities of [Couchbase Capella](https://www.couchbase.com/products/capella/) for data search and synchronization. It provides a comprehensive view of search using AI, vectors, full-text, SQL, indexing, and syncing data with the Capella cloud.
+Simple Search is an app that showcases the capabilities of [Couchbase Capella](https://www.couchbase.com/products/capella/) for data search and synchronization. It provides a comprehensive view of search using AI, vectors, full-text, SQL, indexing, and syncing data with the Capella Cloud.
 
-The app is designed to demonstrate real-time search using the devices camera coupled with AI and Capella's search and sync capabilities, making it an excellent utility for experiencing their unique ability to turbocharge the speed and reliability of business critical applications.
+The app provides real-time search using the devices camera coupled with AI and Capella's search and sync capabilities, making it an excellent utility for experiencing their unique ability to turbocharge the speed and reliability of business critical applications.
 
-[Download](https://apps.apple.com/us/app/simple-search/id6504311724) Simple Search from the App Store today and experience the power of Couchbase Capella's AI, search, and sync capabilities right from the palm of your hand—with no additional setup.
+[Download Simple Search](https://apps.apple.com/us/app/simple-search/id6504311724) from the App Store today and experience the power of Couchbase Capella's AI, search, and sync capabilities right from the palm of your hand.
 
 [<img alt="Download on the App Store" src="images/download.svg" width="120" height="40" />](https://apps.apple.com/us/app/simple-search/id6504311724)
+
+## Try the Demo
+
+The app includes a "Try Now" button on the splash screen that will log you in using the demo account and provides full access to the features and functionality of the app. Follow these steps to see the AI powered visual search in action:
+
+1) [Install the Simple Search app](https://apps.apple.com/us/app/simple-search/id6504311724) from the Apple App Store
+2) [Download the demo images PDF](https://raw.githubusercontent.com/waynecarter/simple-search/main/images/demo-cards.pdf) and open it on your computer
+6) Open the app
+3) On the splash screen, press "Try Now"
+4) Grant camera access when prompted
+5) Aim the back-facing camera at one of demo images displayed on your computer
+7) See the corresponding item instantly appear on the screen
+
 ## Introduction
 
 The code is divided into the following six areas demonstrating AI search, vector search, SQL queries, full-text search, indexing, and data sync with the cloud:
