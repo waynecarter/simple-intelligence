@@ -48,7 +48,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
     private func transitionRootViewController(for isLoggedIn: Bool) {
         guard let window = self.window,
               let oldRootViewController = window.rootViewController,
-              let newRootViewController = isLoggedIn ? mainViewController : loginViewController
+              let newRootViewController = isLoggedIn ? mainViewController : loginViewController,
+              newRootViewController != oldRootViewController
         else { return }
 
         // Prepare the toViewController
