@@ -15,8 +15,6 @@ class CameraViewController: ProductsViewController {
     private var cancellables = Set<AnyCancellable>()
     
     private func setup() {
-        view.backgroundColor = UIColor(red: 0.17, green: 0.17, blue: 0.17, alpha: 1)
-        
         // Check the camera authorization and display the explainer if needed
         updateCameraAuthorization()
         
@@ -51,30 +49,32 @@ class CameraViewController: ProductsViewController {
     
     private func updateStyleForProducts() {
         let camera = Camera.shared
+        let isShowingProducts = products.count > 0
         
-        if products.count > 0 {
+        if isShowingProducts {
+            // Stop the camera
             if camera.isRunning {
-                // Stop the camera
                 camera.stop()
                 // Hide the preview
                 camera.preview.hide(animations: {
+                    self.view.backgroundColor = UIColor(red: 0.15, green: 0.15, blue: 0.15, alpha: 1)
                     self.updateStyleForCamera(isRunning: false)
                 })
             }
         } else {
-            if camera.isRunning == false {
+            // Start the camera
+            if !camera.isRunning {
                 // Hide the preview
                 camera.preview.hide(animations: {
-                    self.updateStyleForCamera(isRunning: false)
+                    self.view.backgroundColor = .black
+                    self.updateStyleForCamera(isRunning: true)
                 }, completion: {
-                    // Start the camera
+                    // Then, start the camera
                     camera.start {
-                        // If the camera is enabled, show the preview
+                        // Finally, if the camera is enabled, show the preview
                         if camera.authorized {
                             DispatchQueue.main.async {
-                                camera.preview.show(animations: {
-                                    self.updateStyleForCamera(isRunning: true)
-                                })
+                                camera.preview.show()
                             }
                         }
                     }
