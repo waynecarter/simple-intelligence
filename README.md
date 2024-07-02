@@ -20,7 +20,7 @@ The app includes a "Try Now" button on the splash screen that will log you in us
 5) Aim the back-facing camera at one of demo images displayed on your computer
 7) See the corresponding item instantly appear on the screen
 
-## Introduction
+## Code Introduction
 
 The code is divided into the following six areas demonstrating AI search, vector search, SQL queries, full-text search, indexing, and data sync with the cloud:
 
