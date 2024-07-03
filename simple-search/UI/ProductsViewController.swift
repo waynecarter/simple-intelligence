@@ -11,8 +11,11 @@ import Combine
 class ProductsViewController: UIViewController {
     @IBOutlet weak var productsView: ProductsView!
     
-    @IBOutlet weak var actionsView: UIView!
-    @IBOutlet var actionsViewConstraints: [NSLayoutConstraint]!
+    @IBOutlet weak var actionsView: UIStackView!
+    @IBOutlet weak var actionsView_WidthConstraint: NSLayoutConstraint!
+    @IBOutlet weak var actionsView_BottomConstraint: NSLayoutConstraint!
+    private var actionsView_BottomConstraint_Constant: CGFloat = 0
+    
     @IBOutlet weak var addToBagButton: UIButton!
     @IBOutlet weak var cancelButton: UIButton?
     @IBOutlet weak var doneButton: UIButton?
@@ -24,42 +27,11 @@ class ProductsViewController: UIViewController {
     private var cancellables = Set<AnyCancellable>()
     
     private func setup() {
-        let isWideScreen = view.bounds.width > 500
-        
-        // For wide screens restrict the width of the actions view
-        if isWideScreen {
-            NSLayoutConstraint.deactivate(actionsViewConstraints)
-            NSLayoutConstraint.activate([
-                actionsView.widthAnchor.constraint(equalToConstant: 400),
-                actionsView.centerXAnchor.constraint(equalTo: view.centerXAnchor)
-            ])
-        }
+        // Cache the original constant for the actions view bottom constraint
+        actionsView_BottomConstraint_Constant = actionsView_BottomConstraint.constant
         
         // Set up the cancel button
-        if let cancelButton {
-            cancelButton.tintColor = .darkGray
-        }
-        
-        // Set up the done button
-        if let doneButton {
-            doneButton.translatesAutoresizingMaskIntoConstraints = false
-            actionsView.addSubview(doneButton)
-            
-            if isWideScreen {
-                NSLayoutConstraint.activate([
-                    doneButton.centerXAnchor.constraint(equalTo: actionsView.centerXAnchor),
-                    doneButton.centerYAnchor.constraint(equalTo: actionsView.centerYAnchor),
-                    doneButton.widthAnchor.constraint(equalToConstant: 300)
-                ])
-            } else {
-                NSLayoutConstraint.activate([
-                    doneButton.topAnchor.constraint(equalTo: actionsView.topAnchor),
-                    doneButton.leadingAnchor.constraint(equalTo: actionsView.leadingAnchor),
-                    doneButton.trailingAnchor.constraint(equalTo: actionsView.trailingAnchor),
-                    doneButton.bottomAnchor.constraint(equalTo: actionsView.bottomAnchor)
-                ])
-            }
-        }
+        cancelButton?.tintColor = .darkGray
         
         updateActions()
         
@@ -126,6 +98,15 @@ class ProductsViewController: UIViewController {
             cancelButton?.isHidden = true
             doneButton?.isHidden = (selectedProduct == nil)
         }
+        
+        // When the actions view has no visible actions, remove the offset from it's bottom
+        // constraint so that the products view will be offset from the bottom a standard amount.
+        let visibleActionsCount = actionsView.arrangedSubviews.filter({ $0.isHidden == false }).count
+        actionsView_BottomConstraint.constant = visibleActionsCount == 0 ? 0 : actionsView_BottomConstraint_Constant
+        // Set the width of the actions bar based on the screen width and number of visible actions.
+        let isWidescreen = view.bounds.width > 500
+        let widescreenWidth: CGFloat = visibleActionsCount == 1 ? 300 : 390
+        actionsView_WidthConstraint.constant = isWidescreen ? widescreenWidth : view.bounds.width - 32
     }
     
     @IBAction func info(_ sender: UIBarButtonItem) {

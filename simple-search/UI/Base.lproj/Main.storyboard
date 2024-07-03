@@ -5,6 +5,7 @@
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="22504"/>
         <capability name="Image references" minToolsVersion="12.0"/>
         <capability name="Safe area layout guides" minToolsVersion="9.0"/>
+        <capability name="Stack View standard spacing" minToolsVersion="9.0"/>
         <capability name="System colors in document resources" minToolsVersion="11.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -393,11 +394,11 @@ Cg
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="search"/>
                             </searchBar>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pAw-Pp-g7l" customClass="ProductsView" customModule="simple_search" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="151" width="393" height="535"/>
+                                <rect key="frame" x="0.0" y="159" width="393" height="527.66666666666663"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f7N-GT-Eny">
-                                <rect key="frame" x="74.666666666666686" y="320.66666666666669" width="244" height="196.00000000000006"/>
+                                <rect key="frame" x="74.666666666666686" y="325" width="244" height="196"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Search for items by name and category" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="f11-Pb-Eku">
                                         <rect key="frame" x="20" y="118" width="204" height="58"/>
@@ -419,41 +420,36 @@ Cg
                                     <constraint firstAttribute="height" constant="196" id="veN-fE-9WE"/>
                                 </constraints>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="c5s-x7-YEk">
-                                <rect key="frame" x="16" y="702" width="361" height="51"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="VdO-dD-YLk">
+                                <rect key="frame" x="16" y="702.66666666666663" width="361" height="50.333333333333371"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r9s-kv-mjY">
-                                        <rect key="frame" x="0.0" y="0.0" width="361" height="51"/>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="r9s-kv-mjY">
+                                        <rect key="frame" x="0.0" y="0.0" width="361" height="50.333333333333336"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Add to Bag" buttonSize="large"/>
                                         <connections>
-                                            <action selector="addToBag:" destination="wTG-eq-G6h" eventType="touchUpInside" id="KgK-oB-HTM"/>
+                                            <action selector="addToBag:" destination="wTG-eq-G6h" eventType="touchUpInside" id="hJV-iB-l5f"/>
                                         </connections>
                                     </button>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstItem="r9s-kv-mjY" firstAttribute="leading" secondItem="c5s-x7-YEk" secondAttribute="leading" id="ESa-uF-0xZ"/>
-                                    <constraint firstItem="r9s-kv-mjY" firstAttribute="bottom" secondItem="c5s-x7-YEk" secondAttribute="bottom" id="FoN-oA-cDh"/>
-                                    <constraint firstItem="r9s-kv-mjY" firstAttribute="trailing" secondItem="c5s-x7-YEk" secondAttribute="trailing" id="ZPN-CW-M8r"/>
-                                    <constraint firstAttribute="top" secondItem="r9s-kv-mjY" secondAttribute="top" id="lKQ-sH-1u5"/>
+                                    <constraint firstAttribute="width" constant="361" id="zL2-6c-xad"/>
                                 </constraints>
-                            </view>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="NDB-b4-Fqm"/>
                         <keyboardLayoutGuide key="keyboard" id="Qg3-kQ-OgD"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
-                            <constraint firstItem="pAw-Pp-g7l" firstAttribute="bottom" secondItem="c5s-x7-YEk" secondAttribute="top" constant="-16" id="BtL-GU-9Sk"/>
-                            <constraint firstItem="pAw-Pp-g7l" firstAttribute="top" secondItem="PEa-ZE-YZQ" secondAttribute="bottom" id="Ccs-fl-h4W"/>
+                            <constraint firstItem="VdO-dD-YLk" firstAttribute="top" secondItem="pAw-Pp-g7l" secondAttribute="bottom" constant="16" id="52A-jg-juL"/>
+                            <constraint firstItem="pAw-Pp-g7l" firstAttribute="top" secondItem="PEa-ZE-YZQ" secondAttribute="bottom" constant="8" id="Ccs-fl-h4W"/>
                             <constraint firstItem="f7N-GT-Eny" firstAttribute="centerX" secondItem="pAw-Pp-g7l" secondAttribute="centerX" id="MQG-gA-c9S"/>
                             <constraint firstItem="pAw-Pp-g7l" firstAttribute="leading" secondItem="NDB-b4-Fqm" secondAttribute="leading" id="O8G-Gn-kox"/>
-                            <constraint firstItem="c5s-x7-YEk" firstAttribute="trailing" secondItem="NDB-b4-Fqm" secondAttribute="trailing" constant="-16" id="bzk-GI-A0d"/>
+                            <constraint firstItem="VdO-dD-YLk" firstAttribute="bottom" secondItem="Qg3-kQ-OgD" secondAttribute="top" constant="-16" id="Vhv-Qm-Bxl"/>
                             <constraint firstItem="pAw-Pp-g7l" firstAttribute="trailing" secondItem="NDB-b4-Fqm" secondAttribute="trailing" id="c5K-K8-I7J"/>
+                            <constraint firstItem="VdO-dD-YLk" firstAttribute="centerX" secondItem="uiL-L7-Scc" secondAttribute="centerX" id="cCs-Hd-mXO"/>
                             <constraint firstItem="f7N-GT-Eny" firstAttribute="centerY" secondItem="pAw-Pp-g7l" secondAttribute="centerY" id="hpL-nq-ZOE"/>
                             <constraint firstItem="PEa-ZE-YZQ" firstAttribute="leading" secondItem="NDB-b4-Fqm" secondAttribute="leading" constant="8" id="k8V-QN-6Rd"/>
-                            <constraint firstItem="c5s-x7-YEk" firstAttribute="leading" secondItem="NDB-b4-Fqm" secondAttribute="leading" constant="16" id="kDD-Co-HLL"/>
-                            <constraint firstItem="c5s-x7-YEk" firstAttribute="bottom" secondItem="Qg3-kQ-OgD" secondAttribute="top" constant="-16" id="mzY-Kh-13h"/>
                             <constraint firstItem="PEa-ZE-YZQ" firstAttribute="trailing" secondItem="NDB-b4-Fqm" secondAttribute="trailing" constant="-8" id="q9o-d1-bS4"/>
                             <constraint firstItem="PEa-ZE-YZQ" firstAttribute="top" secondItem="NDB-b4-Fqm" secondAttribute="top" constant="4" id="w3c-4a-bko"/>
                         </constraints>
@@ -478,9 +474,10 @@ Cg
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
-                        <outlet property="actionsView" destination="c5s-x7-YEk" id="Qcb-Rr-M9f"/>
-                        <outlet property="addToBagButton" destination="r9s-kv-mjY" id="6Ev-W1-0N9"/>
-                        <outlet property="doneButton" destination="gDZ-5x-MOK" id="BiE-9N-vKe"/>
+                        <outlet property="actionsView" destination="VdO-dD-YLk" id="54U-qN-aUT"/>
+                        <outlet property="actionsView_BottomConstraint" destination="Vhv-Qm-Bxl" id="wIv-f9-QFc"/>
+                        <outlet property="actionsView_WidthConstraint" destination="zL2-6c-xad" id="3ED-Zu-WHJ"/>
+                        <outlet property="addToBagButton" destination="r9s-kv-mjY" id="WQw-KS-6od"/>
                         <outlet property="explainerView" destination="f7N-GT-Eny" id="OqY-lW-yOZ"/>
                         <outlet property="infoButton" destination="dOq-Gl-hsQ" id="OPv-v5-Shd"/>
                         <outlet property="payButton" destination="n1f-cD-F0G" id="V1g-CP-XSN"/>
@@ -488,21 +485,9 @@ Cg
                         <outlet property="searchBar" destination="PEa-ZE-YZQ" id="01d-An-2ve"/>
                         <outlet property="searchBar_TopConstraint" destination="w3c-4a-bko" id="iGy-S5-PGs"/>
                         <outlet property="shareButton" destination="9Le-9P-Ws7" id="yE9-GB-E5Z"/>
-                        <outletCollection property="actionsViewConstraints" destination="bzk-GI-A0d" collectionClass="NSMutableArray" id="Jg5-el-FFj"/>
-                        <outletCollection property="actionsViewConstraints" destination="kDD-Co-HLL" collectionClass="NSMutableArray" id="Sv9-kO-mfX"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="yTB-W9-XnQ" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="gDZ-5x-MOK">
-                    <rect key="frame" x="0.0" y="0.0" width="361" height="51"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" title="Button"/>
-                    <buttonConfiguration key="configuration" style="filled" title="Done" buttonSize="large"/>
-                    <connections>
-                        <action selector="cancel:" destination="vyr-NJ-tVD" eventType="touchUpInside" id="8vA-Xh-T7T"/>
-                        <action selector="cancel:" destination="wTG-eq-G6h" eventType="touchUpInside" id="EGe-dZ-h2k"/>
-                    </connections>
-                </button>
             </objects>
             <point key="canvasLocation" x="1359.5419847328244" y="124.64788732394366"/>
         </scene>
@@ -515,7 +500,7 @@ Cg
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XRk-pX-bZd" customClass="ProductsView" customModule="simple_search" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="103" width="393" height="583"/>
+                                <rect key="frame" x="0.0" y="103" width="393" height="583.66666666666663"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view contentMode="scaleToFill" fixedFrame="YES" translatesAutoresizingMaskIntoConstraints="NO" id="uH8-xx-3Hw">
@@ -537,11 +522,11 @@ Cg
                                 </subviews>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pbE-uz-K74">
-                                <rect key="frame" x="16" y="702" width="361" height="51"/>
+                            <stackView opaque="NO" contentMode="scaleToFill" spacingType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="1zY-YC-9Tz">
+                                <rect key="frame" x="16" y="702.66666666666663" width="361" height="50.333333333333371"/>
                                 <subviews>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JUn-zD-j2j">
-                                        <rect key="frame" x="0.0" y="0.0" width="92.666666666666671" height="51"/>
+                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1000" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="JUn-zD-j2j">
+                                        <rect key="frame" x="0.0" y="0.0" width="92.666666666666671" height="50.333333333333336"/>
                                         <color key="tintColor" white="0.33333333329999998" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Cancel" buttonSize="large"/>
@@ -549,37 +534,37 @@ Cg
                                             <action selector="cancel:" destination="vyr-NJ-tVD" eventType="touchUpInside" id="lR0-YD-aHh"/>
                                         </connections>
                                     </button>
-                                    <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="249" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1v7-fc-oU7">
-                                        <rect key="frame" x="100.66666666666666" y="0.0" width="260.33333333333337" height="51"/>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="1v7-fc-oU7">
+                                        <rect key="frame" x="100.66666666666669" y="0.0" width="132" height="50.333333333333336"/>
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Add to Bag" buttonSize="large"/>
                                         <connections>
                                             <action selector="addToBag:" destination="vyr-NJ-tVD" eventType="touchUpInside" id="7hF-Bh-Cbq"/>
                                         </connections>
                                     </button>
+                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Xhz-kO-fBS">
+                                        <rect key="frame" x="240.66666666666671" y="0.0" width="120.33333333333334" height="50.333333333333336"/>
+                                        <state key="normal" title="Button"/>
+                                        <buttonConfiguration key="configuration" style="filled" title="Done" buttonSize="large"/>
+                                        <connections>
+                                            <action selector="cancel:" destination="vyr-NJ-tVD" eventType="touchUpInside" id="XtP-us-fRq"/>
+                                        </connections>
+                                    </button>
                                 </subviews>
-                                <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <constraints>
-                                    <constraint firstItem="JUn-zD-j2j" firstAttribute="top" secondItem="pbE-uz-K74" secondAttribute="top" id="3Im-tE-dJz"/>
-                                    <constraint firstItem="1v7-fc-oU7" firstAttribute="leading" secondItem="JUn-zD-j2j" secondAttribute="trailing" constant="8" symbolic="YES" id="Hiz-oK-ybh"/>
-                                    <constraint firstAttribute="trailing" secondItem="1v7-fc-oU7" secondAttribute="trailing" id="RiU-a4-K7e"/>
-                                    <constraint firstAttribute="bottom" secondItem="1v7-fc-oU7" secondAttribute="bottom" id="X1y-Zp-Os7"/>
-                                    <constraint firstItem="1v7-fc-oU7" firstAttribute="top" secondItem="pbE-uz-K74" secondAttribute="top" id="bsO-AL-kml"/>
-                                    <constraint firstItem="JUn-zD-j2j" firstAttribute="leading" secondItem="pbE-uz-K74" secondAttribute="leading" id="jkb-tr-Y55"/>
-                                    <constraint firstAttribute="bottom" secondItem="JUn-zD-j2j" secondAttribute="bottom" id="rTM-TU-quv"/>
+                                    <constraint firstAttribute="width" constant="361" id="1SA-TW-aGO"/>
                                 </constraints>
-                            </view>
+                            </stackView>
                         </subviews>
                         <viewLayoutGuide key="safeArea" id="YeZ-O4-ITi"/>
                         <color key="backgroundColor" systemColor="systemBackgroundColor"/>
                         <constraints>
                             <constraint firstItem="XRk-pX-bZd" firstAttribute="leading" secondItem="YeZ-O4-ITi" secondAttribute="leading" id="7Se-gn-4cd"/>
                             <constraint firstItem="XRk-pX-bZd" firstAttribute="trailing" secondItem="YeZ-O4-ITi" secondAttribute="trailing" id="7cD-7V-GIq"/>
-                            <constraint firstItem="pbE-uz-K74" firstAttribute="leading" secondItem="YeZ-O4-ITi" secondAttribute="leading" constant="16" id="H4s-UD-PFl"/>
-                            <constraint firstItem="XRk-pX-bZd" firstAttribute="bottom" secondItem="pbE-uz-K74" secondAttribute="top" constant="-16" id="aNj-p6-6vA"/>
-                            <constraint firstItem="pbE-uz-K74" firstAttribute="trailing" secondItem="YeZ-O4-ITi" secondAttribute="trailing" constant="-16" id="arY-wL-JPF"/>
-                            <constraint firstItem="pbE-uz-K74" firstAttribute="bottom" secondItem="YeZ-O4-ITi" secondAttribute="bottom" constant="-16" id="bQQ-Nk-9MF"/>
+                            <constraint firstItem="1zY-YC-9Tz" firstAttribute="bottom" secondItem="YeZ-O4-ITi" secondAttribute="bottom" constant="-16" id="89l-FW-7Ke"/>
                             <constraint firstItem="XRk-pX-bZd" firstAttribute="top" secondItem="YeZ-O4-ITi" secondAttribute="top" id="iHv-z0-Dgs"/>
+                            <constraint firstItem="1zY-YC-9Tz" firstAttribute="centerX" secondItem="PP7-XP-PQf" secondAttribute="centerX" id="u1A-Sb-gVB"/>
+                            <constraint firstItem="XRk-pX-bZd" firstAttribute="bottom" secondItem="1zY-YC-9Tz" secondAttribute="top" constant="-16" id="zk6-xC-0E6"/>
                         </constraints>
                     </view>
                     <toolbarItems/>
@@ -603,29 +588,20 @@ Cg
                         </rightBarButtonItems>
                     </navigationItem>
                     <connections>
-                        <outlet property="actionsView" destination="pbE-uz-K74" id="nly-8P-Sd3"/>
+                        <outlet property="actionsView" destination="1zY-YC-9Tz" id="5WY-fD-ESm"/>
+                        <outlet property="actionsView_BottomConstraint" destination="89l-FW-7Ke" id="ut5-tq-jhF"/>
+                        <outlet property="actionsView_WidthConstraint" destination="1SA-TW-aGO" id="5A5-TK-pvJ"/>
                         <outlet property="addToBagButton" destination="1v7-fc-oU7" id="xvm-eA-Y0N"/>
                         <outlet property="cancelButton" destination="JUn-zD-j2j" id="Bj3-H5-Sjo"/>
-                        <outlet property="doneButton" destination="pTC-23-29s" id="fAC-72-2fx"/>
+                        <outlet property="doneButton" destination="Xhz-kO-fBS" id="MgJ-YJ-gm1"/>
                         <outlet property="explainerView" destination="uH8-xx-3Hw" id="pd6-Nx-LCY"/>
                         <outlet property="infoButton" destination="tGb-td-Iyc" id="W7q-Tw-oQy"/>
                         <outlet property="payButton" destination="nkk-E7-J9h" id="k2Y-yY-Wtz"/>
                         <outlet property="productsView" destination="XRk-pX-bZd" id="eZn-FQ-dFa"/>
                         <outlet property="shareButton" destination="Jyc-Nf-ejv" id="aG2-1X-vTx"/>
-                        <outletCollection property="actionsViewConstraints" destination="arY-wL-JPF" collectionClass="NSMutableArray" id="txy-YR-guH"/>
-                        <outletCollection property="actionsViewConstraints" destination="H4s-UD-PFl" collectionClass="NSMutableArray" id="Mnu-NK-1By"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="quQ-rD-AA4" userLabel="First Responder" customClass="UIResponder" sceneMemberID="firstResponder"/>
-                <button opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="1" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" id="pTC-23-29s">
-                    <rect key="frame" x="0.0" y="0.0" width="361" height="51"/>
-                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
-                    <state key="normal" title="Button"/>
-                    <buttonConfiguration key="configuration" style="filled" title="Done" buttonSize="large"/>
-                    <connections>
-                        <action selector="cancel:" destination="vyr-NJ-tVD" eventType="touchUpInside" id="zhO-Q5-TVu"/>
-                    </connections>
-                </button>
             </objects>
             <point key="canvasLocation" x="1359.5419847328244" y="-632.3943661971831"/>
         </scene>
@@ -640,13 +616,13 @@ Cg
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="quaternaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.1764705882" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.17647058823529413" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="tertiaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29803921568627451" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
