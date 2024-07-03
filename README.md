@@ -198,7 +198,7 @@ private func startSync() {
 ```
 # Demo the Project
 
-The demo app is designed to be run on an iPhone or iPad in the following configurations:
+The app is designed to be run on an iPhone or iPad in the following configurations:
 
 ## iPad Setup
 
@@ -218,11 +218,11 @@ The iPhone setups work well for mobile use. Use cases include inventory, persona
 
 ## Demo Cards
 
-The demo app is trained to recognize the products in it's catalog using the camera. To help demonstrating these capabilities, [download the demo cards](https://raw.githubusercontent.com/waynecarter/simple-search/main/images/demo-cards.pdf), display them from your computer or print them out, and scan the cards to find the corresponding products in the app. Here are a few examples of cards from the set:
+The demo is trained to recognize the products in it's catalog using the camera. To help demonstrating these capabilities, [download the demo cards](https://raw.githubusercontent.com/waynecarter/simple-search/main/images/demo-cards.pdf), display them from your computer or print them out, and scan the cards to find the corresponding products in the app. Here are a few examples of cards from the set:
 
 ![Demo Card Examples](images/demo-card-examples.png)
 
-# Run the Project
+# Build the Project
 
 1. Clone or download this repository
 2. [Download](https://www.couchbase.com/downloads/?family=couchbase-lite) the latest `CouchbaseLiteSwift.xcframework` and `CouchbaseLiteVectorSearch.xcframework`, and copy them to the project's `Frameworks` directory.
