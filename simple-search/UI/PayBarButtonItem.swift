@@ -34,9 +34,7 @@ class PayBarButtonItem: UIBarButtonItem {
     
     var total: Double = .zero {
         didSet {
-            var title = AttributedString()
-            title.append(AttributedString("Pay", attributes: AttributeContainer([.font: boldFont, .foregroundColor: UIColor.white])))
-
+            var title = AttributedString("Pay", attributes: AttributeContainer([.font: boldFont, .foregroundColor: UIColor.white]))
             if total > 0 {
                 title.append(AttributedString(String(format: " $%0.2f", total), attributes: AttributeContainer([.font: font, .foregroundColor: UIColor.white])))
             }
