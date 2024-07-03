@@ -15,7 +15,7 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         UIStoryboard(name: "Main", bundle: nil).instantiateInitialViewController()!
     }()
     
-    private lazy var loginViewController: LoginViewController! = {
+    private lazy var loginViewController: LoginViewController = {
         UIStoryboard(name: "Main", bundle: nil).instantiateViewController(withIdentifier: "LoginViewController") as! LoginViewController
     }()
     
@@ -27,35 +27,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         self.window = window
         
-        // If the user is logged in then initially show the main view controller, otherwise
-        // show the login view controller
-        let initialViewController = Settings.shared.isLoggedIn ? mainViewController : loginViewController
+        // Show the initial view controller
+        setRootViewController(for: window, isLoggedIn: Settings.shared.isLoggedIn)
+        window.makeKeyAndVisible()
         
         // When the user logs in or out, update the root view controller
         Settings.shared.$isLoggedIn
             .dropFirst()
             .receive(on: DispatchQueue.main)
             .sink { [weak self] isLoggedIn in
-                self?.transitionRootViewController(for: isLoggedIn)
+                self?.setRootViewController(for: window, isLoggedIn: isLoggedIn)
             }
             .store(in: &cancellables)
-        
-        // Show the initial view controller
-        window.rootViewController = initialViewController
-        window.makeKeyAndVisible()
     }
     
-    private func transitionRootViewController(for isLoggedIn: Bool) {
-        guard let window = self.window,
-              let oldRootViewController = window.rootViewController,
-              let newRootViewController = isLoggedIn ? mainViewController : loginViewController,
-              newRootViewController != oldRootViewController
-        else { return }
+    private func setRootViewController(for window: UIWindow, isLoggedIn: Bool) {
+        // Get the new root view controller
+        let newRootViewController = isLoggedIn ? mainViewController : loginViewController
+        
+        // If the window's current root view controller is nil, set it without transition
+        guard let oldRootViewController = window.rootViewController else {
+            window.rootViewController = newRootViewController
+            return
+        }
+        
+        // Don't transition to the same view controller
+        guard newRootViewController != oldRootViewController else { return }
 
-        // Prepare the toViewController
+        // Prepare the new view controller
         newRootViewController.view.frame = window.bounds
 
-        // Begin transitions for appearance
+        // Begin appearance transitions
         oldRootViewController.beginAppearanceTransition(false, animated: true)
         newRootViewController.beginAppearanceTransition(true, animated: true)
 
@@ -67,7 +69,8 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
             window.rootViewController = newRootViewController
             
             UIView.setAnimationsEnabled(oldAnimationsEnabled)
-        }, completion: { finished in
+        }, completion: { _ in
+            // End appearance transitions
             oldRootViewController.endAppearanceTransition()
             newRootViewController.endAppearanceTransition()
         })
