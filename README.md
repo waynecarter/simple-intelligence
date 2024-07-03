@@ -15,7 +15,7 @@ The app includes a demo that enables experiencing the features and functionality
 1) [Install the Simple Search app](https://apps.apple.com/us/app/simple-search/id6504311724) from the Apple App Store
 2) [Download the demo images PDF](https://raw.githubusercontent.com/waynecarter/simple-search/main/images/demo-cards.pdf) and open it on your computer
 6) Open the app
-3) On the splash screen, press the `Try Now` button
+3) On the splash screen, press the "Try Now" button
 4) Grant camera access when prompted
 5) Aim the back-facing camera at one of demo images displayed on your computer
 7) See the corresponding item instantly appear on the screen in the app
@@ -222,7 +222,7 @@ The demo app is trained to recognize the products in it's catalog using the came
 
 ![Demo Card Examples](images/demo-card-examples.png)
 
-# Build the Project
+# Run the Project
 
 1. Clone or download this repository
 2. [Download](https://www.couchbase.com/downloads/?family=couchbase-lite) the latest `CouchbaseLiteSwift.xcframework` and `CouchbaseLiteVectorSearch.xcframework`, and copy them to the project's `Frameworks` directory.
