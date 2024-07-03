@@ -316,7 +316,7 @@ Cg
                                         <state key="normal" title="Button"/>
                                         <buttonConfiguration key="configuration" style="filled" title="Settings" buttonSize="large"/>
                                         <connections>
-                                            <action selector="login:" destination="85F-SR-aMk" eventType="touchUpInside" id="Tsu-Oc-Z6G"/>
+                                            <action selector="showSettings:" destination="85F-SR-aMk" eventType="touchUpInside" id="SIj-89-Ezd"/>
                                         </connections>
                                     </button>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="system" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="mVd-4J-NHM">

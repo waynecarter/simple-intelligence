@@ -8,7 +8,7 @@
 import UIKit
 
 class LoginViewController: UIViewController {
-    @IBAction func login(_ sender: Any) {
+    @IBAction func showSettings(_ sender: Any) {
         // When the user chooses to log in, launch the endpoint config settings
         if let url = URL(string: UIApplication.openSettingsURLString) {
             UIApplication.shared.open(url)
