@@ -12,7 +12,7 @@ The app provides real-time search using the devices camera coupled with AI and C
 
 The app includes a demo that enables experiencing the features and functionality of the app without any setup. Follow these steps to see the AI powered visual search in action:
 
-1) [Install the Simple Search app](https://apps.apple.com/us/app/simple-search/id6504311724) from the Apple App Store
+1) [Download the Simple Search app](https://apps.apple.com/us/app/simple-search/id6504311724) from the Apple App Store
 2) [Download the demo images PDF](https://raw.githubusercontent.com/waynecarter/simple-search/main/images/demo-cards.pdf) and open it on your computer
 6) Open the app
 3) On the splash screen, press the "Try Now" button
