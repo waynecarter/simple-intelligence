@@ -38,8 +38,7 @@ class ProductsView: UIView {
             collectionView.trailingAnchor.constraint(equalTo: self.trailingAnchor),
             collectionView.bottomAnchor.constraint(equalTo: self.bottomAnchor),
             
-            detailsLabel.leadingAnchor.constraint(equalTo: self.leadingAnchor),
-            detailsLabel.trailingAnchor.constraint(equalTo: self.trailingAnchor),
+            detailsLabel.centerXAnchor.constraint(equalTo: self.centerXAnchor),
             detailsLabel.bottomAnchor.constraint(equalTo: self.bottomAnchor)
         ])
         
