@@ -29,12 +29,12 @@
             </objects>
             <point key="canvasLocation" x="-631" y="-251"/>
         </scene>
-        <!--Text-->
+        <!--Search-->
         <scene sceneID="aH1-uZ-A67">
             <objects>
                 <navigationController hidesBarsWhenKeyboardAppears="YES" id="4Su-JE-03I" customClass="NavigationController" customModule="simple_search" customModuleProvider="target" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Text" id="Him-xe-gJP">
-                        <imageReference key="image" image="text.bubble" catalog="system"/>
+                    <tabBarItem key="tabBarItem" title="Search" id="Him-xe-gJP">
+                        <imageReference key="image" image="magnifyingglass" catalog="system"/>
                     </tabBarItem>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="DMC-O7-GdV">
                         <rect key="frame" x="0.0" y="59" width="393" height="44"/>
@@ -360,11 +360,11 @@ Cg
             </objects>
             <point key="canvasLocation" x="-1636" y="-251"/>
         </scene>
-        <!--Camera-->
+        <!--AI-->
         <scene sceneID="T1i-Ax-grE">
             <objects>
                 <navigationController id="Ylr-0y-Pcf" customClass="NavigationController" customModule="simple_search" customModuleProvider="target" sceneMemberID="viewController">
-                    <tabBarItem key="tabBarItem" title="Camera" image="dot.viewfinder" catalog="system" id="69y-rh-gpC"/>
+                    <tabBarItem key="tabBarItem" title="AI" image="dot.viewfinder" catalog="system" id="69y-rh-gpC"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="IT5-1V-yi6">
                         <rect key="frame" x="0.0" y="59" width="393" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -387,18 +387,18 @@ Cg
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <searchBar contentMode="redraw" translatesAutoresizingMaskIntoConstraints="NO" id="PEa-ZE-YZQ">
-                                <rect key="frame" x="8" y="107" width="377" height="44"/>
+                                <rect key="frame" x="8" y="103" width="377" height="44"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="44" id="AQD-0S-48A"/>
                                 </constraints>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="search"/>
                             </searchBar>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pAw-Pp-g7l" customClass="ProductsView" customModule="simple_search" customModuleProvider="target">
-                                <rect key="frame" x="0.0" y="159" width="393" height="527.66666666666663"/>
+                                <rect key="frame" x="0.0" y="155" width="393" height="531.66666666666663"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f7N-GT-Eny">
-                                <rect key="frame" x="74.666666666666686" y="325" width="244" height="196"/>
+                                <rect key="frame" x="74.666666666666686" y="323" width="244" height="196"/>
                                 <subviews>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" text="Search for items by name and category" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="0" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="f11-Pb-Eku">
                                         <rect key="frame" x="20" y="118" width="204" height="58"/>
@@ -451,7 +451,7 @@ Cg
                             <constraint firstItem="f7N-GT-Eny" firstAttribute="centerY" secondItem="pAw-Pp-g7l" secondAttribute="centerY" id="hpL-nq-ZOE"/>
                             <constraint firstItem="PEa-ZE-YZQ" firstAttribute="leading" secondItem="NDB-b4-Fqm" secondAttribute="leading" constant="8" id="k8V-QN-6Rd"/>
                             <constraint firstItem="PEa-ZE-YZQ" firstAttribute="trailing" secondItem="NDB-b4-Fqm" secondAttribute="trailing" constant="-8" id="q9o-d1-bS4"/>
-                            <constraint firstItem="PEa-ZE-YZQ" firstAttribute="top" secondItem="NDB-b4-Fqm" secondAttribute="top" constant="4" id="w3c-4a-bko"/>
+                            <constraint firstItem="PEa-ZE-YZQ" firstAttribute="top" secondItem="NDB-b4-Fqm" secondAttribute="top" id="w3c-4a-bko"/>
                         </constraints>
                     </view>
                     <navigationItem key="navigationItem" id="ih6-oI-Beo">
@@ -611,18 +611,17 @@ Cg
         <image name="info.circle" catalog="system" width="128" height="123"/>
         <image name="magnifyingglass" catalog="system" width="128" height="117"/>
         <image name="square.and.arrow.up" catalog="system" width="108" height="128"/>
-        <image name="text.bubble" catalog="system" width="128" height="110"/>
         <systemColor name="labelColor">
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="quaternaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.17647058823529413" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.1764705882" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="tertiaryLabelColor">
-            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29803921568627451" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
