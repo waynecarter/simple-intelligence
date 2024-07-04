@@ -83,18 +83,37 @@ class Database {
     // MARK: - Search
     
     func search(image: UIImage) -> [Product] {
-        // Search with barcode
-        if let barcode = AI.shared.barcode(from: image), let product = search(barcode: barcode) {
-            return [product]
+        let dispatchGroup = DispatchGroup()
+        var barcodeResult: [Product]?
+        var embeddingResult: [Product] = []
+        
+        // Perform barcode search in parallel
+        dispatchGroup.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let barcode = AI.shared.barcode(from: image), let product = self.search(barcode: barcode) {
+                barcodeResult = [product]
+            }
+            dispatchGroup.leave()
         }
         
-        // Search with embedding
-        if let embedding = AI.shared.embedding(for: image) {
-            let products = search(vector: embedding)
-            return products
+        // Perform embedding search in parallel
+        dispatchGroup.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            if let embedding = AI.shared.embedding(for: image) {
+                embeddingResult = self.search(vector: embedding)
+            }
+            dispatchGroup.leave()
         }
         
-        return []
+        // Wait for parallel searches to complete
+        dispatchGroup.wait()
+        
+        // Return barcode result if available, otherwise return embedding result
+        if let barcodeResult {
+            return barcodeResult
+        } else {
+            return embeddingResult
+        }
     }
     
     private func search(vector: [NSNumber]) -> [Product] {
@@ -151,7 +170,7 @@ class Database {
             return filteredProducts
         } catch {
             print("Database.search(vector:): \(error.localizedDescription)")
-            return [Product]()
+            return []
         }
     }
     
@@ -235,7 +254,7 @@ class Database {
             // If the query fails, return an empty result. This is expected when the user is
             // typing an FTS expression but they haven't completed typing so the query is
             // invalid. e.g. "(blue OR"
-            return [Product]()
+            return []
         }
     }
     
