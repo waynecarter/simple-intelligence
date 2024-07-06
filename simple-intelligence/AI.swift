@@ -1,6 +1,6 @@
 //
 //  AI.swift
-//  simple-search
+//  simple-intelligence
 //
 //  Created by Wayne Carter on 5/18/24.
 //

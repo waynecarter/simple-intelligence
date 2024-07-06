@@ -9,6 +9,10 @@
 /* Begin PBXBuildFile section */
 		40E7CA382BFB20B5004BE7E1 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E7CA372BFB20B5004BE7E1 /* Camera.swift */; };
 		B00A52EB2C29C1900092F639 /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A52EA2C29C1900092F639 /* TextViewController.swift */; };
+		B03C4E4F2C38D2EB003C6CD2 /* CouchbaseLiteSwift.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B03C4E4C2C38D2E4003C6CD2 /* CouchbaseLiteSwift.xcframework */; };
+		B03C4E502C38D2EB003C6CD2 /* CouchbaseLiteSwift.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B03C4E4C2C38D2E4003C6CD2 /* CouchbaseLiteSwift.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
+		B03C4E512C38D2ED003C6CD2 /* CouchbaseLiteVectorSearch.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B03C4E4B2C38D2E4003C6CD2 /* CouchbaseLiteVectorSearch.xcframework */; };
+		B03C4E522C38D2ED003C6CD2 /* CouchbaseLiteVectorSearch.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B03C4E4B2C38D2E4003C6CD2 /* CouchbaseLiteVectorSearch.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B051C92C2C2A3F8600902E3A /* CameraViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B051C92B2C2A3F8600902E3A /* CameraViewController.swift */; };
 		B07994DD2C1B921E005B9B39 /* Actions.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07994DC2C1B921E005B9B39 /* Actions.swift */; };
 		B07E83992C28867A002BCC1D /* ProductsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = B07E83982C28867A002BCC1D /* ProductsView.swift */; };
@@ -22,10 +26,6 @@
 		B0C3622C2C2CD10800EA28F5 /* Haptics.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C3622B2C2CD10800EA28F5 /* Haptics.swift */; };
 		B0C3622E2C2CE08A00EA28F5 /* ProductsViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0C3622D2C2CE08A00EA28F5 /* ProductsViewController.swift */; };
 		B0CA3AB22C2BF19000A12EDF /* PayBarButtonItem.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0CA3AB12C2BF19000A12EDF /* PayBarButtonItem.swift */; };
-		B0E094012C1E408400708B33 /* CouchbaseLiteSwift.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0E093FD2C1E402200708B33 /* CouchbaseLiteSwift.xcframework */; };
-		B0E094022C1E408400708B33 /* CouchbaseLiteSwift.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B0E093FD2C1E402200708B33 /* CouchbaseLiteSwift.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
-		B0E094032C1E408600708B33 /* CouchbaseLiteVectorSearch.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B0E093FE2C1E402200708B33 /* CouchbaseLiteVectorSearch.xcframework */; };
-		B0E094042C1E408600708B33 /* CouchbaseLiteVectorSearch.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B0E093FE2C1E402200708B33 /* CouchbaseLiteVectorSearch.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B0E7EBDA2C32181C00659321 /* LoginViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0E7EBD92C32181C00659321 /* LoginViewController.swift */; };
 		B0EBE5702BF9167C002FF20C /* Database.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EBE56F2BF9167C002FF20C /* Database.swift */; };
 		B0EBE5722BF91CB2002FF20C /* AI.swift in Sources */ = {isa = PBXBuildFile; fileRef = B0EBE5712BF91CB2002FF20C /* AI.swift */; };
@@ -40,8 +40,8 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				B0E094042C1E408600708B33 /* CouchbaseLiteVectorSearch.xcframework in Embed Frameworks */,
-				B0E094022C1E408400708B33 /* CouchbaseLiteSwift.xcframework in Embed Frameworks */,
+				B03C4E522C38D2ED003C6CD2 /* CouchbaseLiteVectorSearch.xcframework in Embed Frameworks */,
+				B03C4E502C38D2EB003C6CD2 /* CouchbaseLiteSwift.xcframework in Embed Frameworks */,
 			);
 			name = "Embed Frameworks";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -51,11 +51,13 @@
 /* Begin PBXFileReference section */
 		40E7CA372BFB20B5004BE7E1 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		B00A52EA2C29C1900092F639 /* TextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewController.swift; sourceTree = "<group>"; };
+		B03C4E4B2C38D2E4003C6CD2 /* CouchbaseLiteVectorSearch.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteVectorSearch.xcframework; path = "simple-intelligence/Frameworks/CouchbaseLiteVectorSearch.xcframework"; sourceTree = "<group>"; };
+		B03C4E4C2C38D2E4003C6CD2 /* CouchbaseLiteSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteSwift.xcframework; path = "simple-intelligence/Frameworks/CouchbaseLiteSwift.xcframework"; sourceTree = "<group>"; };
 		B051C92B2C2A3F8600902E3A /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
 		B05F80C82C1A9CB300C48B60 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
 		B07994DC2C1B921E005B9B39 /* Actions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Actions.swift; sourceTree = "<group>"; };
 		B07E83982C28867A002BCC1D /* ProductsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsView.swift; sourceTree = "<group>"; };
-		B096020E2BF7014700F6A866 /* simple-search.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "simple-search.app"; sourceTree = BUILT_PRODUCTS_DIR; };
+		B096020E2BF7014700F6A866 /* simple-intelligence.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "simple-intelligence.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		B09602112BF7014700F6A866 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B09602132BF7014700F6A866 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
 		B09602182BF7014700F6A866 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -67,8 +69,6 @@
 		B0C3622B2C2CD10800EA28F5 /* Haptics.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Haptics.swift; sourceTree = "<group>"; };
 		B0C3622D2C2CE08A00EA28F5 /* ProductsViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProductsViewController.swift; sourceTree = "<group>"; };
 		B0CA3AB12C2BF19000A12EDF /* PayBarButtonItem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PayBarButtonItem.swift; sourceTree = "<group>"; };
-		B0E093FD2C1E402200708B33 /* CouchbaseLiteSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteSwift.xcframework; path = "simple-search/Frameworks/CouchbaseLiteSwift.xcframework"; sourceTree = "<group>"; };
-		B0E093FE2C1E402200708B33 /* CouchbaseLiteVectorSearch.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteVectorSearch.xcframework; path = "simple-search/Frameworks/CouchbaseLiteVectorSearch.xcframework"; sourceTree = "<group>"; };
 		B0E7EBD92C32181C00659321 /* LoginViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LoginViewController.swift; sourceTree = "<group>"; };
 		B0EBE56F2BF9167C002FF20C /* Database.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Database.swift; sourceTree = "<group>"; };
 		B0EBE5712BF91CB2002FF20C /* AI.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AI.swift; sourceTree = "<group>"; };
@@ -81,8 +81,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				B0E094032C1E408600708B33 /* CouchbaseLiteVectorSearch.xcframework in Frameworks */,
-				B0E094012C1E408400708B33 /* CouchbaseLiteSwift.xcframework in Frameworks */,
+				B03C4E512C38D2ED003C6CD2 /* CouchbaseLiteVectorSearch.xcframework in Frameworks */,
+				B03C4E4F2C38D2EB003C6CD2 /* CouchbaseLiteSwift.xcframework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -113,7 +113,7 @@
 		B09602052BF7014700F6A866 = {
 			isa = PBXGroup;
 			children = (
-				B09602102BF7014700F6A866 /* simple-search */,
+				B09602102BF7014700F6A866 /* simple-intelligence */,
 				B096020F2BF7014700F6A866 /* Products */,
 				B0EBE5672BF9165A002FF20C /* Frameworks */,
 			);
@@ -122,12 +122,12 @@
 		B096020F2BF7014700F6A866 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				B096020E2BF7014700F6A866 /* simple-search.app */,
+				B096020E2BF7014700F6A866 /* simple-intelligence.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
 		};
-		B09602102BF7014700F6A866 /* simple-search */ = {
+		B09602102BF7014700F6A866 /* simple-intelligence */ = {
 			isa = PBXGroup;
 			children = (
 				B0EBE56F2BF9167C002FF20C /* Database.swift */,
@@ -140,14 +140,14 @@
 				B096021F2BF7014B00F6A866 /* Info.plist */,
 				B05F80C82C1A9CB300C48B60 /* PrivacyInfo.xcprivacy */,
 			);
-			path = "simple-search";
+			path = "simple-intelligence";
 			sourceTree = "<group>";
 		};
 		B0EBE5672BF9165A002FF20C /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				B0E093FD2C1E402200708B33 /* CouchbaseLiteSwift.xcframework */,
-				B0E093FE2C1E402200708B33 /* CouchbaseLiteVectorSearch.xcframework */,
+				B03C4E4C2C38D2E4003C6CD2 /* CouchbaseLiteSwift.xcframework */,
+				B03C4E4B2C38D2E4003C6CD2 /* CouchbaseLiteVectorSearch.xcframework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -155,9 +155,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		B096020D2BF7014700F6A866 /* simple-search */ = {
+		B096020D2BF7014700F6A866 /* simple-intelligence */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = B09602222BF7014B00F6A866 /* Build configuration list for PBXNativeTarget "simple-search" */;
+			buildConfigurationList = B09602222BF7014B00F6A866 /* Build configuration list for PBXNativeTarget "simple-intelligence" */;
 			buildPhases = (
 				B096020A2BF7014700F6A866 /* Sources */,
 				B096020B2BF7014700F6A866 /* Frameworks */,
@@ -168,9 +168,9 @@
 			);
 			dependencies = (
 			);
-			name = "simple-search";
+			name = "simple-intelligence";
 			productName = "simple-pos";
-			productReference = B096020E2BF7014700F6A866 /* simple-search.app */;
+			productReference = B096020E2BF7014700F6A866 /* simple-intelligence.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -188,7 +188,7 @@
 					};
 				};
 			};
-			buildConfigurationList = B09602092BF7014700F6A866 /* Build configuration list for PBXProject "simple-search" */;
+			buildConfigurationList = B09602092BF7014700F6A866 /* Build configuration list for PBXProject "simple-intelligence" */;
 			compatibilityVersion = "Xcode 14.0";
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
@@ -201,7 +201,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				B096020D2BF7014700F6A866 /* simple-search */,
+				B096020D2BF7014700F6A866 /* simple-intelligence */,
 			);
 		};
 /* End PBXProject section */
@@ -394,7 +394,7 @@
 				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = FMV3C84SQX;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "simple-search/Info.plist";
+				INFOPLIST_FILE = "simple-intelligence/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Intelligence;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_NSCameraUsageDescription = "To enable you to search for items visually using AI, we need access to your camera.";
@@ -428,7 +428,7 @@
 				CURRENT_PROJECT_VERSION = 4;
 				DEVELOPMENT_TEAM = FMV3C84SQX;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = "simple-search/Info.plist";
+				INFOPLIST_FILE = "simple-intelligence/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = Intelligence;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_NSCameraUsageDescription = "To enable you to search for items visually using AI, we need access to your camera.";
@@ -456,7 +456,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		B09602092BF7014700F6A866 /* Build configuration list for PBXProject "simple-search" */ = {
+		B09602092BF7014700F6A866 /* Build configuration list for PBXProject "simple-intelligence" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B09602202BF7014B00F6A866 /* Debug */,
@@ -465,7 +465,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		B09602222BF7014B00F6A866 /* Build configuration list for PBXNativeTarget "simple-search" */ = {
+		B09602222BF7014B00F6A866 /* Build configuration list for PBXNativeTarget "simple-intelligence" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				B09602232BF7014B00F6A866 /* Debug */,

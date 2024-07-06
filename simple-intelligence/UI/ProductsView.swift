@@ -1,6 +1,6 @@
 //
 //  HorizontalCollectionView.swift
-//  simple-search
+//  simple-intelligence
 //
 //  Created by Wayne Carter on 6/23/24.
 //

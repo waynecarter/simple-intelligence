@@ -1,6 +1,6 @@
 //
 //  AppDelegate.swift
-//  simple-search
+//  simple-intelligence
 //
 //  Created by Wayne Carter on 5/16/24.
 //

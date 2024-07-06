@@ -1,6 +1,6 @@
 //
 //  Camera.swift
-//  simple-search
+//  simple-intelligence
 //
 
 import UIKit

@@ -1,6 +1,6 @@
 //
 //  Actions.swift
-//  simple-search
+//  simple-intelligence
 //
 //  Created by Wayne Carter on 6/13/24.
 //
@@ -46,10 +46,10 @@ class Actions {
         alert.popoverPresentationController?.sourceView = sourceView
         alert.popoverPresentationController?.sourceItem = sourceItem
         alert.title = "Scan an item with the camera and\nsearch visually using AI"
-        alert.addAction(createOpenURLAction(title: "Explore the Code", urlString: "https://github.com/waynecarter/simple-search/blob/main/README.md"))
+        alert.addAction(createOpenURLAction(title: "Explore the Code", urlString: "https://github.com/waynecarter/simple-intelligence/blob/main/README.md"))
         alert.addAction(createOpenURLAction(title: "Settings", urlString: UIApplication.openSettingsURLString))
         alert.addAction(createOpenURLAction(title: "Terms of Use", urlString: "https://www.apple.com/legal/internet-services/itunes/dev/stdeula/"))
-        alert.addAction(createOpenURLAction(title: "Privacy Policy", urlString: "https://github.com/waynecarter/simple-search/blob/main/PRIVACY"))
+        alert.addAction(createOpenURLAction(title: "Privacy Policy", urlString: "https://github.com/waynecarter/simple-intelligence/blob/main/PRIVACY"))
         alert.addAction(UIAlertAction(title: "Cancel", style: .cancel) { action in
             alert.dismiss(animated: true)
         })

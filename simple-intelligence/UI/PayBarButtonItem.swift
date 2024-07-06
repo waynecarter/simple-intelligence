@@ -1,6 +1,6 @@
 //
 //  PayBarButtonItem.swift
-//  simple-search
+//  simple-intelligence
 //
 //  Created by Wayne Carter on 6/26/24.
 //
