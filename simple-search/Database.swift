@@ -83,13 +83,6 @@ class Database {
     // MARK: - Search
     
     func search(image: UIImage) -> [Product] {
-        let startTime = Date()
-        defer {
-            let endTime = Date()
-            let duration = endTime.timeIntervalSince(startTime)
-            print("Search function: \(duration) seconds")
-        }
-        
         let dispatchGroup = DispatchGroup()
         var barcodeSearchResults: [Product]?
         var embeddingSearchResults: [Product]?
