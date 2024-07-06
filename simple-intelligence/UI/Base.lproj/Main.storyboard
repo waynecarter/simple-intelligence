@@ -13,7 +13,7 @@
         <!--Tab Bar Controller-->
         <scene sceneID="HkI-qj-JaW">
             <objects>
-                <tabBarController id="Wa1-l7-aKL" customClass="TabBarController" customModule="simple_search" customModuleProvider="target" sceneMemberID="viewController">
+                <tabBarController id="Wa1-l7-aKL" customClass="TabBarController" customModule="simple_intelligence" customModuleProvider="target" sceneMemberID="viewController">
                     <navigationItem key="navigationItem" id="0r2-of-Rtm"/>
                     <tabBar key="tabBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="umc-5P-9Db">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="49"/>
@@ -32,7 +32,7 @@
         <!--Search-->
         <scene sceneID="aH1-uZ-A67">
             <objects>
-                <navigationController hidesBarsWhenKeyboardAppears="YES" id="4Su-JE-03I" customClass="NavigationController" customModule="simple_search" customModuleProvider="target" sceneMemberID="viewController">
+                <navigationController hidesBarsWhenKeyboardAppears="YES" id="4Su-JE-03I" customClass="NavigationController" customModule="simple_intelligence" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="Search" id="Him-xe-gJP">
                         <imageReference key="image" image="magnifyingglass" catalog="system"/>
                     </tabBarItem>
@@ -52,7 +52,7 @@
         <!--Login View Controller-->
         <scene sceneID="lyJ-BG-H1U">
             <objects>
-                <viewController storyboardIdentifier="LoginViewController" id="85F-SR-aMk" customClass="LoginViewController" customModule="simple_search" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="LoginViewController" id="85F-SR-aMk" customClass="LoginViewController" customModule="simple_intelligence" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="sso-AJ-sWf">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -77,7 +77,7 @@
                                         <attributedString key="attributedText">
                                             <fragment content="Simple Intelligence">
                                                 <attributes>
-                                                    <color key="NSColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                    <color key="NSColor" systemColor="labelColor"/>
                                                     <font key="NSFont" size="28" name="Helvetica-Bold"/>
                                                     <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO">
                                                         <tabStops>
@@ -126,7 +126,7 @@
 Cg
 </string>
                                                 <attributes>
-                                                    <color key="NSColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                    <color key="NSColor" systemColor="labelColor"/>
                                                     <font key="NSFont" size="34" name="Helvetica-Bold"/>
                                                     <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO">
                                                         <tabStops>
@@ -172,7 +172,7 @@ Cg
                                             </fragment>
                                             <fragment content=" ">
                                                 <attributes>
-                                                    <color key="NSColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                    <color key="NSColor" systemColor="labelColor"/>
                                                     <font key="NSFont" size="4" name="Helvetica"/>
                                                     <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO">
                                                         <tabStops>
@@ -221,7 +221,7 @@ Cg
 Cg
 </string>
                                                 <attributes>
-                                                    <color key="NSColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                    <color key="NSColor" systemColor="labelColor"/>
                                                     <font key="NSFont" size="34" name="Helvetica-Bold"/>
                                                     <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO">
                                                         <tabStops>
@@ -267,7 +267,7 @@ Cg
                                             </fragment>
                                             <fragment content="Search using our AI powered database">
                                                 <attributes>
-                                                    <color key="NSColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                    <color key="NSColor" systemColor="labelColor"/>
                                                     <font key="NSFont" size="20" name="Helvetica"/>
                                                     <paragraphStyle key="NSParagraphStyle" alignment="center" lineBreakMode="wordWrapping" baseWritingDirection="natural" tighteningFactorForTruncation="0.0" allowsDefaultTighteningForTruncation="NO">
                                                         <tabStops>
@@ -368,7 +368,7 @@ Cg
         <!--AI-->
         <scene sceneID="T1i-Ax-grE">
             <objects>
-                <navigationController id="Ylr-0y-Pcf" customClass="NavigationController" customModule="simple_search" customModuleProvider="target" sceneMemberID="viewController">
+                <navigationController id="Ylr-0y-Pcf" customClass="NavigationController" customModule="simple_intelligence" customModuleProvider="target" sceneMemberID="viewController">
                     <tabBarItem key="tabBarItem" title="AI" image="dot.viewfinder" catalog="system" id="69y-rh-gpC"/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" id="IT5-1V-yi6">
                         <rect key="frame" x="0.0" y="59" width="393" height="44"/>
@@ -386,7 +386,7 @@ Cg
         <!--Text View Controller-->
         <scene sceneID="eSb-MY-Fsf">
             <objects>
-                <viewController id="wTG-eq-G6h" customClass="TextViewController" customModule="simple_search" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController id="wTG-eq-G6h" customClass="TextViewController" customModule="simple_intelligence" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="uiL-L7-Scc">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
@@ -398,7 +398,7 @@ Cg
                                 </constraints>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="search"/>
                             </searchBar>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pAw-Pp-g7l" customClass="ProductsView" customModule="simple_search" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pAw-Pp-g7l" customClass="ProductsView" customModule="simple_intelligence" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="155" width="393" height="531.66666666666663"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
@@ -466,7 +466,7 @@ Cg
                             </connections>
                         </barButtonItem>
                         <rightBarButtonItems>
-                            <barButtonItem title="Pay" id="n1f-cD-F0G" customClass="PayBarButtonItem" customModule="simple_search" customModuleProvider="target">
+                            <barButtonItem title="Pay" id="n1f-cD-F0G" customClass="PayBarButtonItem" customModule="simple_intelligence" customModuleProvider="target">
                                 <connections>
                                     <action selector="pay:" destination="wTG-eq-G6h" id="FNv-ex-cvt"/>
                                 </connections>
@@ -499,12 +499,12 @@ Cg
         <!--Camera View Controller-->
         <scene sceneID="B1j-Fd-2NZ">
             <objects>
-                <viewController extendedLayoutIncludesOpaqueBars="YES" id="vyr-NJ-tVD" customClass="CameraViewController" customModule="simple_search" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController extendedLayoutIncludesOpaqueBars="YES" id="vyr-NJ-tVD" customClass="CameraViewController" customModule="simple_intelligence" customModuleProvider="target" sceneMemberID="viewController">
                     <view key="view" contentMode="scaleToFill" id="PP7-XP-PQf">
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XRk-pX-bZd" customClass="ProductsView" customModule="simple_search" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XRk-pX-bZd" customClass="ProductsView" customModule="simple_intelligence" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="103" width="393" height="583.66666666666663"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
@@ -580,7 +580,7 @@ Cg
                             </connections>
                         </barButtonItem>
                         <rightBarButtonItems>
-                            <barButtonItem title="Pay" id="nkk-E7-J9h" customClass="PayBarButtonItem" customModule="simple_search" customModuleProvider="target">
+                            <barButtonItem title="Pay" id="nkk-E7-J9h" customClass="PayBarButtonItem" customModule="simple_intelligence" customModuleProvider="target">
                                 <connections>
                                     <action selector="pay:" destination="vyr-NJ-tVD" id="nGi-P8-ehr"/>
                                 </connections>
@@ -620,13 +620,13 @@ Cg
             <color white="0.0" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="quaternaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.1764705882" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.17647058823529413" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
         <systemColor name="systemBackgroundColor">
             <color white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
         </systemColor>
         <systemColor name="tertiaryLabelColor">
-            <color red="0.23529411759999999" green="0.23529411759999999" blue="0.26274509800000001" alpha="0.29803921570000003" colorSpace="custom" customColorSpace="sRGB"/>
+            <color red="0.23529411764705882" green="0.23529411764705882" blue="0.2627450980392157" alpha="0.29803921568627451" colorSpace="custom" customColorSpace="sRGB"/>
         </systemColor>
     </resources>
 </document>
