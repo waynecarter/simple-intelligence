@@ -61,7 +61,7 @@ class Actions {
     // MARK: - Share
     
     func showShare(for viewController: UIViewController, sourceItem: UIBarButtonItem) {
-        let appStoreURL = "https://apps.apple.com/us/app/simple-ai-search/id6504311724"
+        let appStoreURL = "https://apps.apple.com/us/app/simple-intelligence/id6504311724"
         let qrCodeActivity = QRCodeActivity(for: viewController, title: "Simple Search", appURL: appStoreURL)
         let activityViewController = UIActivityViewController(activityItems: [appStoreURL], applicationActivities: [qrCodeActivity])
         activityViewController.popoverPresentationController?.sourceItem = sourceItem
