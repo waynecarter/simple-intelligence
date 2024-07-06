@@ -395,7 +395,7 @@
 				DEVELOPMENT_TEAM = FMV3C84SQX;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "simple-search/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Search;
+				INFOPLIST_KEY_CFBundleDisplayName = Intelligence;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_NSCameraUsageDescription = "To enable you to search for items visually using AI, we need access to your camera.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -429,7 +429,7 @@
 				DEVELOPMENT_TEAM = FMV3C84SQX;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = "simple-search/Info.plist";
-				INFOPLIST_KEY_CFBundleDisplayName = Search;
+				INFOPLIST_KEY_CFBundleDisplayName = Intelligence;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				INFOPLIST_KEY_NSCameraUsageDescription = "To enable you to search for items visually using AI, we need access to your camera.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
