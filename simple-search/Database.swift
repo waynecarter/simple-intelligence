@@ -50,7 +50,7 @@ class Database {
                 loadDemoData(in: collection)
             }
         } else {
-            database = try! CouchbaseLiteSwift.Database(name: "search")
+            database = try! CouchbaseLiteSwift.Database(name: "intelligence")
             collection = try! database.defaultCollection()
         }
         
