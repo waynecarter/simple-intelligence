@@ -67,7 +67,7 @@ class Actions {
         activityViewController.popoverPresentationController?.sourceItem = sourceItem
         
         // Present the activity from the root view controller
-        var rootViewController = viewController.view.window?.rootViewController ?? viewController
+        let rootViewController = viewController.view.window?.rootViewController ?? viewController
         rootViewController.present(activityViewController, animated: true)
     }
     
