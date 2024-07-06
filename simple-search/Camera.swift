@@ -279,14 +279,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
             
             // Find the products
             let croppedImage = self.cropImage(image, toFocusRect: focusRect, inPreviewBounds: previewBounds)
-            var products = Database.shared.search(image: croppedImage)
-            
-            // If no products were found, try to find them in a more focused rect
-            if products.count == 0 {
-                let smallerFocusRect = focusRect.insetBy(dx: focusRect.width / 4, dy: focusRect.height / 4)
-                let smallerCroppedImage = self.cropImage(image, toFocusRect: smallerFocusRect, inPreviewBounds: previewBounds)
-                products = Database.shared.search(image: smallerCroppedImage)
-            }
+            let products = Database.shared.search(image: croppedImage)
             
             // If the found products have changed, update them
             if self.products != products {

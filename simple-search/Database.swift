@@ -83,37 +83,47 @@ class Database {
     // MARK: - Search
     
     func search(image: UIImage) -> [Product] {
+        let startTime = Date()
+        defer {
+            let endTime = Date()
+            let duration = endTime.timeIntervalSince(startTime)
+            print("Search function: \(duration) seconds")
+        }
+        
         let dispatchGroup = DispatchGroup()
-        var barcodeResult: [Product]?
-        var embeddingResult: [Product] = []
+        var barcodeSearchResults: [Product]?
+        var embeddingSearchResults: [Product]?
         
         // Perform barcode search in parallel
         dispatchGroup.enter()
         DispatchQueue.global(qos: .userInitiated).async {
+            defer { dispatchGroup.leave() }
             if let barcode = AI.shared.barcode(from: image), let product = self.search(barcode: barcode) {
-                barcodeResult = [product]
+                barcodeSearchResults = [product]
             }
-            dispatchGroup.leave()
         }
         
         // Perform embedding search in parallel
         dispatchGroup.enter()
         DispatchQueue.global(qos: .userInitiated).async {
-            if let embedding = AI.shared.embedding(for: image) {
-                embeddingResult = self.search(vector: embedding)
+            defer { dispatchGroup.leave() }
+            
+            let embeddings = AI.shared.embeddings(for: image, attention: .zoom(factors: [1, 2]))
+            for embedding in embeddings {
+                let searchResults = self.search(vector: embedding)
+                guard searchResults.isEmpty else {
+                    embeddingSearchResults = searchResults
+                    break
+                }
             }
-            dispatchGroup.leave()
         }
         
         // Wait for parallel searches to complete
         dispatchGroup.wait()
         
-        // Return barcode result if available, otherwise return embedding result
-        if let barcodeResult {
-            return barcodeResult
-        } else {
-            return embeddingResult
-        }
+        // Return barcode results if available, otherwise return embedding results
+        let searchResults = barcodeSearchResults ?? embeddingSearchResults ?? []
+        return searchResults
     }
     
     private func search(vector: [NSNumber]) -> [Product] {

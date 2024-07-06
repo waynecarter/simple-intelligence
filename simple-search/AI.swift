@@ -12,21 +12,43 @@ struct AI {
     static let shared = AI()
     private init() {}
     
+    enum Attention {
+        case none, saliency(_ saliency: Saliency), zoom(factors: [CGFloat])
+        
+        enum Saliency {
+            case attention, objectness
+        }
+    }
+    
     // MARK: - Embedding
     
-    func embedding(for image: UIImage, attention: Attention = .none) -> [NSNumber]? {
-        guard let cgImage = image.cgImage else {
-            return nil
+    func embeddings(for image: UIImage, attention: Attention = .none) -> [[NSNumber]] {
+        guard let cgImage = image.cgImage else { return [] }
+        
+        // Process the input image and generate the embeddings
+        var embeddings = [[NSNumber]]()
+        let processedImages = process(cgImage: cgImage, attention: attention)
+        for processedImage in processedImages {
+            if let embedding = embedding(for: processedImage) {
+                embeddings.append(embedding)
+            }
         }
         
-        // Process the input image
-        let processedCgImage = process(cgImage: cgImage, attention: attention)
+        return embeddings
+    }
+    
+    func embedding(for image: UIImage, attention: Attention = .none) -> [NSNumber]? {
+        guard let cgImage = image.cgImage else { return nil }
         
-        // Return the embeddings
-        let embedding = embedding(for: processedCgImage)
+        // Process the input image and generate the embedding
+        var embedding: [NSNumber]?
+        if let processedImage = process(cgImage: cgImage, attention: attention).first {
+            embedding = self.embedding(for: processedImage)
+        }
+        
         return embedding
     }
-        
+    
     private func embedding(for cgImage: CGImage) -> [NSNumber]? {
         // Perform saliency detection
         let request = VNGenerateImageFeaturePrintRequest()
@@ -113,28 +135,36 @@ struct AI {
     
     // MARK: - Image Processing
     
-    enum Attention {
-        case none, saliency
-    }
-    
-    func process(cgImage: CGImage, attention: Attention) -> CGImage {
-        var processedImage = cgImage
+    func process(cgImage: CGImage, attention: Attention, resizedTo targetSize: CGSize? = CGSize(width: 100, height: 100)) -> [CGImage] {
+        var processedImages = [CGImage]()
         
         switch attention {
         case .none:
-            _ = processedImage // No attention, do nothing.
-        case .saliency:
-            processedImage = cropToSalientRegion(cgImage: cgImage)
+            processedImages.append(cgImage)
+        case .saliency(let saliency):
+            let processedImage = cropToSalientRegion(cgImage: cgImage, saliency: saliency)
+            processedImages.append(processedImage)
+        case .zoom(let factors):
+            let zoomedImages = zoom(cgImage: cgImage, factors: factors)
+            processedImages.append(contentsOf: zoomedImages)
         }
         
-        processedImage = fit(cgImage: processedImage, to: CGSize(width: 100, height: 100))
+        if let targetSize {
+            for (index, processedImage) in processedImages.enumerated() {
+                processedImages[index] = fit(cgImage: processedImage, to: targetSize)
+            }
+        }
         
-        return processedImage
+        return processedImages
     }
     
-    private func cropToSalientRegion(cgImage: CGImage) -> CGImage {
+    private func cropToSalientRegion(cgImage: CGImage, saliency: Attention.Saliency) -> CGImage {
         // Perform saliency detection
-        let request = VNGenerateObjectnessBasedSaliencyImageRequest()
+        let request: VNImageBasedRequest
+        switch saliency {
+        case .attention: request = VNGenerateAttentionBasedSaliencyImageRequest()
+        case .objectness: request = VNGenerateObjectnessBasedSaliencyImageRequest()
+        }
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
 
         do {
@@ -175,6 +205,30 @@ struct AI {
 
         // Crop the image to the salient region
         return cgImage.cropping(to: salientRect) ?? cgImage
+    }
+    
+    private func zoom(cgImage: CGImage, factors: [CGFloat]) -> [CGImage] {
+        var zommedImages = [CGImage]()
+        
+        for factor in factors {
+            let zommedImage = zoom(cgImage: cgImage, factor: factor)
+            zommedImages.append(zommedImage)
+        }
+        
+        return zommedImages
+    }
+    
+    private func zoom(cgImage: CGImage, factor: CGFloat) -> CGImage {
+        guard factor > 1 else { return cgImage }
+        let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
+        let initialRect = CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.height)
+        
+        // Inset based on zoom factor
+        let dx = imageSize.width * (1 - (1 / factor)) / 2
+        let dy = imageSize.height * (1 - (1 / factor)) / 2
+        let zoomedRect = initialRect.insetBy(dx: dx, dy: dy)
+        
+        return cgImage.cropping(to: zoomedRect) ?? cgImage
     }
     
     private func fit(cgImage: CGImage, to targetSize: CGSize) -> CGImage {
