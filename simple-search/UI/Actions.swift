@@ -61,20 +61,22 @@ class Actions {
     // MARK: - Share
     
     func showShare(for viewController: UIViewController, sourceItem: UIBarButtonItem) {
-        let appStoreURL = "https://apps.apple.com/us/app/simple-intelligence/id6504311724"
-        let qrCodeActivity = QRCodeActivity(for: viewController, title: "Simple Search", appURL: appStoreURL)
+        let appStoreURL =  URL(string: "https://apps.apple.com/us/app/simple-intelligence/id6504311724")!
+        let qrCodeActivity = QRCodeActivity(for: viewController, title: "Simple Intelligence", appURL: appStoreURL)
         let activityViewController = UIActivityViewController(activityItems: [appStoreURL], applicationActivities: [qrCodeActivity])
         activityViewController.popoverPresentationController?.sourceItem = sourceItem
         
-        viewController.present(activityViewController, animated: true)
+        // Present the activity from the root view controller
+        var rootViewController = viewController.view.window?.rootViewController ?? viewController
+        rootViewController.present(activityViewController, animated: true)
     }
     
     private class QRCodeActivity: UIActivity {
         private let viewController: UIViewController
         private let title: String
-        private let appURL: String
+        private let appURL: URL
         
-        init(for viewController: UIViewController, title: String, appURL: String) {
+        init(for viewController: UIViewController, title: String, appURL: URL) {
             self.viewController = viewController
             self.title = title
             self.appURL = appURL
@@ -101,9 +103,9 @@ class Actions {
         
         private class QRCodeViewController: UIViewController {
             private let titleString: String
-            private let appURL: String
+            private let appURL: URL
                 
-            init(title: String, appURL: String) {
+            init(title: String, appURL: URL) {
                 self.titleString = title
                 self.appURL = appURL
                 super.init(nibName: nil, bundle: nil)
@@ -159,7 +161,7 @@ class Actions {
                 // Image
                 let imageView = UIImageView(image: {
                     // Create the QR code image.
-                    let data = appURL.data(using: String.Encoding.ascii)
+                    let data = appURL.dataRepresentation
                     if let filter = CIFilter(name: "CIQRCodeGenerator") {
                         filter.setValue(data, forKey: "inputMessage")
                         let transform = CGAffineTransform(scaleX: 10, y: 10)
