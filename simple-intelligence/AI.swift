@@ -13,7 +13,7 @@ struct AI {
     private init() {}
     
     enum Attention {
-        case none, saliency(_ saliency: Saliency), zoom(factors: [CGFloat])
+        case none, saliency(_ saliency: Saliency), foreground, faces, zoom(factors: [CGFloat])
         
         enum Saliency {
             case attention, objectness
@@ -50,7 +50,10 @@ struct AI {
     }
     
     private func embedding(for cgImage: CGImage) -> [NSNumber]? {
-        // Perform saliency detection
+        // Scale down the images to speed up processing and reduce feature details.
+        let cgImage = fit(cgImage: cgImage, to: CGSize(width: 100, height: 100))
+        
+        // Perform feature detection
         let request = VNGenerateImageFeaturePrintRequest()
         let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
 
@@ -64,7 +67,7 @@ struct AI {
             return nil
         }
 
-        // Access the feature print data
+        // Access the feature data
         let data = observation.data
         guard data.isEmpty == false else {
             return nil
@@ -135,7 +138,7 @@ struct AI {
     
     // MARK: - Image Processing
     
-    func process(cgImage: CGImage, attention: Attention, resizedTo targetSize: CGSize? = CGSize(width: 100, height: 100)) -> [CGImage] {
+    func process(cgImage: CGImage, attention: Attention) -> [CGImage] {
         var processedImages = [CGImage]()
         
         switch attention {
@@ -144,15 +147,15 @@ struct AI {
         case .saliency(let saliency):
             let processedImage = cropToSalientRegion(cgImage: cgImage, saliency: saliency)
             processedImages.append(processedImage)
+        case .foreground:
+            let processedImage = segmentForegroundSubjects(cgImage: cgImage)
+            processedImages.append(processedImage)
+        case .faces:
+            let faceImages = cropToFaces(cgImage: cgImage)
+            processedImages.append(contentsOf: faceImages)
         case .zoom(let factors):
             let zoomedImages = zoom(cgImage: cgImage, factors: factors)
             processedImages.append(contentsOf: zoomedImages)
-        }
-        
-        if let targetSize {
-            for (index, processedImage) in processedImages.enumerated() {
-                processedImages[index] = fit(cgImage: processedImage, to: targetSize)
-            }
         }
         
         return processedImages
@@ -207,6 +210,70 @@ struct AI {
         return cgImage.cropping(to: salientRect) ?? cgImage
     }
     
+    private func segmentForegroundSubjects(cgImage: CGImage) -> CGImage {
+        // Perform foreground subject detection
+        let requst = VNGenerateForegroundInstanceMaskRequest()
+        let handler = VNImageRequestHandler(cgImage: cgImage)
+        
+        do {
+            try handler.perform([requst])
+        } catch {
+            return cgImage
+        }
+        
+        // Generate a masked image of the foreground subjects
+        let foregroundSubjectsImage: CGImage
+        if let result = requst.results?.first {
+            let maskedImagePixelBuffer = try! result.generateMaskedImage(
+                ofInstances: result.allInstances,
+                from: handler,
+                croppedToInstancesExtent: false
+            )
+            let ciContext = CIContext()
+            let ciImage = CIImage(cvPixelBuffer: maskedImagePixelBuffer)
+            
+            foregroundSubjectsImage = ciContext.createCGImage(ciImage, from: ciImage.extent) ?? cgImage
+        } else {
+            foregroundSubjectsImage = cgImage
+        }
+        
+        return foregroundSubjectsImage
+    }
+    
+    private func cropToFaces(cgImage: CGImage) -> [CGImage] {
+        // Perform face detection
+        let request = VNDetectFaceRectanglesRequest()
+        let handler = VNImageRequestHandler(cgImage: cgImage)
+        
+        do {
+            try handler.perform([request])
+        } catch {
+            return [cgImage]
+        }
+        
+        // Extract face regions
+        guard let observations = request.results else {
+            return []
+        }
+        
+        let faceImages = observations.compactMap { observation in
+            // Convert the bounding box from Vision coordinates to image coordinates
+            let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
+            let boundingBox = observation.boundingBox
+            let faceRect = CGRect(
+                x: boundingBox.origin.x * imageSize.width,
+                y: (1 - boundingBox.origin.y - boundingBox.height) * imageSize.height,
+                width: boundingBox.width * imageSize.width,
+                height: boundingBox.height * imageSize.height
+            )
+            
+            // Crop the CGImage to each face's bounding box
+            return cgImage.cropping(to: faceRect)
+        }
+        
+        return faceImages
+    }
+    
     private func zoom(cgImage: CGImage, factors: [CGFloat]) -> [CGImage] {
         var zommedImages = [CGImage]()
         
@@ -234,29 +301,27 @@ struct AI {
     private func fit(cgImage: CGImage, to targetSize: CGSize) -> CGImage {
         let imageSize = CGSize(width: cgImage.width, height: cgImage.height)
         
-        // Calculate the aspect ratios
+        // Calculate the aspect ratios and scale factor
         let widthRatio = targetSize.width / imageSize.width
         let heightRatio = targetSize.height / imageSize.height
         let scaleFactor = min(widthRatio, heightRatio)
 
+        // Construct the scaled rect
         let scaledWidth = imageSize.width * scaleFactor
         let scaledHeight = imageSize.height * scaleFactor
         let offsetX = (targetSize.width - scaledWidth) / 2.0 // Center horizontally
         let offsetY = (targetSize.height - scaledHeight) / 2.0 // Center vertically
         let scaledRect = CGRect(x: offsetX, y: offsetY, width: scaledWidth, height: scaledHeight)
-
+        
+        // Use a scale of 1 so the pixels match the target size
         let rendererFormat = UIGraphicsImageRendererFormat.default()
-        rendererFormat.scale = 1 // Use a scale factor of 1 for CGImage
+        rendererFormat.scale = 1
 
         let renderer = UIGraphicsImageRenderer(size: targetSize, format: rendererFormat)
         let fitImage = renderer.image { _ in
             UIImage(cgImage: cgImage).draw(in: scaledRect)
         }
         
-        guard let fitImage = fitImage.cgImage else {
-            return cgImage
-        }
-        
-        return fitImage
+        return fitImage.cgImage ?? cgImage
     }
 }
