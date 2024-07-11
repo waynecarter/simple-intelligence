@@ -82,7 +82,7 @@
                                 </constraints>
                                 <textInputTraits key="textInputTraits" autocorrectionType="no" spellCheckingType="no" returnKeyType="search"/>
                             </searchBar>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pAw-Pp-g7l" customClass="ProductsView" customModule="simple_intelligence" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="pAw-Pp-g7l" customClass="RecordsView" customModule="simple_intelligence" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="155" width="393" height="531.66666666666663"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
@@ -170,7 +170,7 @@
                         <outlet property="explainerView" destination="f7N-GT-Eny" id="OqY-lW-yOZ"/>
                         <outlet property="infoButton" destination="dOq-Gl-hsQ" id="OPv-v5-Shd"/>
                         <outlet property="payButton" destination="n1f-cD-F0G" id="V1g-CP-XSN"/>
-                        <outlet property="productsView" destination="pAw-Pp-g7l" id="UYc-Hx-OyM"/>
+                        <outlet property="recordsView" destination="pAw-Pp-g7l" id="wMa-q2-q8P"/>
                         <outlet property="searchBar" destination="PEa-ZE-YZQ" id="01d-An-2ve"/>
                         <outlet property="searchBar_TopConstraint" destination="w3c-4a-bko" id="iGy-S5-PGs"/>
                         <outlet property="shareButton" destination="9Le-9P-Ws7" id="yE9-GB-E5Z"/>
@@ -188,7 +188,7 @@
                         <rect key="frame" x="0.0" y="0.0" width="393" height="852"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XRk-pX-bZd" customClass="ProductsView" customModule="simple_intelligence" customModuleProvider="target">
+                            <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XRk-pX-bZd" customClass="RecordsView" customModule="simple_intelligence" customModuleProvider="target">
                                 <rect key="frame" x="0.0" y="103" width="393" height="583.66666666666663"/>
                                 <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                             </view>
@@ -286,7 +286,7 @@
                         <outlet property="explainerView" destination="uH8-xx-3Hw" id="pd6-Nx-LCY"/>
                         <outlet property="infoButton" destination="tGb-td-Iyc" id="W7q-Tw-oQy"/>
                         <outlet property="payButton" destination="nkk-E7-J9h" id="k2Y-yY-Wtz"/>
-                        <outlet property="productsView" destination="XRk-pX-bZd" id="eZn-FQ-dFa"/>
+                        <outlet property="recordsView" destination="XRk-pX-bZd" id="LBk-dW-tGT"/>
                         <outlet property="shareButton" destination="Jyc-Nf-ejv" id="aG2-1X-vTx"/>
                     </connections>
                 </viewController>
@@ -303,7 +303,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" spacing="50" translatesAutoresizingMaskIntoConstraints="NO" id="0Dt-iu-mvH" userLabel="Banner">
-                                <rect key="frame" x="24" y="274" width="345" height="304"/>
+                                <rect key="frame" x="24" y="274.33333333333337" width="345" height="303.33333333333337"/>
                                 <subviews>
                                     <stackView opaque="NO" contentMode="scaleToFill" axis="vertical" translatesAutoresizingMaskIntoConstraints="NO" id="fdr-30-aBf" userLabel="Header">
                                         <rect key="frame" x="0.0" y="0.0" width="345" height="152.66666666666666"/>

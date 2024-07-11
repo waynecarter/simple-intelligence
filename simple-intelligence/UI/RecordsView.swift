@@ -1,5 +1,5 @@
 //
-//  HorizontalCollectionView.swift
+//  RecordsView.swift
 //  simple-intelligence
 //
 //  Created by Wayne Carter on 6/23/24.
@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-class ProductsView: UIView {
+class RecordsView: UIView {
     let collectionView = CollectionView()
     let detailsLabel = UILabel()
     
@@ -43,26 +43,26 @@ class ProductsView: UIView {
         ])
         
         // When the use-case settings change, update the actions
-        collectionView.$selectedProduct
+        collectionView.$selectedRecord
             .dropFirst()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] selectedProduct in
-                self?.selectedProduct = selectedProduct
+            .sink { [weak self] selectedRecord in
+                self?.selectedRecord = selectedRecord
             }.store(in: &cancellables)
         
         // Show the initial details and prepare the layout so that the layout will be correct
-        showDetails(for: selectedProduct)
+        showDetails(for: selectedRecord)
         collectionView.collectionViewLayout.prepare()
     }
     
-    var products: [Database.Product] {
-        get { collectionView.products }
-        set { collectionView.products = newValue }
+    var records: [Database.Record] {
+        get { collectionView.records }
+        set { collectionView.records = newValue }
     }
     
-    @Published var selectedProduct: Database.Product? {
+    @Published var selectedRecord: Database.Record? {
         didSet {
-            showDetails(for: selectedProduct)
+            showDetails(for: selectedRecord)
         }
     }
     
@@ -70,24 +70,39 @@ class ProductsView: UIView {
         return collectionView.selectedCell
     }
     
-    private func showDetails(for product: Database.Product?) {
-        // Set the detail content
-        let name = product?.name ?? ""
-        let attributedString = NSMutableAttributedString(string: name + "\n", attributes: [
-            .font: UIFont.preferredFont(forTextStyle: .title1),
-            .foregroundColor: UIColor.label
-        ])
-        let price = product != nil ? String(format: "$%.02f", product!.price) : ""
-        attributedString.append(NSAttributedString(string: price + "\n", attributes: [
-            .font: UIFont.preferredFont(forTextStyle: .title2),
-            .foregroundColor: UIColor.label
-        ]))
-        let location = product?.location ?? ""
-        attributedString.append(NSAttributedString(string: location, attributes: [
-            .font: UIFont.preferredFont(forTextStyle: .title3),
-            .foregroundColor: UIColor.secondaryLabel
-        ]))
+    private func showDetails(for record: Database.Record?) {
+        let attributedString = NSMutableAttributedString()
         
+        if let title = record?.title {
+            attributedString.append(NSAttributedString(string: title, attributes: [
+                .font: UIFont.preferredFont(forTextStyle: .title1),
+                .foregroundColor: UIColor.label
+            ]))
+        }
+        
+        if let subtitle = record?.subtitle {
+            if attributedString.length > 0 {
+                attributedString.append(NSAttributedString("\n"))
+            }
+            
+            attributedString.append(NSAttributedString(string: subtitle, attributes: [
+                .font: UIFont.preferredFont(forTextStyle: .title2),
+                .foregroundColor: UIColor.label
+            ]))
+        }
+        
+        if let details = record?.details {
+            if attributedString.length > 0 {
+                attributedString.append(NSAttributedString("\n"))
+            }
+            
+            attributedString.append(NSAttributedString(string: details, attributes: [
+                .font: UIFont.preferredFont(forTextStyle: .title3),
+                .foregroundColor: UIColor.secondaryLabel
+            ]))
+        }
+        
+        // Set the detail content
         detailsLabel.attributedText = attributedString
         detailsLabel.sizeToFit()
     }
@@ -111,28 +126,29 @@ class ProductsView: UIView {
             self.delegate = self
         }
         
-        var products: [Database.Product] = [] {
+        var records: [Database.Record] = [] {
             didSet {
+                self.collectionViewLayout.prepare()
                 self.reloadData()
-                updateSelectedProduct()
+                updateSelectedRecord()
             }
         }
         
         func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-            return products.count
+            return records.count
         }
         
         func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
             let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "cell", for: indexPath) as! Cell
-            let product = products[indexPath.item]
-            cell.imageView.image = product.image
+            let record = records[indexPath.item]
+            cell.imageView.image = record.image
             
             return cell
         }
         
         // MARK: - Selected Item
         
-        @Published var selectedProduct: Database.Product?
+        @Published var selectedRecord: Database.Record?
         
         var selectedCell: Cell? {
             let selectedCell: Cell?
@@ -146,12 +162,12 @@ class ProductsView: UIView {
         }
         
         private var selectedItemIndexPath: IndexPath? {
-            if products.count > 0 {
+            if records.count > 0 {
                 let layout = collectionViewLayout as! UICollectionViewFlowLayout
                 let contentOffsetX = self.contentOffset.x
                 let itemWidth = layout.itemSize.width + layout.minimumLineSpacing
                 let itemIndex = Int(round(contentOffsetX / itemWidth))
-                let clampedItemIndex = min(max(0, itemIndex), products.count - 1)
+                let clampedItemIndex = min(max(0, itemIndex), records.count - 1)
                 
                 return IndexPath(item: clampedItemIndex, section: 0)
             }
@@ -159,19 +175,19 @@ class ProductsView: UIView {
             return nil
         }
         
-        private func updateSelectedProduct() {
-            if products.count == 0 {
-                self.selectedProduct = nil
+        private func updateSelectedRecord() {
+            if records.count == 0 {
+                self.selectedRecord = nil
             } else {
-                let selectedProduct: Database.Product
+                let selectedRecord: Database.Record
                 if let selectedItemIndexPath = self.selectedItemIndexPath {
-                    selectedProduct = products[selectedItemIndexPath.item]
+                    selectedRecord = records[selectedItemIndexPath.item]
                 } else {
-                    selectedProduct = products[0]
+                    selectedRecord = records[0]
                 }
                 
-                if selectedProduct != self.selectedProduct {
-                    self.selectedProduct = selectedProduct
+                if selectedRecord != self.selectedRecord {
+                    self.selectedRecord = selectedRecord
                     
                     if self.isDragging || self.isTracking {
                         generateSelectionFeedback()
@@ -181,7 +197,7 @@ class ProductsView: UIView {
         }
         
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            updateSelectedProduct()
+            updateSelectedRecord()
         }
         
         // MARK: - Haptic Feedback
@@ -201,22 +217,35 @@ class ProductsView: UIView {
                 
                 let collectionView = collectionView!
                 let collectionViewSize = collectionView.bounds.size
-                let productsView = collectionView.superview as! ProductsView
-                let detailsLabelSize = productsView.detailsLabel.frame.size
-                
-                let numberOfItems: Int
-                if UIDevice.current.userInterfaceIdiom == .pad {
-                    if collectionView.bounds.height < 500 {
-                        numberOfItems = 5
-                    } else {
-                        numberOfItems = 4
-                    }
-                } else {
-                    numberOfItems = 2
-                }
+                let recordsView = collectionView.superview as! RecordsView
+                let detailsLabelSize = recordsView.detailsLabel.frame.size
                 
                 // Item width
-                let itemWidth = collectionViewSize.width / CGFloat(numberOfItems)
+                let itemWidth: CGFloat
+                if recordsView.records.count == 1, let firstRecord = recordsView.records.first {
+                    // When we have only one record, size the item as large as possible
+                    if collectionViewSize.width > 1300 {
+                        itemWidth = min(collectionViewSize.width * 0.4, firstRecord.image.size.width * 1.5)
+                    } else if collectionViewSize.width > 1000 {
+                        itemWidth = min(collectionViewSize.width * 0.5, firstRecord.image.size.width * 1.5)
+                    } else {
+                        itemWidth = min(collectionViewSize.width * 0.8, firstRecord.image.size.width)
+                    }
+                } else {
+                    // When we have more than one record, size the items to show multiple on screen at once
+                    let numberOfItems: Int
+                    if UIDevice.current.userInterfaceIdiom == .pad {
+                        if collectionView.bounds.height < 500 {
+                            numberOfItems = 5
+                        } else {
+                            numberOfItems = 4
+                        }
+                    } else {
+                        numberOfItems = 2
+                    }
+                    
+                    itemWidth = collectionViewSize.width / CGFloat(numberOfItems)
+                }
                 
                 // Section inset
                 let horizontalInset = (collectionViewSize.width / 2) - (itemWidth / 2)

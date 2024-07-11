@@ -9,7 +9,7 @@ import UIKit
 import AVFoundation
 import Combine
 
-class CameraViewController: ProductsViewController {
+class CameraViewController: RecordsViewController {
     @IBOutlet weak var explainerView: UIView!
     
     private var cancellables = Set<AnyCancellable>()
@@ -24,13 +24,13 @@ class CameraViewController: ProductsViewController {
         camera.preview.previewLayer.videoGravity = .resizeAspectFill
         view.insertSubview(camera.preview, at: 0)
         
-        // When the products from the camera change, update the products
-        Camera.shared.$products
+        // When the records from the camera change, update the records
+        Camera.shared.$records
             .dropFirst()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] products in
-                self?.products = products
-                if products.count > 0 {
+            .sink { [weak self] records in
+                self?.records = records
+                if records.count > 0 {
                     Haptics.shared.generateSelectionFeedback()
                 }
             }.store(in: &cancellables)
@@ -44,20 +44,20 @@ class CameraViewController: ProductsViewController {
     
     private func style() {
         tabBarController?.overrideUserInterfaceStyle = .dark
-        updateStyleForProducts()
+        updateStyleForRecords()
     }
     
-    private func updateStyleForProducts() {
+    private func updateStyleForRecords() {
         let camera = Camera.shared
-        let isShowingProducts = products.count > 0
+        let isShowingRecords = records.count > 0
         
-        if isShowingProducts {
+        if isShowingRecords {
             // Stop the camera
             if camera.isRunning {
                 camera.stop()
                 // Hide the preview
                 camera.preview.hide(animations: {
-                    // Style the view for the products to be showing
+                    // Style the view for the records to be showing
                     self.view.backgroundColor = UIColor(red: 0.15, green: 0.15, blue: 0.15, alpha: 1)
                     self.updateStyleForCamera(isRunning: false)
                 })
@@ -109,13 +109,13 @@ class CameraViewController: ProductsViewController {
         }
     }
     
-    // MARK: - Products
+    // MARK: - Records
     
-    override var products: [Database.Product] {
+    override var records: [Database.Record] {
         didSet {
-            // When the products change, update the styling
-            guard oldValue != products else { return }
-            updateStyleForProducts()
+            // When the records change, update the styling
+            guard oldValue != records else { return }
+            updateStyleForRecords()
         }
     }
     

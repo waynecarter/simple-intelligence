@@ -1,5 +1,5 @@
 //
-//  ProductsViewController.swift
+//  RecordsViewController.swift
 //  simple-intelligence
 //
 //  Created by Wayne Carter on 6/26/24.
@@ -8,8 +8,8 @@
 import UIKit
 import Combine
 
-class ProductsViewController: UIViewController {
-    @IBOutlet weak var productsView: ProductsView!
+class RecordsViewController: UIViewController {
+    @IBOutlet weak var recordsView: RecordsView!
     
     @IBOutlet weak var actionsView: UIStackView!
     @IBOutlet weak var actionsView_WidthConstraint: NSLayoutConstraint!
@@ -35,12 +35,12 @@ class ProductsViewController: UIViewController {
         
         updateActions()
         
-        // When the selected product changes, update the actions
-        productsView.$selectedProduct
+        // When the selected record changes, update the actions
+        recordsView.$selectedRecord
             .dropFirst()
             .receive(on: DispatchQueue.main)
-            .sink { [weak self] selectedProduct in
-                self?.updateActions(for: selectedProduct)
+            .sink { [weak self] selectedRecord in
+                self?.updateActions(for: selectedRecord)
             }.store(in: &cancellables)
         
         // When the configured use case changes, update the actions
@@ -52,9 +52,9 @@ class ProductsViewController: UIViewController {
             }.store(in: &cancellables)
     }
     
-    var products: [Database.Product] {
-        get { return productsView.products }
-        set { productsView.products = newValue }
+    var records: [Database.Record] {
+        get { return recordsView.records }
+        set { recordsView.records = newValue }
     }
     
     // MARK: - View Lifecycle
@@ -73,7 +73,7 @@ class ProductsViewController: UIViewController {
     
     private func updateActions() {
         updateActions(for: Settings.shared.useCase)
-        updateActions(for: productsView.selectedProduct)
+        updateActions(for: recordsView.selectedRecord)
     }
     
     private func updateActions(for useCase: Settings.UseCase) {
@@ -84,23 +84,29 @@ class ProductsViewController: UIViewController {
             payButton.total = 0
         }
         
-        updateActions(for: productsView.selectedProduct)
+        updateActions(for: recordsView.selectedRecord)
     }
     
-    private func updateActions(for selectedProduct: Database.Product?) {
+    private func updateActions(for selectedRecord: Database.Record?) {
         switch Settings.shared.useCase {
         case .pointOfSale:
-            addToBagButton.isHidden = (selectedProduct == nil)
-            cancelButton?.isHidden = (selectedProduct == nil)
-            doneButton?.isHidden = true
+            if selectedRecord is Database.Booking {
+                addToBagButton.isHidden = true
+                cancelButton?.isHidden = true
+                doneButton?.isHidden = (selectedRecord == nil)
+            } else {
+                addToBagButton.isHidden = (selectedRecord == nil)
+                cancelButton?.isHidden = (selectedRecord == nil)
+                doneButton?.isHidden = true
+            }
         case .itemLookup:
             addToBagButton.isHidden = true
             cancelButton?.isHidden = true
-            doneButton?.isHidden = (selectedProduct == nil)
+            doneButton?.isHidden = (selectedRecord == nil)
         }
         
         // When the actions view has no visible actions, remove the offset from it's bottom
-        // constraint so that the products view will be offset from the bottom a standard amount.
+        // constraint so that the records view will be offset from the bottom a standard amount.
         let visibleActionsCount = actionsView.arrangedSubviews.filter({ $0.isHidden == false }).count
         actionsView_BottomConstraint.constant = visibleActionsCount == 0 ? 0 : actionsView_BottomConstraint_Constant
         // Set the width of the actions bar based on the screen width and number of visible actions.
@@ -128,13 +134,13 @@ class ProductsViewController: UIViewController {
     }
     
     func addToBag(_ sender: UIButton, beginning: (() -> Void)?, completion: (() -> Void)?) {
-        guard let selectedProduct = productsView.selectedProduct,
-              let selectedCell = productsView.selectedCell
+        guard let selectedProduct = recordsView.selectedRecord as? Database.Product,
+              let selectedCell = recordsView.selectedCell
         else { return }
         
         Haptics.shared.generateSelectionFeedback()
         Database.shared.addToCart(product: selectedProduct)
-        self.products = []
+        self.records = []
         
         beginning?()
         
@@ -149,7 +155,7 @@ class ProductsViewController: UIViewController {
     }
     
     @IBAction func cancel(_ sender: UIButton) {
-        products = []
+        records = []
     }
     
     // MARK: - Full Screen

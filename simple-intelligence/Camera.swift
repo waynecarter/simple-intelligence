@@ -23,7 +23,7 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
     private var cancellables = Set<AnyCancellable>()
     
     @Published var authorized: Bool = false
-    @Published var products: [Database.Product] = []
+    @Published var records: [Database.Record] = []
     let preview: Preview
     
     private override init() {
@@ -277,13 +277,13 @@ class Camera : NSObject, AVCaptureVideoDataOutputSampleBufferDelegate {
         self.sessionQueue.async {
             guard self.session.isRunning else { return }
             
-            // Find the products
+            // Find the records
             let croppedImage = self.cropImage(image, toFocusRect: focusRect, inPreviewBounds: previewBounds)
-            let products = Database.shared.search(image: croppedImage)
+            let records = Database.shared.search(image: croppedImage)
             
-            // If the found products have changed, update them
-            if self.products != products {
-                self.products = products
+            // If the found records have changed, update them
+            if self.records != records {
+                self.records = records
             }
         }
     }

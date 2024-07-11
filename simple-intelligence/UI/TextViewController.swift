@@ -8,7 +8,7 @@
 import UIKit
 import Combine
 
-class TextViewController: ProductsViewController, UISearchBarDelegate {
+class TextViewController: RecordsViewController, UISearchBarDelegate {
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var searchBar_TopConstraint: NSLayoutConstraint!
     
@@ -44,9 +44,9 @@ class TextViewController: ProductsViewController, UISearchBarDelegate {
     
     private func search(string: String?) {
         if let string {
-            products = Database.shared.search(string: string)
+            records = Database.shared.search(string: string)
         } else {
-            products = []
+            records = []
         }
         
         updateExplainer()
@@ -81,8 +81,8 @@ class TextViewController: ProductsViewController, UISearchBarDelegate {
         searchBar.setShowsCancelButton(false, animated: true)
         searchBar.text = nil
         
-        // Clear the products
-        products = []
+        // Clear the records
+        records = []
         
         // If specified, update the explainer
         if updateExplainer {
@@ -137,9 +137,9 @@ class TextViewController: ProductsViewController, UISearchBarDelegate {
     // MARK: - Explainer
     
     private func updateExplainer(animated: Bool = false) {
-        // When their are products shown hide the explainer, otherwise show it
+        // When their are records shown hide the explainer, otherwise show it
         UIView.animate(withDuration: animated ? 0.2 : 0) {
-            self.explainerView.alpha = self.products.count == 0 ? 1 : 0
+            self.explainerView.alpha = self.records.count == 0 ? 1 : 0
         }
     }
 }

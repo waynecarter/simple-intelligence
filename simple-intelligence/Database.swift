@@ -39,11 +39,21 @@ class Database {
     }
     
     private func setupDatabase(isDemoEnabled: Bool = Settings.shared.isDemoEnabled) {
-        let database: CouchbaseLiteSwift.Database
-        let collection: CouchbaseLiteSwift.Collection
+        var database: CouchbaseLiteSwift.Database
+        var collection: CouchbaseLiteSwift.Collection
+        
         if isDemoEnabled {
+            // Setup the demo database
             database = try! CouchbaseLiteSwift.Database(name: "demo")
             collection = try! database.defaultCollection()
+            
+            // If the database isn't up to date with the latest demo
+            // data then delete and recreate it
+            if (try! collection.document(id: "booking:1") ?? nil) == nil {
+                try! database.delete()
+                database = try! CouchbaseLiteSwift.Database(name: "demo")
+                collection = try! database.defaultCollection()
+            }
             
             // If the database is empty, initialize it with the demo data.
             if collection.count == 0  {
@@ -82,10 +92,11 @@ class Database {
     
     // MARK: - Search
     
-    func search(image: UIImage) -> [Product] {
+    func search(image: UIImage) -> [Record] {
         let dispatchGroup = DispatchGroup()
         var barcodeSearchResults: [Product]?
-        var embeddingSearchResults: [Product]?
+        var faceSearchResults: [Record]?
+        var embeddingSearchResults: [Record]?
         
         // Perform barcode search in parallel
         dispatchGroup.enter()
@@ -93,6 +104,17 @@ class Database {
             defer { dispatchGroup.leave() }
             if let barcode = AI.shared.barcode(from: image), let product = self.search(barcode: barcode) {
                 barcodeSearchResults = [product]
+            }
+        }
+        
+        // Perform face search in parallel
+        dispatchGroup.enter()
+        DispatchQueue.global(qos: .userInitiated).async {
+            defer { dispatchGroup.leave() }
+            
+            if let embedding = AI.shared.embedding(for: image, attention: .faces) {
+                let searchResults = self.search(vector: embedding, maxDistance: 0.08)
+                faceSearchResults = searchResults
             }
         }
         
@@ -114,19 +136,19 @@ class Database {
         // Wait for parallel searches to complete
         dispatchGroup.wait()
         
-        // Return barcode results if available, otherwise return embedding results
-        let searchResults = barcodeSearchResults ?? embeddingSearchResults ?? []
+        // Return barcode results if available, then face results, otherwise return embedding results
+        let searchResults = barcodeSearchResults ?? faceSearchResults ?? embeddingSearchResults ?? []
         return searchResults
     }
     
-    private func search(vector: [NSNumber]) -> [Product] {
+    private func search(vector: [NSNumber], maxDistance: Float = 0.25) -> [Record] {
         // SQL
         let sql = """
-            SELECT name, price, location, image, VECTOR_DISTANCE(EmbeddingVectorIndex) AS distance
+            SELECT type, name, price, location, image, VECTOR_DISTANCE(EmbeddingVectorIndex) AS distance
             FROM _
-            WHERE type = "product"
+            WHERE (type = "product" OR type = "booking")
                 AND VECTOR_MATCH(EmbeddingVectorIndex, $embedding, 10)
-                AND VECTOR_DISTANCE(EmbeddingVectorIndex) < 0.25
+                AND VECTOR_DISTANCE(EmbeddingVectorIndex) <= \(maxDistance)
             ORDER BY VECTOR_DISTANCE(EmbeddingVectorIndex), name
         """
         
@@ -140,17 +162,25 @@ class Database {
             let results = try query.execute()
             
             // Enumerate through the query results.
-            var products = [Product]()
+            var records = [Record]()
             var distances = [Double]()
             for result in results {
-                if let name = result["name"].string,
-                   let price = result["price"].number,
-                   let location = result["location"].string,
+                if let type = result["type"].string,
                    let imageData = result["image"].blob?.content,
+                   let imageDigest = result["image"].blob?.digest,
                    let image = UIImage(data: imageData)
                 {
-                    let product = Product(name: name, price: price.doubleValue, location: location, image: image)
-                    products.append(product)
+                    let record: Record
+                    if type == "product",
+                       let name = result["name"].string,
+                       let price = result["price"].number,
+                       let location = result["location"].string
+                    {
+                        record = Product(name: name, price: price.doubleValue, location: location, image: image, imageDigest: imageDigest)
+                    } else {
+                        record = Booking(image: image, imageDigest: imageDigest)
+                    }
+                    records.append(record)
                     
                     let distance = result["distance"].number?.doubleValue ?? .greatestFiniteMagnitude
                     distances.append(distance)
@@ -158,19 +188,19 @@ class Database {
             }
             
             // Post process and filter any matches that are too far away from the closest match.
-            var filteredProducts = [Product]()
+            var filteredRecords = [Record]()
             let minimumDistance: Double = {
                 let minimumDistance = distances.min { a, b in a < b }
                 return minimumDistance ?? .greatestFiniteMagnitude
             }()
             for (index, distance) in distances.enumerated() {
                 if distance <= minimumDistance * 1.40 {
-                    let product = products[index]
-                    filteredProducts.append(product)
+                    let record = records[index]
+                    filteredRecords.append(record)
                 }
             }
             
-            return filteredProducts
+            return filteredRecords
         } catch {
             print("Database.search(vector:): \(error.localizedDescription)")
             return []
@@ -202,9 +232,10 @@ class Database {
                let price = result["price"].number,
                let location = result["location"].string,
                let imageData = result["image"].blob?.content,
+               let imageDigest = result["image"].blob?.digest,
                let image = UIImage(data: imageData)
             {
-                let product = Product(name: name, price: price.doubleValue, location: location, image: image)
+                let product = Product(name: name, price: price.doubleValue, location: location, image: image, imageDigest: imageDigest)
                 return product
             }
         } catch {
@@ -245,9 +276,10 @@ class Database {
                    let price = result["price"].number,
                    let location = result["location"].string,
                    let imageData = result["image"].blob?.content,
+                   let imageDigest = result["image"].blob?.digest,
                    let image = UIImage(data: imageData)
                 {
-                    let product = Product(name: name, price: price.doubleValue, location: location, image: image)
+                    let product = Product(name: name, price: price.doubleValue, location: location, image: image, imageDigest: imageDigest)
                     products.append(product)
                 }
             }
@@ -276,13 +308,15 @@ class Database {
     
     func addToCart(product: Product) {
         do {
+            guard let name = product.name, let price = product.price else { return }
+            
             // Get or create the cart document.
             let cart = try collection.document(id: "cart")?.toMutable() ?? MutableDocument(id: "cart")
             
             // Create the item dicionary
             let item = MutableDictionaryObject(data: [
-                "name": product.name,
-                "price": product.price
+                "name": name,
+                "price": price
             ])
             
             // Add the item to the cart
@@ -317,25 +351,53 @@ class Database {
         }
     }
     
-    // MARK: - Product
+    // MARK: - Records
     
-    struct Product: Equatable {
-        let name: String
-        let price: Double
-        let location: String
-        let image: UIImage
+    class Product: Record {
+        let name: String?
+        let price: Double?
+        let location: String?
         
-        fileprivate init(name: String, price: Double, location: String, image: UIImage) {
+        fileprivate init(name: String, price: Double, location: String, image: UIImage, imageDigest: String) {
             self.name = name
             self.price = price
             self.location = location
+            super.init(title: name, subtitle: String(format: "$%.02f", price), details: location, image: image, imageDigest: imageDigest)
+        }
+    }
+    
+    class Booking: Record {
+        
+    }
+    
+    class Record: Equatable {
+        let title: String?
+        let subtitle: String?
+        let details: String?
+        let image: UIImage
+        let imageDigest: String
+        
+        fileprivate init(image: UIImage, imageDigest: String) {
+            self.title = nil
+            self.subtitle = nil
+            self.details = nil
             self.image = image
+            self.imageDigest = imageDigest
         }
         
-        static func == (lhs: Product, rhs: Product) -> Bool {
-            return lhs.name == rhs.name
-            && lhs.location == rhs.location
-            && lhs.price == rhs.price
+        fileprivate init(title: String, subtitle: String, details: String, image: UIImage, imageDigest: String) {
+            self.title = title
+            self.subtitle = subtitle
+            self.details = details
+            self.image = image
+            self.imageDigest = imageDigest
+        }
+        
+        static func == (lhs: Record, rhs: Record) -> Bool {
+            return lhs.title == rhs.title
+            && lhs.subtitle == rhs.subtitle
+            && lhs.details == rhs.details
+            && lhs.imageDigest == rhs.imageDigest
         }
     }
     
@@ -449,13 +511,13 @@ class Database {
         ]
 
         
-        // Write data to database.
+        // Write product data to database.
         for (_, var productData) in productsData.enumerated() {
             // Create a document
             let id = productData.removeValue(forKey: "id") as? String
             let document = MutableDocument(id: id, data: productData)
             
-            // If the data has an emoji string, convert it to an image and add it to the document.
+            // If the data has an emoji property, convert it to an image and add it to the document.
             var image: UIImage? = nil
             if let emoji = document["emoji"].string {
                 image = self.image(from: emoji)
@@ -465,10 +527,48 @@ class Database {
             }
             try! collection.save(document: document)
             
-            // If the data document has an image, generate an embedding and update the document.
+            // If document has an image, generate an embedding and update the document.
             if let image = image {
                 DispatchQueue.global().async(qos: .userInitiated) {
                     if let embedding = AI.shared.embedding(for: image, attention: .none) {
+                        document["embedding"].array = MutableArrayObject(data: embedding)
+                        try! collection.save(document: document)
+                    }
+                }
+            }
+        }
+        
+        let bookingsData: [[String: Any]] = [
+            // Airline
+            ["id": "booking:1", "type": "booking", "face": "use-cases/airline-customer", "booking": "use-cases/airline-booking"],
+            // Hotel
+            ["id": "booking:2", "type": "booking", "face": "use-cases/hotel-customer", "booking": "use-cases/hotel-booking"],
+        ]
+        
+        
+        // Write booking data to database.
+        for (_, var bookingData) in bookingsData.enumerated() {
+            // Create a document
+            let id = bookingData.removeValue(forKey: "id") as? String
+            let face = bookingData.removeValue(forKey: "face") as? String
+            let booking = bookingData.removeValue(forKey: "booking") as? String
+            let document = MutableDocument(id: id, data: bookingData)
+            
+            // If the data has an image property, load the image from the assets and add it to the document.
+            if let imageName = booking,
+               let image = UIImage(named: imageName),
+               let pngData = image.pngData()
+            {
+                document["image"].blob = Blob(contentType: "image/png", data: pngData)
+            }
+            try! collection.save(document: document)
+            
+            // If the data has a face property, load the image from the assets, generate an embedding, and update the document.
+            if let imageName = face,
+               let image = UIImage(named: imageName)
+            {
+                DispatchQueue.global().async(qos: .userInitiated) {
+                    if let embedding = AI.shared.embedding(for: image, attention: .faces) {
                         document["embedding"].array = MutableArrayObject(data: embedding)
                         try! collection.save(document: document)
                     }
@@ -479,7 +579,7 @@ class Database {
     
     private func image(from string: String) -> UIImage {
         let nsString = string as NSString
-        let font = UIFont.systemFont(ofSize: 160)
+        let font = UIFont.systemFont(ofSize: 56)
         let stringAttributes = [NSAttributedString.Key.font: font]
         let textSize = nsString.size(withAttributes: stringAttributes)
         let squareSize = max(textSize.width, textSize.height)
@@ -508,7 +608,11 @@ class Database {
         
         // Add to cart and cart total
         print("Cart total before adding product: \(cartTotal)")
-        addToCart(product: Product(name: "Broccoli", price: 1.69, location: "Aisle 1", image: image(from: "🥦")))
+        let image = image(from: "🥦")
+        let imageData = image.pngData()!
+        let blob = Blob(contentType: "image/png", data: imageData)
+        let imageDigest = blob.digest!
+        addToCart(product: Product(name: "Broccoli", price: 1.69, location: "Aisle 1", image: image, imageDigest: imageDigest))
         print("Cart total after adding product: \(cartTotal)")
         print()
         
