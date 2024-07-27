@@ -140,7 +140,6 @@ class RecordsViewController: UIViewController {
         
         Haptics.shared.generateSelectionFeedback()
         Database.shared.addToCart(product: selectedProduct)
-        self.records = []
         
         beginning?()
         
@@ -152,6 +151,8 @@ class RecordsViewController: UIViewController {
             self.navigationController?.navigationBar.setNeedsLayout()
             completion?()
         }
+        
+        self.records = []
     }
     
     @IBAction func cancel(_ sender: UIButton) {

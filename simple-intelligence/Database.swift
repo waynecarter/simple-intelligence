@@ -49,7 +49,15 @@ class Database {
             
             // If the database isn't up to date with the latest demo
             // data then delete and recreate it
-            if (try! collection.document(id: "booking:1") ?? nil) == nil {
+            var isLatest = false
+            if let doc = try? collection.document(id: "product:1"),
+               let imageData = doc["image"].blob?.content,
+               let image = UIImage(data: imageData),
+               image.size.width == 1206
+            {
+                isLatest = true
+            }
+            if !isLatest {
                 try! database.delete()
                 database = try! CouchbaseLiteSwift.Database(name: "demo")
                 collection = try! database.defaultCollection()
@@ -113,7 +121,7 @@ class Database {
             defer { dispatchGroup.leave() }
             
             if let embedding = AI.shared.embedding(for: image, attention: .faces) {
-                let searchResults = self.search(vector: embedding, maxDistance: 0.08)
+                let searchResults = self.search(vector: embedding, maxDistance: 0.1)
                 faceSearchResults = searchResults
             }
         }
@@ -454,62 +462,20 @@ class Database {
     
     private func loadDemoData(in collection: CouchbaseLiteSwift.Collection) {
         let productsData: [[String: Any]] = [
-            // Vegetables
-            ["id": "product:1", "type": "product", "barcode": "000000000001", "name": "Hot Pepper", "emoji": "🌶️", "color": "red", "category": "Produce", "price": 0.99, "location": "Aisle 1"],
-            ["id": "product:2", "type": "product", "barcode": "000000000002", "name": "Carrot", "emoji": "🥕", "color": "orange", "category": "Produce", "price": 0.79, "location": "Aisle 1"],
-            ["id": "product:3", "type": "product", "barcode": "000000000003", "name": "Lettuce", "emoji": "🥬", "color": "green", "category": "Produce", "price": 1.49, "location": "Aisle 1"],
-            ["id": "product:4", "type": "product", "barcode": "000000000004", "name": "Broccoli", "emoji": "🥦", "color": "green", "category": "Produce", "price": 1.69, "location": "Aisle 1"],
-            ["id": "product:5", "type": "product", "barcode": "000000000005", "name": "Cucumber", "emoji": "🥒", "color": "green", "category": "Produce", "price": 0.99, "location": "Aisle 1"],
-            ["id": "product:6", "type": "product", "barcode": "000000000006", "name": "Salad", "emoji": "🥗", "color": "green", "category": "Produce", "price": 2.99, "location": "Aisle 1"],
-            ["id": "product:7", "type": "product", "barcode": "000000000007", "name": "Corn", "emoji": "🌽", "color": "yellow", "category": "Produce", "price": 0.50, "location": "Aisle 1"],
-            ["id": "product:8", "type": "product", "barcode": "000000000008", "name": "Potato", "emoji": "🥔", "color": "brown", "category": "Produce", "price": 0.99, "location": "Aisle 1"],
-            ["id": "product:9", "type": "product", "barcode": "000000000009", "name": "Garlic", "emoji": "🧄", "color": "brown", "category": "Produce", "price": 0.50, "location": "Aisle 1"],
-            ["id": "product:10", "type": "product", "barcode": "000000000010", "name": "Onion", "emoji": "🧅", "color": "brown", "category": "Produce", "price": 0.79, "location": "Aisle 1"],
-            ["id": "product:11", "type": "product", "barcode": "000000000011", "name": "Tomato", "emoji": "🍅", "color": "red", "category": "Produce", "price": 1.29, "location": "Aisle 1"],
-            ["id": "product:12", "type": "product", "barcode": "000000000012", "name": "Bell Pepper", "emoji": "🫑", "color": "green", "category": "Produce", "price": 0.99, "location": "Aisle 1"],
-            // Fruit
-            ["id": "product:13", "type": "product", "barcode": "000000000013", "name": "Cherries", "emoji": "🍒", "color": "red", "category": "Produce", "price": 3.99, "location": "Aisle 2"],
-            ["id": "product:14", "type": "product", "barcode": "000000000014", "name": "Strawberry", "emoji": "🍓", "color": "red", "category": "Produce", "price": 2.99, "location": "Aisle 2"],
-            ["id": "product:15", "type": "product", "barcode": "000000000015", "name": "Grapes", "emoji": "🍇", "color": "purple", "category": "Produce", "price": 2.49, "location": "Aisle 2"],
-            ["id": "product:16", "type": "product", "barcode": "000000000016", "name": "Red Apple", "emoji": "🍎", "color": "red", "category": "Produce", "price": 1.99, "location": "Aisle 2"],
-            ["id": "product:17", "type": "product", "barcode": "000000000017", "name": "Watermelon", "emoji": "🍉", "color": ["red", "green"], "category": "Produce", "price": 4.99, "location": "Aisle 2"],
-            ["id": "product:18", "type": "product", "barcode": "000000000018", "name": "Tangerine", "emoji": "🍊", "color": "orange", "category": "Produce", "price": 2.49, "location": "Aisle 2"],
-            ["id": "product:19", "type": "product", "barcode": "000000000019", "name": "Lemon", "emoji": "🍋", "color": "yellow", "category": "Produce", "price": 0.99, "location": "Aisle 2"],
-            ["id": "product:20", "type": "product", "barcode": "000000000020", "name": "Pineapple", "emoji": "🍍", "color": "yellow", "category": "Produce", "price": 2.99, "location": "Aisle 2"],
-            ["id": "product:21", "type": "product", "barcode": "000000000021", "name": "Banana", "emoji": "🍌", "color": "yellow", "category": "Produce", "price": 0.49, "location": "Aisle 2"],
-            ["id": "product:22", "type": "product", "barcode": "000000000022", "name": "Avocado", "emoji": "🥑", "color": ["green", "yellow"], "category": "Produce", "price": 1.49, "location": "Aisle 2"],
-            ["id": "product:23", "type": "product", "barcode": "000000000023", "name": "Green Apple", "emoji": "🍏", "color": "green", "category": "Produce", "price": 1.99, "location": "Aisle 2"],
-            ["id": "product:24", "type": "product", "barcode": "000000000024", "name": "Melon", "emoji": "🍈", "color": ["green", "yellow"], "category": "Produce", "price": 3.49, "location": "Aisle 2"],
-            ["id": "product:25", "type": "product", "barcode": "000000000025", "name": "Pear", "emoji": "🍐", "color": "green", "category": "Produce", "price": 1.49, "location": "Aisle 2"],
-            ["id": "product:26", "type": "product", "barcode": "000000000026", "name": "Kiwi", "emoji": "🥝", "color": "green", "category": "Produce", "price": 1.99, "location": "Aisle 2"],
-            ["id": "product:27", "type": "product", "barcode": "000000000027", "name": "Mango", "emoji": "🥭", "color": ["red", "yellow", "green"], "category": "Produce", "price": 1.99, "location": "Aisle 2"],
-            ["id": "product:28", "type": "product", "barcode": "000000000028", "name": "Coconut", "emoji": "🥥", "color": ["brown", "white"], "category": "Produce", "price": 2.49, "location": "Aisle 2"],
-            ["id": "product:29", "type": "product", "barcode": "000000000029", "name": "Blueberries", "emoji": "🫐", "color": "blue", "category": "Produce", "price": 3.99, "location": "Aisle 2"],
-            ["id": "product:30", "type": "product", "barcode": "000000000030", "name": "Ginger Root", "emoji": "🫚", "color": "brown", "category": "Produce", "price": 0.89, "location": "Aisle 2"],
-            // Bakery
-            ["id": "product:31", "type": "product", "barcode": "000000000031", "name": "Cake", "emoji": "🍰", "color": ["yellow", "white"], "category": "Bakery", "price": 5.99, "location": "Aisle 3"],
-            ["id": "product:32", "type": "product", "barcode": "000000000032", "name": "Cookie", "emoji": "🍪", "color": "brown", "category": "Bakery", "price": 2.99, "location": "Aisle 3"],
-            ["id": "product:33", "type": "product", "barcode": "000000000033", "name": "Doughnut", "emoji": "🍩", "color": "brown", "category": "Bakery", "price": 1.99, "location": "Aisle 3"],
-            ["id": "product:34", "type": "product", "barcode": "000000000034", "name": "Cupcake", "emoji": "🧁", "color": ["yellow", "white"], "category": "Bakery", "price": 2.99, "location": "Aisle 3"],
-            ["id": "product:35", "type": "product", "barcode": "000000000035", "name": "Bagel", "emoji": "🥯", "color": "brown", "category": "Bakery", "price": 1.49, "location": "Aisle 3"],
-            ["id": "product:36", "type": "product", "barcode": "000000000036", "name": "Bread", "emoji": "🍞", "color": "brown", "category": "Bakery", "price": 2.99, "location": "Aisle 3"],
-            ["id": "product:37", "type": "product", "barcode": "000000000037", "name": "Baguette", "emoji": "🥖", "color": "brown", "category": "Bakery", "price": 2.49, "location": "Aisle 3"],
-            ["id": "product:38", "type": "product", "barcode": "000000000038", "name": "Pretzel", "emoji": "🥨", "color": "brown", "category": "Bakery", "price": 1.99, "location": "Aisle 3"],
-            ["id": "product:39", "type": "product", "barcode": "000000000039", "name": "Croissant", "emoji": "🥐", "color": "brown", "category": "Bakery", "price": 1.89, "location": "Aisle 3"],
-            // Dairy
-            ["id": "product:40", "type": "product", "barcode": "000000000040", "name": "Cheese", "emoji": "🧀", "color": "yellow", "category": "Dairy", "price": 3.99, "location": "Aisle 4"],
-            ["id": "product:41", "type": "product", "barcode": "000000000041", "name": "Butter", "emoji": "🧈", "color": "yellow", "category": "Dairy", "price": 2.99, "location": "Aisle 4"],
-            ["id": "product:42", "type": "product", "barcode": "000000000042", "name": "Ice Cream", "emoji": "🍨", "color": ["white", "brown"], "category": "Dairy", "price": 4.99, "location": "Aisle 4"],
+            // Food
+            ["id": "product:1", "type": "product", "name": "Lettuce", "image": "demo-images/lettuce", "category": "Food", "price": 1.49, "location": "Aisle 1"],
+            ["id": "product:2", "type": "product", "name": "Hot Pepper", "image": "demo-images/hot-pepper", "category": "Food", "price": 0.99, "location": "Aisle 1"],
+            ["id": "product:3", "type": "product", "name": "Grapes", "image": "demo-images/grapes", "category": "Food", "price": 2.49, "location": "Aisle 1"],
+            ["id": "product:4", "type": "product", "name": "Doughnut", "image": "demo-images/doughnut", "category": "Food", "price": 1.99, "location": "Aisle 1"],
             // Home
-            ["id": "product:43", "type": "product", "barcode": "000000000043", "name": "Bolt", "emoji": "🔩", "color": "silver", "category": "Home", "price": 0.50, "location": "Aisle 5"],
-            ["id": "product:44", "type": "product", "barcode": "000000000044", "name": "Hammer", "emoji": "🔨", "color": "black", "category": "Home", "price": 15.99, "location": "Aisle 5"],
-            ["id": "product:45", "type": "product", "barcode": "000000000045", "name": "Wrench", "emoji": "🔧", "color": "silver", "category": "Home", "price": 14.99, "location": "Aisle 5"],
+            ["id": "product:5", "type": "product", "name": "Bolt", "image": "demo-images/bolt", "category": "Home", "price": 0.50, "location": "Aisle 2"],
+            ["id": "product:6", "type": "product", "name": "Hammer", "image": "demo-images/hammer", "category": "Home", "price": 15.99, "location": "Aisle 2", "barcode": "000000000044"],
+            ["id": "product:7", "type": "product", "name": "Wrench", "image": "demo-images/wrench", "category": "Home", "price": 14.99, "location": "Aisle 2"],
             // Office
-            ["id": "product:46", "type": "product", "barcode": "000000000046", "name": "Scissors", "emoji": "✂️", "color": "red", "category": "Office", "price": 12.99, "location": "Aisle 6"],
-            ["id": "product:47", "type": "product", "barcode": "000000000047", "name": "Paper Clip", "emoji": "📎", "color": "silver", "category": "Office", "price": 2.99, "location": "Aisle 6"],
-            ["id": "product:48", "type": "product", "barcode": "000000000048", "name": "Push Pin", "emoji": "📌", "color": "red", "category": "Office", "price": 3.49, "location": "Aisle 6"]
+            ["id": "product:8", "type": "product", "name": "Scissors", "image": "demo-images/scissors", "category": "Office", "price": 12.99, "location": "Aisle 3", "barcode": "000000000046"],
+            ["id": "product:9", "type": "product", "name": "Paper Clip", "image": "demo-images/paperclip", "category": "Office", "price": 2.99, "location": "Aisle 3"],
+            ["id": "product:10", "type": "product", "name": "Push Pin", "image": "demo-images/pushpin", "category": "Office", "price": 3.49, "location": "Aisle 3"]
         ]
-
         
         // Write product data to database.
         for (_, var productData) in productsData.enumerated() {
@@ -517,45 +483,39 @@ class Database {
             let id = productData.removeValue(forKey: "id") as? String
             let document = MutableDocument(id: id, data: productData)
             
-            // If the data has an emoji property, convert it to an image and add it to the document.
-            var image: UIImage? = nil
-            if let emoji = document["emoji"].string {
-                image = self.image(from: emoji)
-                if let pngData = image?.pngData() {
-                    document["image"].blob = Blob(contentType: "image/png", data: pngData)
-                }
-            }
-            try! collection.save(document: document)
-            
-            // If document has an image, generate an embedding and update the document.
-            if let image = image {
+            // If the data has an image property with a string value, convert it to an image
+            // from the app assets
+            if let imageName = document["image"].string,
+               let image = UIImage(named: "\(imageName)"),
+               let pngData = image.pngData()
+            {
                 DispatchQueue.global().async(qos: .userInitiated) {
                     if let embedding = AI.shared.embedding(for: image, attention: .none) {
+                        document["image"].blob = Blob(contentType: "image/png", data: pngData)
                         document["embedding"].array = MutableArrayObject(data: embedding)
                         try! collection.save(document: document)
                     }
                 }
             }
+            try! collection.save(document: document)
         }
         
         let bookingsData: [[String: Any]] = [
             // Airline
-            ["id": "booking:1", "type": "booking", "face": "use-cases/airline-customer", "booking": "use-cases/airline-booking"],
+            ["id": "booking:1", "type": "booking", "face": "demo-images/airline-customer", "image": "demo-images/airline-booking"],
             // Hotel
-            ["id": "booking:2", "type": "booking", "face": "use-cases/hotel-customer", "booking": "use-cases/hotel-booking"],
+            ["id": "booking:2", "type": "booking", "face": "demo-images/hotel-customer", "image": "demo-images/hotel-booking"]
         ]
-        
         
         // Write booking data to database.
         for (_, var bookingData) in bookingsData.enumerated() {
             // Create a document
             let id = bookingData.removeValue(forKey: "id") as? String
-            let face = bookingData.removeValue(forKey: "face") as? String
-            let booking = bookingData.removeValue(forKey: "booking") as? String
             let document = MutableDocument(id: id, data: bookingData)
             
-            // If the data has an image property, load the image from the assets and add it to the document.
-            if let imageName = booking,
+            // If the data has an image property with a string value, convert it to an image
+            // from the app assets
+            if let imageName = document["image"].string,
                let image = UIImage(named: imageName),
                let pngData = image.pngData()
             {
@@ -563,34 +523,20 @@ class Database {
             }
             try! collection.save(document: document)
             
-            // If the data has a face property, load the image from the assets, generate an embedding, and update the document.
-            if let imageName = face,
+            // If the data has a face property, load the image from the assets, generate an
+            // embedding, and update the document
+            if let imageName = document["face"].string,
                let image = UIImage(named: imageName)
             {
                 DispatchQueue.global().async(qos: .userInitiated) {
                     if let embedding = AI.shared.embedding(for: image, attention: .faces) {
+                        document.removeValue(forKey: "face")
                         document["embedding"].array = MutableArrayObject(data: embedding)
                         try! collection.save(document: document)
                     }
                 }
             }
         }
-    }
-    
-    private func image(from string: String) -> UIImage {
-        let nsString = string as NSString
-        let font = UIFont.systemFont(ofSize: 56)
-        let stringAttributes = [NSAttributedString.Key.font: font]
-        let textSize = nsString.size(withAttributes: stringAttributes)
-        let squareSize = max(textSize.width, textSize.height)
-
-        let renderer = UIGraphicsImageRenderer(size: CGSize(width: squareSize, height: squareSize))
-        let image = renderer.image { context in
-            let rect = CGRect(x: (squareSize - textSize.width) / 2, y: (squareSize - textSize.height) / 2, width: textSize.width, height: textSize.height)
-            nsString.draw(in: rect, withAttributes: stringAttributes)
-        }
-
-        return image
     }
     
     // MARK: - Testing
@@ -601,18 +547,18 @@ class Database {
         print()
         
         // Vector search
-        if let embedding = AI.shared.embedding(for: image(from: "🫑")) {
+        if let embedding = AI.shared.embedding(for: UIImage(named: "demo-images/hot-pepper")!) {
             print("Full text search: \(self.search(vector: embedding))")
             print()
         }
         
         // Add to cart and cart total
         print("Cart total before adding product: \(cartTotal)")
-        let image = image(from: "🥦")
+        let image = UIImage(named: "demo-images/hot-pepper")!
         let imageData = image.pngData()!
         let blob = Blob(contentType: "image/png", data: imageData)
         let imageDigest = blob.digest!
-        addToCart(product: Product(name: "Broccoli", price: 1.69, location: "Aisle 1", image: image, imageDigest: imageDigest))
+        addToCart(product: Product(name: "Hot Pepper", price: 099, location: "Aisle 1", image: image, imageDigest: imageDigest))
         print("Cart total after adding product: \(cartTotal)")
         print()
         

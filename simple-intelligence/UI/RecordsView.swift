@@ -52,7 +52,6 @@ class RecordsView: UIView {
         
         // Show the initial details and prepare the layout so that the layout will be correct
         showDetails(for: selectedRecord)
-        collectionView.collectionViewLayout.prepare()
     }
     
     var records: [Database.Record] {
@@ -110,7 +109,7 @@ class RecordsView: UIView {
     class CollectionView: UICollectionView, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
         
         init() {
-            super.init(frame: .zero, collectionViewLayout: FlowLayout())
+            super.init(frame: .zero, collectionViewLayout: CollectionViewLayout())
             setup()
         }
         
@@ -128,9 +127,8 @@ class RecordsView: UIView {
         
         var records: [Database.Record] = [] {
             didSet {
-                self.collectionViewLayout.prepare()
                 self.reloadData()
-                updateSelectedRecord()
+                updateSelectedIndexPath()
             }
         }
         
@@ -148,59 +146,56 @@ class RecordsView: UIView {
         
         // MARK: - Selected Item
         
-        @Published var selectedRecord: Database.Record?
-        
+        @Published private(set) var selectedRecord: Database.Record?
+
         var selectedCell: Cell? {
-            let selectedCell: Cell?
-            if let selectedItemIndexPath = self.selectedItemIndexPath {
-                selectedCell = cellForItem(at: selectedItemIndexPath) as? Cell
-            } else {
-                selectedCell = nil
-            }
-            
-            return selectedCell
+            guard let selectedIndexPath else { return nil }
+            return cellForItem(at: selectedIndexPath) as? CollectionView.Cell
         }
         
-        private var selectedItemIndexPath: IndexPath? {
-            if records.count > 0 {
-                let layout = collectionViewLayout as! UICollectionViewFlowLayout
-                let contentOffsetX = self.contentOffset.x
-                let itemWidth = layout.itemSize.width + layout.minimumLineSpacing
-                let itemIndex = Int(round(contentOffsetX / itemWidth))
-                let clampedItemIndex = min(max(0, itemIndex), records.count - 1)
-                
-                return IndexPath(item: clampedItemIndex, section: 0)
-            }
-            
-            return nil
-        }
-        
-        private func updateSelectedRecord() {
-            if records.count == 0 {
-                self.selectedRecord = nil
-            } else {
-                let selectedRecord: Database.Record
-                if let selectedItemIndexPath = self.selectedItemIndexPath {
-                    selectedRecord = records[selectedItemIndexPath.item]
-                } else {
-                    selectedRecord = records[0]
-                }
-                
-                if selectedRecord != self.selectedRecord {
-                    self.selectedRecord = selectedRecord
-                    
-                    if self.isDragging || self.isTracking {
-                        generateSelectionFeedback()
+        private(set) var selectedIndexPath: IndexPath? {
+            didSet {
+                if let selectedIndexPath {
+                    let newSelectedRecord = records[selectedIndexPath.item]
+                    if selectedRecord != newSelectedRecord {
+                        selectedRecord = newSelectedRecord
                     }
+                } else {
+                    self.selectedRecord = records.count > 0 ? records[0] : nil
+                }
+            }
+        }
+        
+        private func updateSelectedIndexPath() {
+            if records.count == 0 {
+                selectedIndexPath = nil
+            } else {
+                if records.count > 0 {
+                    let layout = collectionViewLayout as! CollectionViewLayout
+                    let contentOffsetX = self.contentOffset.x
+                    let itemWidth = layout.itemSize.width
+                    let itemIndex = Int(round(contentOffsetX / itemWidth))
+                    let clampedItemIndex = min(max(0, itemIndex), records.count - 1)
+                    
+                    selectedIndexPath = IndexPath(item: clampedItemIndex, section: 0)
+                } else {
+                    selectedIndexPath = nil
                 }
             }
         }
         
         func scrollViewDidScroll(_ scrollView: UIScrollView) {
-            updateSelectedRecord()
+            let oldSelectedIndexPath = selectedIndexPath
+            updateSelectedIndexPath()
+            let newSelectedIndexPath = selectedIndexPath
+            
+            // Generated feedback when the selected index path changes while dragging
+            if oldSelectedIndexPath != newSelectedIndexPath, self.isDragging || self.isTracking {
+                generateSelectionFeedback()
+            }
         }
         
-        // MARK: - Haptic Feedback
+        // MARK: - Haptic Feedbackb
         
         private let selectionFeedbackGenerator = UISelectionFeedbackGenerator()
         
@@ -211,69 +206,144 @@ class RecordsView: UIView {
         
         // MARK: - Layout
         
-        private class FlowLayout: UICollectionViewFlowLayout {
+        private class CollectionViewLayout: UICollectionViewLayout {
+            private var contentSize: CGSize = .zero
+            
+            var itemSize: CGSize = .zero
+            private var itemLayoutAttributes : [IndexPath: UICollectionViewLayoutAttributes] = [:]
+            
+            override var collectionView: CollectionView {
+                get { super.collectionView as! CollectionView }
+            }
+            
+            override var collectionViewContentSize: CGSize {
+                return contentSize
+            }
+            
+            private func itemSize(for bounds: CGRect) -> CGSize {
+                // Item width
+                let containerSize = bounds.size
+                let numberOfItemsPerPage: Int
+                if collectionView.records.count == 1, collectionView.selectedRecord is Database.Booking {
+                    // For bookings show the item full screen
+                    numberOfItemsPerPage = 1
+                } else {
+                    // Otherwise show the item sized to for more than one item on screen at a time
+                    let collectionViewHeightToWidthRatio = containerSize.height / containerSize.width
+                    numberOfItemsPerPage = collectionViewHeightToWidthRatio <= 0.4 ? 4 : 2
+                }
+                let itemWidth = containerSize.width / CGFloat(numberOfItemsPerPage)
+                
+                // Item size
+                let recordsView = collectionView.superview as! RecordsView
+                let detailsLabelSize = recordsView.detailsLabel.frame.size
+                let itemHeight = containerSize.height - detailsLabelSize.height
+                let itemSize = CGSize(width: max(itemWidth, 0), height: max(itemHeight, 0))
+                
+                return itemSize
+            }
+            
             override func prepare() {
                 super.prepare()
                 
-                let collectionView = collectionView!
-                let collectionViewSize = collectionView.bounds.size
-                let recordsView = collectionView.superview as! RecordsView
-                let detailsLabelSize = recordsView.detailsLabel.frame.size
-                
-                // Item width
-                let itemWidth: CGFloat
-                if recordsView.records.count == 1, let firstRecord = recordsView.records.first {
-                    // When we have only one record, size the item as large as possible
-                    if collectionViewSize.width > 1300 {
-                        itemWidth = min(collectionViewSize.width * 0.4, firstRecord.image.size.width * 1.5)
-                    } else if collectionViewSize.width > 1000 {
-                        itemWidth = min(collectionViewSize.width * 0.5, firstRecord.image.size.width * 1.5)
-                    } else {
-                        itemWidth = min(collectionViewSize.width * 0.8, firstRecord.image.size.width)
-                    }
-                } else {
-                    // When we have more than one record, size the items to show multiple on screen at once
-                    let numberOfItems: Int
-                    if UIDevice.current.userInterfaceIdiom == .pad {
-                        if collectionView.bounds.height < 500 {
-                            numberOfItems = 5
-                        } else {
-                            numberOfItems = 4
-                        }
-                    } else {
-                        numberOfItems = 2
-                    }
-                    
-                    itemWidth = collectionViewSize.width / CGFloat(numberOfItems)
-                }
-                
-                // Section inset
-                let horizontalInset = (collectionViewSize.width / 2) - (itemWidth / 2)
-                sectionInset = UIEdgeInsets(top: 8, left: horizontalInset, bottom: detailsLabelSize.height + 8, right: horizontalInset)
-                
                 // Item size
-                let itemHeight = collectionViewSize.height - sectionInset.top - sectionInset.bottom
-                if itemWidth > 0, itemHeight > 0 {
-                    itemSize = CGSize(width: itemWidth, height: itemHeight)
+                itemSize = itemSize(for: collectionView.bounds)
+                
+                // Left and right inset
+                let xInset = (collectionView.bounds.width / 2) - (itemSize.width / 2)
+                
+                // Update item layout attributes
+                itemLayoutAttributes.removeAll()
+                let numberOfItems = collectionView.numberOfItems(inSection: 0)
+                for item in 0..<numberOfItems {
+                    let indexPath = IndexPath(item: item, section: 0)
+                    
+                    let attributes = UICollectionViewLayoutAttributes.init(forCellWith: indexPath)
+                    let x = xInset + (CGFloat(item) * itemSize.width)
+                    attributes.frame = CGRect(x: x, y: 0, width: itemSize.width, height: itemSize.height)
+                    itemLayoutAttributes[indexPath] = attributes
                 }
                 
-                // Scroll direction
-                scrollDirection = .horizontal
-                
-                // Spacing
-                minimumLineSpacing = 0
-                minimumInteritemSpacing = 0
+                // Content size
+                let contentWidth = xInset + (CGFloat(numberOfItems) * itemSize.width) + xInset
+                contentSize = CGSize(width: max(contentWidth, collectionView.bounds.width), height: collectionView.bounds.height)
             }
             
-            override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
-                return true
+            override func layoutAttributesForItem(at indexPath: IndexPath) -> UICollectionViewLayoutAttributes? {
+                return itemLayoutAttributes[indexPath]
+            }
+            
+            override func layoutAttributesForElements(in rect: CGRect) -> [UICollectionViewLayoutAttributes]? {
+                var layoutAttributes = [UICollectionViewLayoutAttributes]()
+                itemLayoutAttributes.forEach { (key: IndexPath, layoutAttribute: UICollectionViewLayoutAttributes) in
+                    if layoutAttribute.frame.intersects(rect) {
+                        layoutAttributes.append(layoutAttribute)
+                    }
+                }
+                
+                return layoutAttributes
             }
             
             override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint, withScrollingVelocity velocity: CGPoint) -> CGPoint {
-                let itemWidth = itemSize.width + minimumLineSpacing
+                let itemWidth = itemSize.width
                 let itemIndex = round(proposedContentOffset.x / itemWidth)
                 let newOffsetX = itemWidth * CGFloat(itemIndex)
                 return CGPoint(x: newOffsetX, y: proposedContentOffset.y)
+            }
+            
+            // MARK: - Changing Bounds
+            
+            private var isChangingSize: Bool = false
+            private var oldSelectedIndexPath: IndexPath?
+            
+            override func prepare(forAnimatedBoundsChange oldBounds: CGRect) {
+                super.prepare(forAnimatedBoundsChange: oldBounds)
+                trackChangingBounds(oldBounds: oldBounds, newBounds: collectionView.bounds)
+            }
+            
+            override func targetContentOffset(forProposedContentOffset proposedContentOffset: CGPoint) -> CGPoint {
+                var targetContentOffset = proposedContentOffset
+                
+                // If the size is changing, return the offset for the old selected index path
+                if self.isChangingSize, let selectedIndexPath = oldSelectedIndexPath {
+                    let itemSize = itemSize(for: collectionView.bounds)
+                    let xOffset = CGFloat(selectedIndexPath.item) * itemSize.width
+                    targetContentOffset = CGPoint(x: xOffset, y: 0)
+                }
+                
+                return targetContentOffset
+            }
+            
+            override func finalizeAnimatedBoundsChange() {
+                super.finalizeAnimatedBoundsChange()
+                stopTrackingChangingBounds()
+            }
+            
+            override func shouldInvalidateLayout(forBoundsChange newBounds: CGRect) -> Bool {
+                super.shouldInvalidateLayout(forBoundsChange: newBounds)
+                
+                // Track changing bounds and selected index path before the change
+                trackChangingBounds(oldBounds: collectionView.bounds, newBounds: newBounds, selectedIndexPath: collectionView.selectedIndexPath)
+                
+                // When the bounds size changes, invalidate layout
+                let sizeChanged = collectionView.bounds.size != newBounds.size
+                return sizeChanged
+            }
+            
+            private func trackChangingBounds(oldBounds: CGRect, newBounds: CGRect, selectedIndexPath: IndexPath? = nil) {
+                // When the bounds size changes, start tracking changing bounds
+                if newBounds.size != oldBounds.size {
+                    self.isChangingSize = true
+                }
+                
+                if let selectedIndexPath {
+                    self.oldSelectedIndexPath = selectedIndexPath
+                }
+            }
+            
+            private func stopTrackingChangingBounds() {
+                self.isChangingSize = false
+                self.oldSelectedIndexPath = nil
             }
         }
         
@@ -305,10 +375,10 @@ class RecordsView: UIView {
                 contentView.addSubview(imageView)
                 
                 NSLayoutConstraint.activate([
-                    imageView.topAnchor.constraint(equalTo: contentView.topAnchor),
-                    imageView.leadingAnchor.constraint(equalTo: contentView.leadingAnchor, constant: 16),
-                    imageView.trailingAnchor.constraint(equalTo: contentView.trailingAnchor, constant: -16),
-                    imageView.bottomAnchor.constraint(equalTo: contentView.bottomAnchor)
+                    imageView.centerXAnchor.constraint(equalTo: contentView.centerXAnchor),
+                    imageView.centerYAnchor.constraint(equalTo: contentView.centerYAnchor),
+                    imageView.widthAnchor.constraint(equalTo: contentView.widthAnchor, multiplier: 0.8),
+                    imageView.heightAnchor.constraint(equalTo: contentView.heightAnchor, multiplier: 0.8)
                 ])
             }
         }
