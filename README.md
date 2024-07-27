@@ -53,11 +53,11 @@ The `Database.search(vector: [NSNumber])` function demonstrates the vector searc
 func search(vector: [NSNumber]) -> [Product] {
     // SQL
     let sql = """
-        SELECT name, price, location, image
+        SELECT name, price, location, image, APPROX_VECTOR_DISTANCE(image, $embedding) AS distance
         FROM products
-        WHERE VECTOR_MATCH(EmbeddingVectorIndex, $embedding, 10)
-          AND VECTOR_DISTANCE(EmbeddingVectorIndex) < 0.25
-        ORDER BY VECTOR_DISTANCE(EmbeddingVectorIndex), name
+        WHERE distance BETWEEN 0 AND 0.25
+        ORDER BY distance, name
+        LIMIT 10
     """
     
     // Create the query.

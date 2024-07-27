@@ -22,11 +22,11 @@ struct AI {
     
     // MARK: - Embedding
     
-    func embeddings(for image: UIImage, attention: Attention = .none) -> [[NSNumber]] {
+    func embeddings(for image: UIImage, attention: Attention = .none) -> [[Float]] {
         guard let cgImage = image.cgImage else { return [] }
         
         // Process the input image and generate the embeddings
-        var embeddings = [[NSNumber]]()
+        var embeddings = [[Float]]()
         let processedImages = process(cgImage: cgImage, attention: attention)
         for processedImage in processedImages {
             if let embedding = embedding(for: processedImage) {
@@ -37,11 +37,11 @@ struct AI {
         return embeddings
     }
     
-    func embedding(for image: UIImage, attention: Attention = .none) -> [NSNumber]? {
+    func embedding(for image: UIImage, attention: Attention = .none) -> [Float]? {
         guard let cgImage = image.cgImage else { return nil }
         
         // Process the input image and generate the embedding
-        var embedding: [NSNumber]?
+        var embedding: [Float]?
         if let processedImage = process(cgImage: cgImage, attention: attention).first {
             embedding = self.embedding(for: processedImage)
         }
@@ -49,7 +49,7 @@ struct AI {
         return embedding
     }
     
-    private func embedding(for cgImage: CGImage) -> [NSNumber]? {
+    private func embedding(for cgImage: CGImage) -> [Float]? {
         // Scale down the images to speed up processing and reduce feature details.
         let cgImage = fit(cgImage: cgImage, to: CGSize(width: 100, height: 100))
         
@@ -77,7 +77,7 @@ struct AI {
         let elementType = observation.elementType
         let elementCount = observation.elementCount
         let typeSize = VNElementTypeSize(elementType)
-        var embedding: [NSNumber]?
+        var embedding: [Float]?
         
         // Handle the different element types
         switch elementType {
@@ -85,14 +85,7 @@ struct AI {
             data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
                 let buffer = bytes.bindMemory(to: Float.self)
                 if buffer.count == elementCount {
-                    embedding = buffer.map { NSNumber(value: $0) }
-                }
-            }
-        case .double where typeSize == MemoryLayout<Double>.size:
-            data.withUnsafeBytes { (bytes: UnsafeRawBufferPointer) in
-                let buffer = bytes.bindMemory(to: Double.self)
-                if buffer.count == elementCount {
-                    embedding = buffer.map { NSNumber(value: $0) }
+                    embedding = buffer.map { $0 }
                 }
             }
         default:

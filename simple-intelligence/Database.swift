@@ -43,6 +43,9 @@ class Database {
         var collection: CouchbaseLiteSwift.Collection
         
         if isDemoEnabled {
+            // Enable the vector search extension
+            try! CouchbaseLiteSwift.Extension.enableVectorSearch()
+            
             // Setup the demo database
             database = try! CouchbaseLiteSwift.Database(name: "demo")
             collection = try! database.defaultCollection()
@@ -50,11 +53,7 @@ class Database {
             // If the database isn't up to date with the latest demo
             // data then delete and recreate it
             var isLatest = false
-            if let doc = try? collection.document(id: "product:1"),
-               let imageData = doc["image"].blob?.content,
-               let image = UIImage(data: imageData),
-               image.size.width == 1206
-            {
+            if let _ = try? collection.index(withName: "FaceVectorIndex") {
                 isLatest = true
             }
             if !isLatest {
@@ -80,14 +79,23 @@ class Database {
         let barcodeIndex = ValueIndexConfiguration(["barcode"])
         try! collection.createIndex(withName: "BarcodeIndex", config: barcodeIndex)
         
-        // Initialize the vector index on the "embedding" field for image search.
-        var vectorIndex = VectorIndexConfiguration(expression: "embedding", dimensions: 768, centroids: 2)
-        vectorIndex.metric = .cosine
-        try! collection.createIndex(withName: "EmbeddingVectorIndex", config: vectorIndex)
+        // Initialize the vector index on the "image" field for image search.
+        var imageVectorIndex = VectorIndexConfiguration(expression: "image", dimensions: 768, centroids: 2)
+        imageVectorIndex.metric = .cosine
+        imageVectorIndex.isLazy = true
+        try! collection.createIndex(withName: "ImageVectorIndex", config: imageVectorIndex)
+        
+        // Initialize the vector index on the "face" field for image search.
+        var faceVectorIndex = VectorIndexConfiguration(expression: "face", dimensions: 768, centroids: 2)
+        faceVectorIndex.metric = .cosine
+        faceVectorIndex.isLazy = true
+        try! collection.createIndex(withName: "FaceVectorIndex", config: faceVectorIndex)
         
         // Initialize the full-text search index on the "name" and "category" fields.
         let ftsIndex = FullTextIndexConfiguration(["name", "category"])
         try! collection.createIndex(withName: "NameAndCategoryFullTextIndex", config: ftsIndex)
+        
+        setupAsyncIndexing(for: collection)
         
         self.database = database
         self.collection = collection
@@ -103,154 +111,54 @@ class Database {
     func search(image: UIImage) -> [Record] {
         let dispatchGroup = DispatchGroup()
         var barcodeSearchResults: [Product]?
-        var faceSearchResults: [Record]?
-        var embeddingSearchResults: [Record]?
+        var bookingSearchResults: [Booking]?
+        var productSearchResults: [Product]?
         
         // Perform barcode search in parallel
         dispatchGroup.enter()
         DispatchQueue.global(qos: .userInitiated).async {
             defer { dispatchGroup.leave() }
-            if let barcode = AI.shared.barcode(from: image), let product = self.search(barcode: barcode) {
+            if let barcode = AI.shared.barcode(from: image), let product = self.searchProducts(barcode: barcode) {
                 barcodeSearchResults = [product]
             }
         }
         
-        // Perform face search in parallel
+        // Perform booking search in parallel
         dispatchGroup.enter()
         DispatchQueue.global(qos: .userInitiated).async {
             defer { dispatchGroup.leave() }
             
-            if let embedding = AI.shared.embedding(for: image, attention: .faces) {
-                let searchResults = self.search(vector: embedding, maxDistance: 0.1)
-                faceSearchResults = searchResults
+            if let embedding = AI.shared.embedding(for: image, attention: .faces),
+               let booking = self.searchBookings(vector: embedding)
+            {
+                bookingSearchResults = [booking]
             }
         }
         
-        // Perform embedding search in parallel
+        // Perform product search in parallel
         dispatchGroup.enter()
         DispatchQueue.global(qos: .userInitiated).async {
             defer { dispatchGroup.leave() }
             
             let embeddings = AI.shared.embeddings(for: image, attention: .zoom(factors: [1, 2]))
             for embedding in embeddings {
-                let searchResults = self.search(vector: embedding)
-                guard searchResults.isEmpty else {
-                    embeddingSearchResults = searchResults
-                    break
-                }
+                productSearchResults = self.searchProducts(vector: embedding)
             }
         }
         
-        // Wait for parallel searches to complete
+        // Wait for parallel the searches to complete
         dispatchGroup.wait()
         
-        // Return barcode results if available, then face results, otherwise return embedding results
-        let searchResults = barcodeSearchResults ?? faceSearchResults ?? embeddingSearchResults ?? []
-        return searchResults
-    }
-    
-    private func search(vector: [NSNumber], maxDistance: Float = 0.25) -> [Record] {
-        // SQL
-        let sql = """
-            SELECT type, name, price, location, image, VECTOR_DISTANCE(EmbeddingVectorIndex) AS distance
-            FROM _
-            WHERE (type = "product" OR type = "booking")
-                AND VECTOR_MATCH(EmbeddingVectorIndex, $embedding, 10)
-                AND VECTOR_DISTANCE(EmbeddingVectorIndex) <= \(maxDistance)
-            ORDER BY VECTOR_DISTANCE(EmbeddingVectorIndex), name
-        """
-        
-        do {
-            // Create the query.
-            let query = try collection.database.createQuery(sql)
-            query.parameters = Parameters()
-                .setArray(MutableArrayObject(data: vector), forName: "embedding")
-            
-            // Execute the query and get the results.
-            let results = try query.execute()
-            
-            // Enumerate through the query results.
-            var records = [Record]()
-            var distances = [Double]()
-            for result in results {
-                if let type = result["type"].string,
-                   let imageData = result["image"].blob?.content,
-                   let imageDigest = result["image"].blob?.digest,
-                   let image = UIImage(data: imageData)
-                {
-                    let record: Record
-                    if type == "product",
-                       let name = result["name"].string,
-                       let price = result["price"].number,
-                       let location = result["location"].string
-                    {
-                        record = Product(name: name, price: price.doubleValue, location: location, image: image, imageDigest: imageDigest)
-                    } else {
-                        record = Booking(image: image, imageDigest: imageDigest)
-                    }
-                    records.append(record)
-                    
-                    let distance = result["distance"].number?.doubleValue ?? .greatestFiniteMagnitude
-                    distances.append(distance)
-                }
-            }
-            
-            // Post process and filter any matches that are too far away from the closest match.
-            var filteredRecords = [Record]()
-            let minimumDistance: Double = {
-                let minimumDistance = distances.min { a, b in a < b }
-                return minimumDistance ?? .greatestFiniteMagnitude
-            }()
-            for (index, distance) in distances.enumerated() {
-                if distance <= minimumDistance * 1.40 {
-                    let record = records[index]
-                    filteredRecords.append(record)
-                }
-            }
-            
-            return filteredRecords
-        } catch {
-            print("Database.search(vector:): \(error.localizedDescription)")
+        // Return barcode results if available, then booking results, otherwise return product results
+        if let barcodeSearchResults {
+            return barcodeSearchResults
+        } else if let bookingSearchResults {
+            return bookingSearchResults
+        } else if let productSearchResults {
+            return productSearchResults
+        } else {
             return []
         }
-    }
-    
-    private func search(barcode: String) -> Product? {
-        // SQL
-        let sql = """
-            SELECT name, price, location, image
-            FROM _
-            WHERE type = "product"
-                AND barcode = $barcode
-            LIMIT 1
-        """
-        
-        do {
-            // Create the query
-            let query = try collection.database.createQuery(sql)
-            query.parameters = Parameters()
-                .setString(barcode, forName: "barcode")
-            
-            // Execute the query and get the results
-            let results = try query.execute()
-            
-            // Return the first search result
-            if let result = results.next(),
-               let name = result["name"].string,
-               let price = result["price"].number,
-               let location = result["location"].string,
-               let imageData = result["image"].blob?.content,
-               let imageDigest = result["image"].blob?.digest,
-               let image = UIImage(data: imageData)
-            {
-                let product = Product(name: name, price: price.doubleValue, location: location, image: image, imageDigest: imageDigest)
-                return product
-            }
-        } catch {
-            print("Database.search(barcode:): \(error.localizedDescription)")
-        }
-        
-        return nil
     }
     
     func search(string: String) -> [Product] {
@@ -264,7 +172,7 @@ class Database {
             SELECT name, price, location, image
             FROM _
             WHERE type = "product"
-                AND MATCH(NameAndCategoryFullTextIndex, $search)
+              AND MATCH(NameAndCategoryFullTextIndex, $search)
             ORDER BY RANK(NameAndCategoryFullTextIndex), name
         """
         
@@ -300,6 +208,197 @@ class Database {
             return []
         }
     }
+    
+    private func searchProducts(vector: [Float]) -> [Product] {
+        // SQL
+        let sql = """
+            SELECT name, price, location, image, APPROX_VECTOR_DISTANCE(image, $embedding) AS distance
+            FROM _
+            WHERE type = "product"
+              AND distance BETWEEN 0 AND 0.25
+            ORDER BY distance, name
+            LIMIT 10
+        """
+        
+        do {
+            // Create the query.
+            let query = try collection.database.createQuery(sql)
+            query.parameters = Parameters()
+                .setArray(MutableArrayObject(data: vector), forName: "embedding")
+            
+            // Execute the query and enumerate through the query results.
+            var products = [Product]()
+            var distances = [Double]()
+            for result in try query.execute() {
+                if let imageBlob = result["image"].blob,
+                   let imageData = imageBlob.content,
+                   let imageDigest = imageBlob.digest,
+                   let image = UIImage(data: imageData)
+                {
+                    if let name = result["name"].string,
+                       let price = result["price"].number,
+                       let location = result["location"].string
+                    {
+                        let product = Product(name: name, price: price.doubleValue, location: location, image: image, imageDigest: imageDigest)
+                        products.append(product)
+                        
+                        let distance = result["distance"].number?.doubleValue ?? .greatestFiniteMagnitude
+                        distances.append(distance)
+                    }
+                }
+            }
+            
+            // Post process and filter any matches that are too far away from the closest match.
+            var filteredProducts = [Product]()
+            let minimumDistance: Double = {
+                let minimumDistance = distances.min { a, b in a < b }
+                return minimumDistance ?? .greatestFiniteMagnitude
+            }()
+            for (index, distance) in distances.enumerated() {
+                if distance <= minimumDistance * 1.40 {
+                    let product = products[index]
+                    filteredProducts.append(product)
+                }
+            }
+            
+            return filteredProducts
+        } catch {
+            print("Database.searchProducts(vector:): \(error.localizedDescription)")
+            return []
+        }
+    }
+    
+    private func searchProducts(barcode: String) -> Product? {
+        // SQL
+        let sql = """
+            SELECT name, price, location, image
+            FROM _
+            WHERE type = "product"
+              AND barcode = $barcode
+            LIMIT 1
+        """
+        
+        do {
+            // Create the query
+            let query = try collection.database.createQuery(sql)
+            query.parameters = Parameters()
+                .setString(barcode, forName: "barcode")
+            
+            // Execute the query and return the first search result
+            if let result = try query.execute().next(),
+               let name = result["name"].string,
+               let price = result["price"].number,
+               let location = result["location"].string,
+               let imageData = result["image"].blob?.content,
+               let imageDigest = result["image"].blob?.digest,
+               let image = UIImage(data: imageData)
+            {
+                let product = Product(name: name, price: price.doubleValue, location: location, image: image, imageDigest: imageDigest)
+                return product
+            }
+        } catch {
+            print("Database.searchProducts(barcode:): \(error.localizedDescription)")
+        }
+        
+        return nil
+    }
+    
+    private func searchBookings(vector: [Float]) -> Booking? {
+        // SQL
+        let sql = """
+            SELECT image, APPROX_VECTOR_DISTANCE(face, $embedding) AS distance
+            FROM _
+            WHERE type = "booking"
+              AND distance BETWEEN 0 AND 0.1
+            ORDER BY distance
+            LIMIT 1
+        """
+        
+        do {
+            // Create the query.
+            let query = try collection.database.createQuery(sql)
+            query.parameters = Parameters()
+                .setArray(MutableArrayObject(data: vector), forName: "embedding")
+            
+            // Execute the query and and enumerate through the query results.
+            for result in try query.execute() {
+                if let imageBlob = result["image"].blob,
+                   let imageData = imageBlob.content,
+                   let imageDigest = imageBlob.digest,
+                   let image = UIImage(data: imageData)
+                {
+                    return Booking(image: image, imageDigest: imageDigest)
+                }
+            }
+            
+            return nil
+        } catch {
+            print("Database.searchBookings(faceVector:): \(error.localizedDescription)")
+            return nil
+        }
+    }
+    
+    // MARK: - Async Indexing
+    
+    private let asyncIndexQueue = DispatchQueue(label: "AsyncIndexUpdateQueue")
+    
+    private func setupAsyncIndexing(for collection: CouchbaseLiteSwift.Collection) {
+        // Immediately update the async indexes
+        asyncIndexQueue.async { [weak self] in
+            do {
+                try self?.updateAsyncIndexes(for: collection)
+            } catch {
+                print("Error updating async indexes: \(error)")
+            }
+        }
+        
+        // When the collection changes, update the async indexes
+        collection.addChangeListener { [weak self] _ in
+            self?.asyncIndexQueue.async {
+                do {
+                    try self?.updateAsyncIndexes(for: collection)
+                } catch {
+                    print("Error updating async indexes: \(error)")
+                }
+            }
+        }
+    }
+    
+    private func updateAsyncIndexes(for collection: CouchbaseLiteSwift.Collection) throws {
+        // Upate the images vector index
+        let imageVectorIndex = try collection.index(withName: "ImageVectorIndex")!
+        while (true) {
+            guard let indexUpdater = try imageVectorIndex.beginUpdate(limit: 10) else {
+                break // Up to date
+            }
+            
+            // Generate the new embedding and set it in the index
+            for i in 0..<indexUpdater.count {
+                if let data = indexUpdater.blob(at: i)?.content, let image = UIImage(data: data) {
+                    let embedding = AI.shared.embedding(for: image, attention: .none)
+                    try indexUpdater.setVector(embedding, at: i)
+                }
+            }
+            try indexUpdater.finish()
+        }
+        
+        // Upate the faces vector index
+        let faceVectorIndex = try collection.index(withName: "FaceVectorIndex")!
+        while (true) {
+            guard let indexUpdater = try faceVectorIndex.beginUpdate(limit: 10) else {
+                break // Up to date
+            }
+            
+            // Generate the new embedding and set it in the index
+            for i in 0..<indexUpdater.count {
+                if let data = indexUpdater.blob(at: i)?.content, let image = UIImage(data: data) {
+                    let embedding = AI.shared.embedding(for: image, attention: .faces)
+                    try indexUpdater.setVector(embedding, at: i)
+                }
+            }
+            try indexUpdater.finish()
+        }
+     }
     
     // MARK: - Cart
     
@@ -461,7 +560,7 @@ class Database {
     // MARK: - Demo
     
     private func loadDemoData(in collection: CouchbaseLiteSwift.Collection) {
-        let productsData: [[String: Any]] = [
+        let demoData: [[String: Any]] = [
             // Food
             ["id": "product:1", "type": "product", "name": "Lettuce", "image": "demo-images/lettuce", "category": "Food", "price": 1.49, "location": "Aisle 1"],
             ["id": "product:2", "type": "product", "name": "Hot Pepper", "image": "demo-images/hot-pepper", "category": "Food", "price": 0.99, "location": "Aisle 1"],
@@ -474,14 +573,18 @@ class Database {
             // Office
             ["id": "product:8", "type": "product", "name": "Scissors", "image": "demo-images/scissors", "category": "Office", "price": 12.99, "location": "Aisle 3", "barcode": "000000000046"],
             ["id": "product:9", "type": "product", "name": "Paper Clip", "image": "demo-images/paperclip", "category": "Office", "price": 2.99, "location": "Aisle 3"],
-            ["id": "product:10", "type": "product", "name": "Push Pin", "image": "demo-images/pushpin", "category": "Office", "price": 3.49, "location": "Aisle 3"]
+            ["id": "product:10", "type": "product", "name": "Push Pin", "image": "demo-images/pushpin", "category": "Office", "price": 3.49, "location": "Aisle 3"],
+            // Airline
+            ["id": "booking:1", "type": "booking", "face": "demo-images/airline-customer", "image": "demo-images/airline-booking"],
+            // Hotel
+            ["id": "booking:2", "type": "booking", "face": "demo-images/hotel-customer", "image": "demo-images/hotel-booking"]
         ]
         
-        // Write product data to database.
-        for (_, var productData) in productsData.enumerated() {
+        // Write demo data to database.
+        for (_, var demoItemData) in demoData.enumerated() {
             // Create a document
-            let id = productData.removeValue(forKey: "id") as? String
-            let document = MutableDocument(id: id, data: productData)
+            let id = demoItemData.removeValue(forKey: "id") as? String
+            let document = MutableDocument(id: id, data: demoItemData)
             
             // If the data has an image property with a string value, convert it to an image
             // from the app assets
@@ -489,53 +592,19 @@ class Database {
                let image = UIImage(named: "\(imageName)"),
                let pngData = image.pngData()
             {
-                DispatchQueue.global().async(qos: .userInitiated) {
-                    if let embedding = AI.shared.embedding(for: image, attention: .none) {
-                        document["image"].blob = Blob(contentType: "image/png", data: pngData)
-                        document["embedding"].array = MutableArrayObject(data: embedding)
-                        try! collection.save(document: document)
-                    }
-                }
+                document["image"].blob = Blob(contentType: "image/png", data: pngData)
             }
-            try! collection.save(document: document)
-        }
-        
-        let bookingsData: [[String: Any]] = [
-            // Airline
-            ["id": "booking:1", "type": "booking", "face": "demo-images/airline-customer", "image": "demo-images/airline-booking"],
-            // Hotel
-            ["id": "booking:2", "type": "booking", "face": "demo-images/hotel-customer", "image": "demo-images/hotel-booking"]
-        ]
-        
-        // Write booking data to database.
-        for (_, var bookingData) in bookingsData.enumerated() {
-            // Create a document
-            let id = bookingData.removeValue(forKey: "id") as? String
-            let document = MutableDocument(id: id, data: bookingData)
             
-            // If the data has an image property with a string value, convert it to an image
+            // If the data has an face property with a string value, convert it to an image
             // from the app assets
-            if let imageName = document["image"].string,
+            if let imageName = document["face"].string,
                let image = UIImage(named: imageName),
                let pngData = image.pngData()
             {
-                document["image"].blob = Blob(contentType: "image/png", data: pngData)
+                document["face"].blob = Blob(contentType: "image/png", data: pngData)
             }
-            try! collection.save(document: document)
             
-            // If the data has a face property, load the image from the assets, generate an
-            // embedding, and update the document
-            if let imageName = document["face"].string,
-               let image = UIImage(named: imageName)
-            {
-                DispatchQueue.global().async(qos: .userInitiated) {
-                    if let embedding = AI.shared.embedding(for: image, attention: .faces) {
-                        document.removeValue(forKey: "face")
-                        document["embedding"].array = MutableArrayObject(data: embedding)
-                        try! collection.save(document: document)
-                    }
-                }
-            }
+            try! collection.save(document: document)
         }
     }
     
@@ -548,7 +617,7 @@ class Database {
         
         // Vector search
         if let embedding = AI.shared.embedding(for: UIImage(named: "demo-images/hot-pepper")!) {
-            print("Full text search: \(self.search(vector: embedding))")
+            print("Vector search: \(self.searchProducts(vector: embedding))")
             print()
         }
         
