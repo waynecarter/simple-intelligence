@@ -47,10 +47,10 @@ func search(image: UIImage) -> [Product] {
 
 ## Vector Search
 
-The `Database.search(vector: [NSNumber])` function demonstrates the vector search capabilities.
+The `Database.search(vector: [Float])` function demonstrates the vector search capabilities.
 
 ```swift
-func search(vector: [NSNumber]) -> [Product] {
+func search(vector: [Float]) -> [Product] {
     // SQL
     let sql = """
         SELECT name, price, location, image, APPROX_VECTOR_DISTANCE(image, $embedding) AS distance
