@@ -22,7 +22,7 @@ The app includes a demo that enables experiencing the features and functionality
 
 # Code
 
-The code is divided into the following six areas demonstrating AI search, vector search, SQL queries, full-text search, indexing, and data sync with the cloud:
+The code is divided into the following areas demonstrating AI search, vector search, SQL queries, full-text search, indexing, and data sync with the cloud:
 
 ## AI Search
 
