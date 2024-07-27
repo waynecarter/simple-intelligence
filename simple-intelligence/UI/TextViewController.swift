@@ -18,7 +18,7 @@ class TextViewController: RecordsViewController, UISearchBarDelegate {
     
     private func setup() {
         searchBar.delegate = self
-        searchBar.placeholder = "Produce, Bakery, Dairy, and More"
+        searchBar.placeholder = "Food, Home, Office, and More"
         searchBar.backgroundImage = UIImage()
         searchBar.searchTextField.addTarget(self, action: #selector(searchDidChange(_:)), for: .editingChanged)
     }
