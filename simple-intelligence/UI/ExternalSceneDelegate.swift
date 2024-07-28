@@ -65,12 +65,13 @@ class ExternalSceneDelegate: UIResponder, UIWindowSceneDelegate {
         let window = UIWindow(windowScene: windowScene)
         self.window = window
         
+        // Setup external screen
         setupExternalScreen()
     }
 
     func sceneDidDisconnect(_ scene: UIScene) {
-        // Disconnect the external scene's window
-        ExternalScene.shared.window = nil
+        // Disconnect external screen
+        tearDownExternalScreen()
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
