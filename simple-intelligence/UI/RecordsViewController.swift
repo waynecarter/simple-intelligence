@@ -41,6 +41,7 @@ class RecordsViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] selectedRecord in
                 self?.updateActions(for: selectedRecord)
+                self?.updateExternalDisplay(for: selectedRecord)
             }.store(in: &cancellables)
         
         // When the configured use case changes, update the actions
@@ -49,6 +50,14 @@ class RecordsViewController: UIViewController {
             .receive(on: DispatchQueue.main)
             .sink { [weak self] useCase in
                 self?.updateActions(for: useCase)
+            }.store(in: &cancellables)
+        
+        // When the external window changes, update the display
+        ExternalScene.shared.$window
+            .dropFirst()
+            .receive(on: DispatchQueue.main)
+            .sink { [weak self] window in
+                self?.updateExternalDisplay(in: window)
             }.store(in: &cancellables)
     }
     
@@ -67,6 +76,7 @@ class RecordsViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         updateActions()
+        updateExternalDisplay()
     }
     
     // MARK: - Actions
@@ -157,6 +167,29 @@ class RecordsViewController: UIViewController {
     
     @IBAction func cancel(_ sender: UIButton) {
         records = []
+    }
+    
+    // MARK: - External Display
+    
+    private func updateExternalDisplay() {
+        updateExternalDisplay(for: recordsView.selectedRecord)
+    }
+    
+    private func updateExternalDisplay(for record: Database.Record?) {
+        updateExternalDisplay(for: record, in: ExternalScene.shared.window)
+    }
+    
+    private func updateExternalDisplay(in window: UIWindow?) {
+        updateExternalDisplay(for: recordsView.selectedRecord, in: window)
+    }
+    
+    private func updateExternalDisplay(for record: Database.Record?, in window: UIWindow?) {
+        if let recordViewController = window?.rootViewController as? RecordViewController {
+            recordViewController.record = record
+            
+            recordViewController.view.backgroundColor = view.backgroundColor
+            recordViewController.overrideUserInterfaceStyle = tabBarController?.overrideUserInterfaceStyle ?? self.overrideUserInterfaceStyle
+        }
     }
     
     // MARK: - Full Screen

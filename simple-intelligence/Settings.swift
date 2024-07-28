@@ -11,8 +11,10 @@ import Combine
 class Settings: ObservableObject {
     static let shared = Settings()
     
-    @Published var endpoint: Endpoint?
     @Published var frontCameraEnabled: Bool = false
+    @Published var externalScreenEnabled: Bool = true
+    
+    @Published var endpoint: Endpoint?
     @Published var useCase: UseCase = .pointOfSale
     @Published var isDemoEnabled: Bool = false {
         didSet {
@@ -20,6 +22,7 @@ class Settings: ObservableObject {
             userDefaults.setValue(isDemoEnabled, forKey: "demo_enabled")
         }
     }
+    
     @Published var isLoggedIn: Bool = false
     
     enum UseCase: String {
@@ -44,6 +47,7 @@ class Settings: ObservableObject {
         // Register defaults
         UserDefaults.standard.register(defaults: [
             "front_camera_enabled": false,
+            "external_screen_enabled": true,
             "use_case": UseCase.itemLookup.rawValue,
             "demo_enabled": false
         ])
@@ -63,10 +67,29 @@ class Settings: ObservableObject {
     }
     
     private func updateSettings() {
-        updateEndpoint()
         updateCamera()
+        updateExternalScreen()
+        updateEndpoint()
         updateDemo()
         updateIsLoggedIn()
+    }
+    
+    private func updateCamera() {
+        let userDefaults = UserDefaults.standard
+        let newFrontCameraEnabled = userDefaults.bool(forKey: "front_camera_enabled")
+        
+        if frontCameraEnabled != newFrontCameraEnabled {
+            frontCameraEnabled = newFrontCameraEnabled
+        }
+    }
+    
+    private func updateExternalScreen() {
+        let userDefaults = UserDefaults.standard
+        let newExternalScreenEnabled = userDefaults.bool(forKey: "external_screen_enabled")
+        
+        if externalScreenEnabled != newExternalScreenEnabled {
+            externalScreenEnabled = newExternalScreenEnabled
+        }
     }
     
     private func updateEndpoint() {
@@ -87,15 +110,6 @@ class Settings: ObservableObject {
         
         if newEndpoint != endpoint {
             endpoint = newEndpoint
-        }
-    }
-    
-    private func updateCamera() {
-        let userDefaults = UserDefaults.standard
-        let newFrontCameraEnabled = userDefaults.bool(forKey: "front_camera_enabled")
-        
-        if frontCameraEnabled != newFrontCameraEnabled {
-            frontCameraEnabled = newFrontCameraEnabled
         }
     }
     

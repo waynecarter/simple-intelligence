@@ -9,6 +9,9 @@
 /* Begin PBXBuildFile section */
 		40E7CA382BFB20B5004BE7E1 /* Camera.swift in Sources */ = {isa = PBXBuildFile; fileRef = 40E7CA372BFB20B5004BE7E1 /* Camera.swift */; };
 		B00A52EB2C29C1900092F639 /* TextViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B00A52EA2C29C1900092F639 /* TextViewController.swift */; };
+		B02E58B12C56A0AC00F52C2E /* ExternalScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B02E58B02C56A0AC00F52C2E /* ExternalScreen.storyboard */; };
+		B02E58B32C56A0E500F52C2E /* RecordViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02E58B22C56A0E500F52C2E /* RecordViewController.swift */; };
+		B02E58B52C56A24100F52C2E /* ExternalSceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B02E58B42C56A24100F52C2E /* ExternalSceneDelegate.swift */; };
 		B03C4E4F2C38D2EB003C6CD2 /* CouchbaseLiteSwift.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B03C4E4C2C38D2E4003C6CD2 /* CouchbaseLiteSwift.xcframework */; };
 		B03C4E502C38D2EB003C6CD2 /* CouchbaseLiteSwift.xcframework in Embed Frameworks */ = {isa = PBXBuildFile; fileRef = B03C4E4C2C38D2E4003C6CD2 /* CouchbaseLiteSwift.xcframework */; settings = {ATTRIBUTES = (CodeSignOnCopy, RemoveHeadersOnCopy, ); }; };
 		B03C4E512C38D2ED003C6CD2 /* CouchbaseLiteVectorSearch.xcframework in Frameworks */ = {isa = PBXBuildFile; fileRef = B03C4E4B2C38D2E4003C6CD2 /* CouchbaseLiteVectorSearch.xcframework */; };
@@ -51,6 +54,9 @@
 /* Begin PBXFileReference section */
 		40E7CA372BFB20B5004BE7E1 /* Camera.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Camera.swift; sourceTree = "<group>"; };
 		B00A52EA2C29C1900092F639 /* TextViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TextViewController.swift; sourceTree = "<group>"; };
+		B02E58B02C56A0AC00F52C2E /* ExternalScreen.storyboard */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; path = ExternalScreen.storyboard; sourceTree = "<group>"; };
+		B02E58B22C56A0E500F52C2E /* RecordViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RecordViewController.swift; sourceTree = "<group>"; };
+		B02E58B42C56A24100F52C2E /* ExternalSceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExternalSceneDelegate.swift; sourceTree = "<group>"; };
 		B03C4E4B2C38D2E4003C6CD2 /* CouchbaseLiteVectorSearch.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteVectorSearch.xcframework; path = "simple-intelligence/Frameworks/CouchbaseLiteVectorSearch.xcframework"; sourceTree = "<group>"; };
 		B03C4E4C2C38D2E4003C6CD2 /* CouchbaseLiteSwift.xcframework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcframework; name = CouchbaseLiteSwift.xcframework; path = "simple-intelligence/Frameworks/CouchbaseLiteSwift.xcframework"; sourceTree = "<group>"; };
 		B051C92B2C2A3F8600902E3A /* CameraViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraViewController.swift; sourceTree = "<group>"; };
@@ -94,8 +100,10 @@
 			children = (
 				B09602172BF7014700F6A866 /* Main.storyboard */,
 				B096021C2BF7014B00F6A866 /* LaunchScreen.storyboard */,
+				B02E58B02C56A0AC00F52C2E /* ExternalScreen.storyboard */,
 				B09602112BF7014700F6A866 /* AppDelegate.swift */,
 				B09602132BF7014700F6A866 /* SceneDelegate.swift */,
+				B02E58B42C56A24100F52C2E /* ExternalSceneDelegate.swift */,
 				B0E7EBD92C32181C00659321 /* LoginViewController.swift */,
 				B09DB42E2C1E89C600FBCB95 /* TabBarController.swift */,
 				B09DB4302C1E99B300FBCB95 /* NavigationController.swift */,
@@ -103,6 +111,7 @@
 				B051C92B2C2A3F8600902E3A /* CameraViewController.swift */,
 				B0C3622D2C2CE08A00EA28F5 /* RecordsViewController.swift */,
 				B07E83982C28867A002BCC1D /* RecordsView.swift */,
+				B02E58B22C56A0E500F52C2E /* RecordViewController.swift */,
 				B0CA3AB12C2BF19000A12EDF /* PayBarButtonItem.swift */,
 				B07994DC2C1B921E005B9B39 /* Actions.swift */,
 				B0C3622B2C2CD10800EA28F5 /* Haptics.swift */,
@@ -211,6 +220,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				B02E58B12C56A0AC00F52C2E /* ExternalScreen.storyboard in Resources */,
 				B0F3276C2BFEE7CC007376C3 /* Settings.bundle in Resources */,
 				B096021E2BF7014B00F6A866 /* LaunchScreen.storyboard in Resources */,
 				B096021B2BF7014B00F6A866 /* Assets.xcassets in Resources */,
@@ -234,6 +244,8 @@
 				B051C92C2C2A3F8600902E3A /* CameraViewController.swift in Sources */,
 				B0EBE5702BF9167C002FF20C /* Database.swift in Sources */,
 				B0EBE5722BF91CB2002FF20C /* AI.swift in Sources */,
+				B02E58B32C56A0E500F52C2E /* RecordViewController.swift in Sources */,
+				B02E58B52C56A24100F52C2E /* ExternalSceneDelegate.swift in Sources */,
 				B0C3622E2C2CE08A00EA28F5 /* RecordsViewController.swift in Sources */,
 				B09DB4312C1E99B300FBCB95 /* NavigationController.swift in Sources */,
 				B09602142BF7014700F6A866 /* SceneDelegate.swift in Sources */,
