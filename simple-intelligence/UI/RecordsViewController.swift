@@ -62,11 +62,18 @@ class RecordsViewController: UIViewController {
     }
     
     var records: [Database.Record] {
-        get { return recordsView.records }
-        set { recordsView.records = newValue }
+        get {
+            return recordsView.records
+        }
+        set {
+            recordsView.records = newValue
+            updateExternalDisplay()
+        }
     }
     
     // MARK: - View Lifecycle
+    
+    private var viewIsShowing = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -75,8 +82,14 @@ class RecordsViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        viewIsShowing = true
         updateActions()
         updateExternalDisplay()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        viewIsShowing = false
     }
     
     // MARK: - Actions
@@ -184,11 +197,20 @@ class RecordsViewController: UIViewController {
     }
     
     private func updateExternalDisplay(for record: Database.Record?, in window: UIWindow?) {
+        // Only update the external display if the view is showing
+        guard viewIsShowing else { return }
+        
         if let recordViewController = window?.rootViewController as? RecordViewController {
             recordViewController.record = record
             
             recordViewController.view.backgroundColor = view.backgroundColor
             recordViewController.overrideUserInterfaceStyle = tabBarController?.overrideUserInterfaceStyle ?? self.overrideUserInterfaceStyle
+            
+            // If there is a single record, only display it on the external display
+            let onlyDisplayOnExternalScreen = records.count == 1
+            recordsView.isHidden = onlyDisplayOnExternalScreen
+        } else {
+            recordsView.isHidden = false
         }
     }
     
