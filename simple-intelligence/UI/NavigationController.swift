@@ -8,8 +8,57 @@
 import UIKit
 
 class NavigationController: UINavigationController {
-    override var prefersStatusBarHidden: Bool {
-        return true
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        setup()
+    }
+    
+    private func setup() {
+        // Check the current Guided Access status
+        updateGuidedAccessStatus()
+        
+        // Register for Guided Access status changes
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(updateGuidedAccessStatus),
+            name: UIAccessibility.guidedAccessStatusDidChangeNotification,
+            object: nil
+        )
+    }
+    
+    deinit {
+        // Unregister from notifications
+        NotificationCenter.default.removeObserver(
+            self,
+            name: UIAccessibility.guidedAccessStatusDidChangeNotification,
+            object: nil
+        )
+    }
+    
+    @objc private func updateGuidedAccessStatus() {
+        if UIAccessibility.isGuidedAccessEnabled {
+            // Hide the left bar button items and all but the first right bar button item
+            if let topVC = topViewController {
+                topVC.navigationItem.leftBarButtonItems?.forEach { $0.isHidden = true }
+                
+                if let rightBarButtonItems = topVC.navigationItem.rightBarButtonItems, rightBarButtonItems.count > 1 {
+                    for i in 1..<rightBarButtonItems.count {
+                        rightBarButtonItems[i].isHidden = true
+                    }
+                }
+            }
+        } else {
+            // Restore the original left and right bar button items
+            if let topVC = topViewController {
+                topVC.navigationItem.leftBarButtonItems?.forEach { $0.isHidden = false }
+                
+                if let rightBarButtonItems = topVC.navigationItem.rightBarButtonItems, rightBarButtonItems.count > 1 {
+                    for i in 1..<rightBarButtonItems.count {
+                        rightBarButtonItems[i].isHidden = false
+                    }
+                }
+            }
+        }
     }
     
     func animateAddingImageToRightButtonBarItem(_ imageView: UIImageView, from navigationItem: UINavigationItem, completion: (() -> Void)? = nil) {
@@ -53,5 +102,11 @@ class NavigationController: UINavigationController {
             
             completion?()
         })
+    }
+    
+    // MARK: - Full Screen
+    
+    override var prefersStatusBarHidden: Bool {
+        return true
     }
 }
