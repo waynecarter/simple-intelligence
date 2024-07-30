@@ -98,7 +98,7 @@ class RecordViewController: UIViewController {
         
         adjustLabelFontSizes()
         
-        // When the use case changes, update the database the UI
+        // When the use case changes, update the UI
         Settings.shared.$useCase
             .dropFirst()
             .sink { [weak self] useCase in
@@ -168,7 +168,6 @@ class RecordViewController: UIViewController {
         subtitleLabel.font = UIFont.systemFont(ofSize: initialSubtitleFontSize * scalingFactor)
         detailsLabel.font = UIFont.systemFont(ofSize: initialDetailsFontSize * scalingFactor)
     }
-
     
     // MARK: - Full Screen
     
