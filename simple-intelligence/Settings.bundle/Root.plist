@@ -14,16 +14,16 @@
 			<key>DefaultValue</key>
 			<false/>
 		</dict>
-        <dict>
-            <key>Type</key>
-            <string>PSToggleSwitchSpecifier</string>
-            <key>Title</key>
-            <string>External Screen</string>
-            <key>Key</key>
-            <string>external_screen_enabled</string>
-            <key>DefaultValue</key>
-            <true/>
-        </dict>
+		<dict>
+			<key>Type</key>
+			<string>PSToggleSwitchSpecifier</string>
+			<key>Title</key>
+			<string>External Screen</string>
+			<key>Key</key>
+			<string>external_screen_enabled</string>
+			<key>DefaultValue</key>
+			<true/>
+		</dict>
 		<dict>
 			<key>Title</key>
 			<string>Sync Endpoint</string>
@@ -102,12 +102,14 @@
 			<key>Values</key>
 			<array>
 				<string>itemLookup</string>
+				<string>bookingLookup</string>
 				<string>pointOfSale</string>
 			</array>
 			<key>Titles</key>
 			<array>
 				<string>Item Lookup</string>
-				<string>Point-of-Sale</string>
+				<string>Booking Lookup</string>
+				<string>Point of Sale</string>
 			</array>
 		</dict>
 	</array>

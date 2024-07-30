@@ -103,7 +103,7 @@ class RecordsViewController: UIViewController {
         switch useCase {
         case .pointOfSale:
             payButton.total = Database.shared.cartTotal
-        case .itemLookup:
+        case .itemLookup, .bookingLookup:
             payButton.total = 0
         }
         
@@ -122,7 +122,7 @@ class RecordsViewController: UIViewController {
                 cancelButton?.isHidden = (selectedRecord == nil)
                 doneButton?.isHidden = true
             }
-        case .itemLookup:
+        case .itemLookup, .bookingLookup:
             addToBagButton.isHidden = true
             cancelButton?.isHidden = true
             doneButton?.isHidden = (selectedRecord == nil)

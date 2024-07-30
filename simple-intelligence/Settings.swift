@@ -26,7 +26,7 @@ class Settings: ObservableObject {
     @Published var isLoggedIn: Bool = false
     
     enum UseCase: String {
-        case pointOfSale, itemLookup
+        case itemLookup, pointOfSale, bookingLookup
     }
     
     struct Endpoint: Equatable {

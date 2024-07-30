@@ -6,19 +6,23 @@
 //
 
 import UIKit
+import Combine
 
 class RecordViewController: UIViewController {
+    private let explainerLabel = UILabel()
+    private let imageView = UIImageView()
+    private let titleLabel = UILabel()
+    private let subtitleLabel = UILabel()
+    private let detailsLabel = UILabel()
+    private let stackView = UIStackView()
+    
     var record: Database.Record? {
         didSet {
             updateUI()
         }
     }
     
-    private let imageView = UIImageView()
-    private let titleLabel = UILabel()
-    private let subtitleLabel = UILabel()
-    private let detailsLabel = UILabel()
-    private let stackView = UIStackView()
+    private var cancellables = Set<AnyCancellable>()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -40,12 +44,22 @@ class RecordViewController: UIViewController {
         // Add stack view to the main view
         view.addSubview(stackView)
         
+        // Add central title label to the main view
+        explainerLabel.translatesAutoresizingMaskIntoConstraints = false
+        explainerLabel.textAlignment = .center
+        explainerLabel.font = UIFont.preferredFont(forTextStyle: .largeTitle)
+        view.addSubview(explainerLabel)
+        
         // Configure stack view constraints
         NSLayoutConstraint.activate([
             stackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
             stackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -16),
             stackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 16),
-            stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16)
+            stackView.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -16),
+            
+            // Central title label constraints
+            explainerLabel.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            explainerLabel.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
         
         // Configure image view content mode
@@ -83,13 +97,42 @@ class RecordViewController: UIViewController {
         detailsLabel.setContentCompressionResistancePriority(.required, for: .vertical)
         
         adjustLabelFontSizes()
+        
+        // When the use case changes, update the database the UI
+        Settings.shared.$useCase
+            .dropFirst()
+            .sink { [weak self] useCase in
+                self?.updateUI(useCase: useCase)
+            }.store(in: &cancellables)
     }
     
-    private func updateUI() {
-        imageView.image = record?.image
-        titleLabel.text = record?.title
-        subtitleLabel.text = record?.subtitle
-        detailsLabel.text = record?.details
+    private func updateUI(useCase: Settings.UseCase = Settings.shared.useCase) {
+        if let record = record {
+            imageView.image = record.image
+            titleLabel.text = record.title
+            subtitleLabel.text = record.subtitle
+            detailsLabel.text = record.details
+            explainerLabel.isHidden = true
+        } else {
+            imageView.image = nil
+            titleLabel.text = nil
+            subtitleLabel.text = nil
+            detailsLabel.text = nil
+            
+            switch useCase {
+            case .itemLookup:
+                explainerLabel.text = "Item Info"
+            case .pointOfSale:
+                explainerLabel.text = "Point of Sale"
+            case .bookingLookup:
+                explainerLabel.text = "Booking Info"
+            }
+            explainerLabel.isHidden = false
+        }
+        
+        stackView.setNeedsLayout()
+        stackView.layoutIfNeeded()
+        adjustLabelFontSizes()
     }
     
     override func viewDidLayoutSubviews() {
@@ -102,6 +145,10 @@ class RecordViewController: UIViewController {
         let totalHeight = view.frame.height
         let desiredLabelHeight = totalHeight * 0.20
         
+        // Set the explainer label font size
+        let explainerFontSize = desiredLabelHeight
+        explainerLabel.font = UIFont.systemFont(ofSize: explainerFontSize)
+        
         // Get the initial font sizes for each label
         let initialTitleFontSize = titleLabel.font.pointSize
         let initialSubtitleFontSize = subtitleLabel.font.pointSize
@@ -113,7 +160,7 @@ class RecordViewController: UIViewController {
         let detailsHeight = " ".size(withAttributes: [.font: detailsLabel.font!]).height
         let combinedHeight = titleHeight + subtitleHeight + detailsHeight
         
-        // Calculate the scaling factor
+        // Calculate the scaling factor for title, subtitle, and details labels
         let scalingFactor = desiredLabelHeight / combinedHeight
         
         // Adjust font sizes using individual starting font sizes
@@ -121,6 +168,7 @@ class RecordViewController: UIViewController {
         subtitleLabel.font = UIFont.systemFont(ofSize: initialSubtitleFontSize * scalingFactor)
         detailsLabel.font = UIFont.systemFont(ofSize: initialDetailsFontSize * scalingFactor)
     }
+
     
     // MARK: - Full Screen
     
@@ -128,4 +176,3 @@ class RecordViewController: UIViewController {
         return true
     }
 }
-
