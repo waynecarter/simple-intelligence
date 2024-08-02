@@ -42,10 +42,10 @@ class Database {
         var database: CouchbaseLiteSwift.Database
         var collection: CouchbaseLiteSwift.Collection
         
+        // Enable the vector search extension
+        try! CouchbaseLiteSwift.Extension.enableVectorSearch()
+        
         if isDemoEnabled {
-            // Enable the vector search extension
-            try! CouchbaseLiteSwift.Extension.enableVectorSearch()
-            
             // Setup the demo database
             database = try! CouchbaseLiteSwift.Database(name: "demo")
             collection = try! database.defaultCollection()
