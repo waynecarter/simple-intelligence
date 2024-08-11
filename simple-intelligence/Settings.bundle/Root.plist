@@ -22,7 +22,7 @@
 			<key>Key</key>
 			<string>external_screen_enabled</string>
 			<key>DefaultValue</key>
-			<true/>
+			<false/>
 		</dict>
 		<dict>
 			<key>Title</key>

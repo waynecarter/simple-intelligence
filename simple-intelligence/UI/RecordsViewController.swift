@@ -92,6 +92,11 @@ class RecordsViewController: UIViewController {
         viewIsShowing = false
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        updateExternalDisplay()
+    }
+    
     // MARK: - Actions
     
     private func updateActions() {
@@ -205,12 +210,6 @@ class RecordsViewController: UIViewController {
             
             recordViewController.view.backgroundColor = view.backgroundColor
             recordViewController.overrideUserInterfaceStyle = tabBarController?.overrideUserInterfaceStyle ?? self.overrideUserInterfaceStyle
-            
-            // If there is a single record, only display it on the external display
-            let onlyDisplayOnExternalScreen = records.count == 1
-            recordsView.isHidden = onlyDisplayOnExternalScreen
-        } else {
-            recordsView.isHidden = false
         }
     }
     

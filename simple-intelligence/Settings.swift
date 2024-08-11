@@ -47,7 +47,7 @@ class Settings: ObservableObject {
         // Register defaults
         UserDefaults.standard.register(defaults: [
             "front_camera_enabled": false,
-            "external_screen_enabled": true,
+            "external_screen_enabled": false,
             "use_case": UseCase.itemLookup.rawValue,
             "demo_enabled": false
         ])
