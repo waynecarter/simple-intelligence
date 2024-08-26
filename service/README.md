@@ -21,13 +21,13 @@ This provides an overview of the intelligence services that have been implemente
 ### Start
 To start the intelligence service, follow these steps:
 
-1. **Ensure all dependencies are installed:** Make sure you have Python installed and the required packages.
-2. **Load environment variables:** Ensure that the `OPENAI_API_KEY` is set in the environment variables. The service uses port 8080 by default and this can be overridded using the `PORT` environment variable. The variables can be set directly in your environment or you can create a `intelligence.env` file in the project directory with the variables defined as follows:
+1. **Install Golang:** Make sure you have Golang installed.
+2. **Set Environment Variables:** Ensure that the `OPENAI_API_KEY` is set in the environment variables. The service uses port 8080 by default and this can be overridded using the `PORT` environment variable. The variables can be set directly in your environment or you can create a `intelligence.env` file in the project directory with the variables defined as follows:
    ```text
    OPENAI_API_KEY=your_openai_api_key
    PORT=8080
    ```
-3. **Start the service:** Run `intelligence.go`
+3. **Start the Service:** Run `intelligence.go`
 
 #### Example cURL Call
 Here is an example of how to make a cURL call directly to the intelligence service:
