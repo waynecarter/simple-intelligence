@@ -209,7 +209,7 @@ In the function setting:
    * **Bucket:** Select the appropriate bucket where the enriched documents should be saved.
 
 ### Code
-Use the following JavaScript for the function's code that enriches documents with a `message` field with the message's `sentiment`.:
+Use the following JavaScript for the function's code that enriches documents with a `message` field with the message's `sentiment`:
 
 ```javascript
 function OnUpdate(doc, meta) {
