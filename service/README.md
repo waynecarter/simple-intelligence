@@ -31,7 +31,7 @@ To setup the service, follow these steps:
    OPENAI_API_KEY=your_openai_api_key
    PORT=8080
    ```
-3. **Start the Service:** Run `intelligence.go`
+3. **Start the Service:** Run [intelligence.go](intelligence.go)
 
 #### Example cURL Call
 Here is an example of how to make a cURL call directly to the intelligence service:
