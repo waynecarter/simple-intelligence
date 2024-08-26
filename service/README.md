@@ -16,6 +16,7 @@ This document outlines the intelligence services implemented to process data. Ea
 - **Summarization:** Condenses text into a shorter version
 - **Translation:** Converts text between languages
 - **Text Embedding:** Converts text into numerical vectors for machine learning
+- **Moderation:** Identifies and flags inappropriate or harmful content in text
 
 ### Demo Videos
 
@@ -202,6 +203,46 @@ SELECT intelligence("embeddings", { "text": "The quick brown fox jumps over the 
   "embeddings": [
     [ -0.020832369104027748, -0.016892163082957268, ..., 0.024707552045583725 ]
   ]
+}
+```
+
+### Moderation
+
+```sql
+SELECT intelligence("moderation", { "text": "This is some harmful content." }).moderation;
+```
+
+```javascript
+{
+   "moderation": {
+      "flagged": true,
+      "categories": {
+         "harassment": true,
+         "harassment/threatening": true,
+         "hate": false,
+         "hate/threatening": false,
+         "self-harm": false,
+         "self-harm/instructions": false,
+         "self-harm/intent": false,
+         "sexual": false,
+         "sexual/minors": false,
+         "violence": true,
+         "violence/graphic": false
+      },
+      "category_scores": {
+         "harassment": 0.5665766596794128,
+         "harassment/threatening": 0.503197431564331,
+         "hate": 0.0006636827602051198,
+         "hate/threatening": 0.00013561644300352782,
+         "self-harm": 0.0000034303338907193393,
+         "self-harm/instructions": 7.106075283758173e-9,
+         "self-harm/intent": 2.732113273395953e-7,
+         "sexual": 0.0003790947957895696,
+         "sexual/minors": 0.000006095848675613524,
+         "violence": 0.9586367011070251,
+         "violence/graphic": 0.000556226703338325
+      }
+   }
 }
 ```
 
