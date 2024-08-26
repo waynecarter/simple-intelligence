@@ -200,13 +200,13 @@ To set up an eventing function in Couchbase Server that enriches documents with 
 2. Add a new function and name it something like `EnrichSentiment`
 
 ### Create Aliases
-3. In the function setting:
-   1. Create a **URL Alias** with the following details:
-      - **Name:** `intelligenceService`
-      - **URL:** `http://localhost:8080/intelligence`
-   1. Create a **Bucket Alias** with the following details:
-      - **Name:** `targetBucket`
-      - **Bucket:** Select the appropriate bucket where the enriched documents should be saved.
+In the function setting:
+* Create a **URL Alias** with the following details:
+   * **Name:** `intelligenceService`
+   * **URL:** `http://localhost:8080/intelligence`
+* Create a **Bucket Alias** with the following details:
+   * **Name:** `targetBucket`
+   * **Bucket:** Select the appropriate bucket where the enriched documents should be saved.
 
 ### Code
 Use the following JavaScript for the function's code that enriches documents with a `message` field with the message's `sentiment`.:
