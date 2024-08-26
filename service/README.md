@@ -25,17 +25,21 @@ These demos showcase the intelligence services in action:
 - [Enrichment](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
 
 ## Service Setup
-To setup the service, follow these steps:
 
-1. **Install Golang:** Make sure you have Golang installed.
-2. **Set Environment Variables:** Ensure that the `OPENAI_API_KEY` is set in the environment variables. The service uses port 8080 by default and this can be overridded using the `PORT` environment variable. The variables can be set directly in your environment or you can create a `intelligence.env` file in the project directory with the variables defined as follows:
-   ```text
-   OPENAI_API_KEY=your_openai_api_key
-   PORT=8080
-   ```
-3. **Start the Service:** Run [intelligence.go](intelligence.go)
+To set up the service:
 
-#### Example cURL Call
+1. **Install Golang:** Ensure Golang is installed.
+2. **Set Environment Variables:** 
+   - Set `OPENAI_API_KEY` in your environment.
+   - Optionally, set `PORT` (default is 8080).
+   - You can define these variables directly in your environment or use a `intelligence.env` file in the root directory of your project like the following:
+     ```
+     OPENAI_API_KEY=your_openai_api_key
+     PORT=8080
+     ```
+3. **Start the Service:** Run `intelligence.go`.
+
+### Example cURL Call
 Here is an example of how to make a cURL call directly to the intelligence service:
 
 ```sh
