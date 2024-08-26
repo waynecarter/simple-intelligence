@@ -143,7 +143,7 @@ SELECT intelligence("masked", { "text": "John Doe lives in New York. His email i
 ### Similarity Analysis
 
 ```sql
-SELECT intelligence("similarity", { "text1": "text1": "JavaScript", "text2": "JS" }).similarity;
+SELECT intelligence("similarity", { "text1": "JavaScript", "text2": "JS" }).similarity;
 ```
 
 ```javascript
