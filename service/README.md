@@ -16,6 +16,12 @@ This provides an overview of the intelligence services that have been implemente
 * **Translation:** Translates text from one language to another.
 * **Text Embedding:** Converts text into a numerical vector for machine learning models.
 
+### Demo Videos
+These demo videos show use-cases of the intelligence services in action:
+
+* [Query](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
+* [Enrichment](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
+
 ## Service Setup
 To setup the service, follow these steps:
 
