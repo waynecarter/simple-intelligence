@@ -201,10 +201,10 @@ To set up an eventing function in Couchbase Server that enriches documents with 
 
 ### Create Aliases
 In the function setting:
-* Create a **URL Alias** with the following details:
+1. Create a **URL Alias** with the following details:
    * **Name:** `intelligenceService`
    * **URL:** `http://localhost:8080/intelligence`
-* Create a **Bucket Alias** with the following details:
+2. Create a **Bucket Alias** with the following details:
    * **Name:** `targetBucket`
    * **Bucket:** Select the appropriate bucket where the enriched documents should be saved.
 
