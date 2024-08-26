@@ -41,6 +41,7 @@ To set up the service:
 3. **Start the Service:** Run `intelligence.go`
 
 ### Example cURL Call
+
 Here is an example of how to make a cURL call directly to the intelligence service:
 
 ```sh
