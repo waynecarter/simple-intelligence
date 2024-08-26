@@ -121,7 +121,7 @@ SELECT intelligence("corrected_grammar", { "text": "This sentence have some mist
 ### Text Generation
 
 ```sql
-SELECT intelligence("generated_text", { "prompt": "Generate a concise, cheerful email title for a summer bike sale with 20% discount." }).generated_text;
+SELECT intelligence("generated_text", { "prompt": "Generate a concise, cheerful email title for a summer bike sale with 20% discount.", "max_words": 50 }).generated_text;
 ```
 
 ```javascript
