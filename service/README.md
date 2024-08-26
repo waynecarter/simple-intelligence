@@ -76,7 +76,8 @@ CREATE FUNCTION intelligence(model, params) {
 ```
 
 ## Query Examples
-You can use the intelligence UDF in your SQL++ queries within Couchbase to perform various types of analyses. Here are examples of queries and results:
+
+Here are SQL++ query examples using the intelligence UDF:
 
 ### Sentiment Analysis
 
