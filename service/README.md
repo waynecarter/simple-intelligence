@@ -51,16 +51,18 @@ curl -X POST "http://localhost:8080/intelligence?model=sentiment" \
 ## Query Setup
 
 ### Enable CURL
-To use CURL in your SQL++ queries with Couchbase Server, you'll need to configure the allowed URLs in the server settings. Here's how to do it:
 
-1. Open your web browser and go to the Couchbase Server dashboard.
+To use CURL in SQL++ queries with Couchbase Server:
+
+1. Go to Couchbase Server dashboard.
 2. Navigate to **Settings > Query Settings > Advanced Query Settings**
 3. Set **CURL() Function Access** to `Restricted`
 4. Add an **Allowed CURL URL** with the value `http://localhost:8080/intelligence`
 5. Save the changes
 
 ### Create UDF
-To integrate these services with Couchbase Server, you can create a User-Defined Function (UDF) that makes a cURL call to the intelligence service. Create the UDF in Couchbase Server using the following query:
+
+Integrate the intelligence services with Couchbase Server using this User-Defined Function (UDF):
 
 ```sql
 CREATE FUNCTION intelligence(model, params) {
