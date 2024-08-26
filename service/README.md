@@ -206,23 +206,25 @@ SELECT intelligence("embeddings", { "text": "The quick brown fox jumps over the 
 ```
 
 ## Eventing Setup
-To set up an eventing function in Couchbase Server that enriches documents with intelligence, follow these steps:
+
+To set up an eventing function in Couchbase Server that enriches documents:
 
 ### Create Function
-1. Log in to the Couchbase Server UI and go to **Eventing**
-2. Add a new function and name it something like `EnrichSentiment`
+1. Log in to Couchbase Server UI and go to **Eventing**.
+2. Add a new function (e.g. EnrichSentiment).
 
 ### Create Aliases
 In the function setting:
-1. Create a **URL Alias** with the following details:
+1. Create a **URL Alias**:
    * **Name:** `intelligenceService`
    * **URL:** `http://localhost:8080/intelligence`
-2. Create a **Bucket Alias** with the following details:
+2. Create a **Bucket Alias**:
    * **Name:** `targetBucket`
-   * **Bucket:** Select the appropriate bucket where the enriched documents should be saved.
+   * **Bucket:** Select the target bucket.
 
 ### Code
-For the function's code, use the following JavaScript. It enriches documents that contain a `message` field with the message's `sentiment`:
+
+Use the following JavaScript code in the function:
 
 ```javascript
 function OnUpdate(doc, meta) {
