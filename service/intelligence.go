@@ -138,6 +138,10 @@ func getIntelligence(model string, params map[string]interface{}) (interface{}, 
 		}
 		intelligence, err = getEmbeddings(texts)
 
+	case "moderation":
+		text, _ := params["text"].(string)
+		intelligence, err = getModeration(text)
+
 	default:
 		err = errors.New("model not recognized")
 	}
@@ -585,6 +589,95 @@ func getEmbeddings(texts []string) ([][]float64, error) {
 	}
 
 	return embeddings, nil
+}
+
+func getModeration(text string) (map[string]interface{}, error) {
+	type ModerationRequest struct {
+		Input string `json:"input"`
+	}
+
+	type ModerationResponse struct {
+		ID      string `json:"id"`
+		Model   string `json:"model"`
+		Results []struct {
+			Flagged    bool `json:"flagged"`
+			Categories struct {
+				Sexual                bool `json:"sexual"`
+				Hate                  bool `json:"hate"`
+				Harassment            bool `json:"harassment"`
+				SelfHarm              bool `json:"self-harm"`
+				SexualMinors          bool `json:"sexual/minors"`
+				HateThreatening       bool `json:"hate/threatening"`
+				ViolenceGraphic       bool `json:"violence/graphic"`
+				SelfHarmIntent        bool `json:"self-harm/intent"`
+				SelfHarmInstructions  bool `json:"self-harm/instructions"`
+				HarassmentThreatening bool `json:"harassment/threatening"`
+				Violence              bool `json:"violence"`
+			} `json:"categories"`
+			CategoryScores struct {
+				Sexual                float64 `json:"sexual"`
+				Hate                  float64 `json:"hate"`
+				Harassment            float64 `json:"harassment"`
+				SelfHarm              float64 `json:"self-harm"`
+				SexualMinors          float64 `json:"sexual/minors"`
+				HateThreatening       float64 `json:"hate/threatening"`
+				ViolenceGraphic       float64 `json:"violence/graphic"`
+				SelfHarmIntent        float64 `json:"self-harm/intent"`
+				SelfHarmInstructions  float64 `json:"self-harm/instructions"`
+				HarassmentThreatening float64 `json:"harassment/threatening"`
+				Violence              float64 `json:"violence"`
+			} `json:"category_scores"`
+		} `json:"results"`
+	}
+
+	// Set up the request
+	requestBody, err := json.Marshal(ModerationRequest{Input: text})
+	if err != nil {
+		return nil, fmt.Errorf("failed to marshal request: %v", err)
+	}
+
+	// Execute the request
+	apiKey := os.Getenv("OPENAI_API_KEY")
+	req, err := http.NewRequest("POST", "https://api.openai.com/v1/moderations", bytes.NewBuffer(requestBody))
+	if err != nil {
+		return nil, err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Authorization", "Bearer "+apiKey)
+
+	client := &http.Client{}
+	resp, err := client.Do(req)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// Read and parse the response
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	// Parse the response JSON
+	var moderationResponse ModerationResponse
+	err = json.Unmarshal(body, &moderationResponse)
+	if err != nil {
+		return nil, err
+	}
+
+	// Extract only the relevant fields from the first result
+	if len(moderationResponse.Results) == 0 {
+		return nil, fmt.Errorf("no results found in moderation response")
+	}
+
+	result := moderationResponse.Results[0]
+	moderation := map[string]interface{}{
+		"flagged":         result.Flagged,
+		"categories":      result.Categories,
+		"category_scores": result.CategoryScores,
+	}
+
+	return moderation, nil
 }
 
 // Helper function to load environment variables from a .env file
