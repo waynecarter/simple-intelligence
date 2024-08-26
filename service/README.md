@@ -6,16 +6,16 @@ This document outlines the intelligence services implemented to process data. Ea
 
 ### Services
 
-- **Sentiment Analysis:** Detects sentiment in text (positive, negative, neutral, or mixed).
-- **Classification:** Categorizes text into predefined classes.
-- **Entity Extraction:** Identifies entities (e.g. persons, locations, organizations) within text.
-- **Grammar Correction:** Fixes grammatical errors.
-- **Text Generation:** Produces text from a prompt.
-- **Masking:** Hides specified entities (e.g. names, emails).
-- **Similarity Analysis:** Compares texts and provides a similarity score.
-- **Summarization:** Condenses text into a shorter version.
-- **Translation:** Converts text between languages.
-- **Text Embedding:** Converts text into numerical vectors for machine learning.
+- **Sentiment Analysis:** Detects sentiment in text (positive, negative, neutral, or mixed)
+- **Classification:** Categorizes text into predefined classes
+- **Entity Extraction:** Identifies entities (e.g. persons, locations, organizations) within text
+- **Grammar Correction:** Fixes grammatical errors
+- **Text Generation:** Produces text from a prompt
+- **Masking:** Hides specified entities (e.g. names, emails)
+- **Similarity Analysis:** Compares texts and provides a similarity score
+- **Summarization:** Condenses text into a shorter version
+- **Translation:** Converts text between languages
+- **Text Embedding:** Converts text into numerical vectors for machine learning
 
 ### Demo Videos
 
@@ -28,16 +28,16 @@ These demos showcase the intelligence services in action:
 
 To set up the service:
 
-1. **Install Golang:** Ensure Golang is installed.
+1. **Install Golang:** Ensure Golang is installed
 2. **Set Environment Variables:** 
-   - Set `OPENAI_API_KEY` in your environment.
-   - Optionally, set `PORT` (default is 8080).
+   - Set `OPENAI_API_KEY` in your environment
+   - Optionally, set `PORT` (default is 8080)
    - You can define these variables directly in your environment or use a `intelligence.env` file in the root directory of your project like the following:
      ```
      OPENAI_API_KEY=your_openai_api_key
      PORT=8080
      ```
-3. **Start the Service:** Run `intelligence.go`.
+3. **Start the Service:** Run `intelligence.go`
 
 ### Example cURL Call
 Here is an example of how to make a cURL call directly to the intelligence service:
@@ -54,7 +54,7 @@ curl -X POST "http://localhost:8080/intelligence?model=sentiment" \
 
 To use CURL in SQL++ queries with Couchbase Server:
 
-1. Go to Couchbase Server dashboard.
+1. Go to Couchbase Server dashboard
 2. Navigate to **Settings > Query Settings > Advanced Query Settings**
 3. Set **CURL() Function Access** to `Restricted`
 4. Add an **Allowed CURL URL** with the value `http://localhost:8080/intelligence`
@@ -210,8 +210,8 @@ SELECT intelligence("embeddings", { "text": "The quick brown fox jumps over the 
 To set up an eventing function in Couchbase Server that enriches documents:
 
 ### Create Function
-1. Log in to Couchbase Server UI and go to **Eventing**.
-2. Add a new function (e.g. EnrichSentiment).
+1. Log in to Couchbase Server UI and go to **Eventing**
+2. Add a new function (e.g. EnrichSentiment)
 
 ### Create Aliases
 In the function setting:
@@ -220,7 +220,7 @@ In the function setting:
    * **URL:** `http://localhost:8080/intelligence`
 2. Create a **Bucket Alias**:
    * **Name:** `targetBucket`
-   * **Bucket:** Select the target bucket.
+   * **Bucket:** Select the target bucket
 
 ### Code
 
