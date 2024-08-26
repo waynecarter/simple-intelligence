@@ -2,25 +2,27 @@
 
 ## Overview
 
-This provides an overview of the intelligence services that have been implemented and how to use them. Each service is designed to process text data in different ways, returning structured results that can be used for further analysis, decision making, or enrichment.
+This document outlines the intelligence services implemented to process data. Each service is designed to deliver structured results for analysis, decision-making, and enrichment.
 
 ### Services
-* **Sentiment Analysis:** Analyzes the sentiment of a given text and returns whether the sentiment is positive, negative, neutral, or mixed.
-* **Classification:** Classifies text into predefined categories.
-* **Entity Extraction:** Extracts entities such as persons, locations, or organizations from text.
-* **Grammar Correction:** Corrects grammatical errors in a given text.
-* **Text Generation:** Generates text based on a given prompt.
-* **Masking:** Masks specified entities (e.g., names, emails) in the text.
-* **Similarity Analysis:** Compares two texts and returns a similarity score.
-* **Summarization:** Summarizes a longer piece of text into a shorter form.
-* **Translation:** Translates text from one language to another.
-* **Text Embedding:** Converts text into a numerical vector for machine learning models.
+
+- **Sentiment Analysis:** Detects sentiment in text (positive, negative, neutral, or mixed).
+- **Classification:** Categorizes text into predefined classes.
+- **Entity Extraction:** Identifies entities (e.g. persons, locations, organizations) within text.
+- **Grammar Correction:** Fixes grammatical errors.
+- **Text Generation:** Produces text from a prompt.
+- **Masking:** Hides specified entities (e.g. names, emails).
+- **Similarity Analysis:** Compares texts and provides a similarity score.
+- **Summarization:** Condenses text into a shorter version.
+- **Translation:** Converts text between languages.
+- **Text Embedding:** Converts text into numerical vectors for machine learning.
 
 ### Demo Videos
-These demo videos show use-cases of the intelligence services in action:
 
-* [Query](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
-* [Enrichment](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
+These demos showcase the intelligence services in action:
+
+- [Query](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
+- [Enrichment](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
 
 ## Service Setup
 To setup the service, follow these steps:
