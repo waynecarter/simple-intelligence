@@ -126,7 +126,16 @@ func getIntelligence(model string, params map[string]interface{}) (interface{}, 
 		intelligence, err = getTranslation(text, toLanguage)
 
 	case "embeddings":
-		texts, _ := params["text"].([]string)
+		// Convert 'text' to a slice if it's not already one
+		var texts []string
+		switch text := params["text"].(type) {
+		case []string:
+			texts = text
+		case string:
+			texts = []string{text}
+		default:
+			texts = []string{}
+		}
 		intelligence, err = getEmbeddings(texts)
 
 	default:
