@@ -17,9 +17,7 @@ This provides an overview of the intelligence services that have been implemente
 * **Text Embedding:** Converts text into a numerical vector for machine learning models.
 
 ## Service Setup
-
-### Start
-To start the intelligence service, follow these steps:
+To setup the service, follow these steps:
 
 1. **Install Golang:** Make sure you have Golang installed.
 2. **Set Environment Variables:** Ensure that the `OPENAI_API_KEY` is set in the environment variables. The service uses port 8080 by default and this can be overridded using the `PORT` environment variable. The variables can be set directly in your environment or you can create a `intelligence.env` file in the project directory with the variables defined as follows:
