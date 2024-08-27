@@ -2,7 +2,7 @@
 
 ## Overview
 
-This document outlines the intelligence services implemented to process data. Each service is designed to deliver structured results for analysis, decision-making, and enrichment.
+Discover how our intelligence services can transform your data into actionable insights for analysis, decision-making, and enrichment—combining the power of SQL+AI to unlock powerful results.
 
 ### Services
 
