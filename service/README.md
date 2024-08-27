@@ -33,7 +33,7 @@ To set up the service:
 2. **Set Environment Variables:** 
    - Set `OPENAI_API_KEY` in your environment
    - Optionally, set `PORT` (default is 8080)
-   - You can define these variables directly in your environment or use a `intelligence.env` file in the root directory of your project like the following:
+   - You can define these variables directly in your environment or use an `intelligence.env` file in the root directory of your project like the following:
      ```
      OPENAI_API_KEY=your_openai_api_key
      PORT=8080
