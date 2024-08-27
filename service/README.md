@@ -56,11 +56,12 @@ curl -X POST "http://localhost:8080/intelligence?model=sentiment" \
 
 To use CURL in SQL++ queries with Couchbase Server:
 
-1. Go to Couchbase Server dashboard
-2. Navigate to **Settings > Query Settings > Advanced Query Settings**
-3. Set **CURL() Function Access** to `Restricted`
-4. Add an **Allowed CURL URL** with the value `http://localhost:8080/intelligence`
-5. Save the changes
+1. Ensure [Couchbase Server](https://www.couchbase.com/downloads/?family=couchbase-server) is installed
+2. Go to Couchbase Server dashboard
+3. Navigate to **Settings > Query Settings > Advanced Query Settings**
+4. Set **CURL() Function Access** to `Restricted`
+5. Add an **Allowed CURL URL** with the value `http://localhost:8080/intelligence`
+6. Save the changes
 
 ### Create UDF
 
