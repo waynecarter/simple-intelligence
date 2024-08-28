@@ -36,43 +36,90 @@ func main() {
 }
 
 func intelligenceHandler() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("Content-Type", "application/json")
-		model := r.URL.Query().Get("model")
+	return func(writer http.ResponseWriter, request *http.Request) {
+		writer.Header().Set("Content-Type", "application/json")
 
-		// Get the input parameters
-		paramsStr := r.URL.Query().Get("params")
-		var params map[string]interface{}
-		if paramsStr != "" {
-			err := json.Unmarshal([]byte(paramsStr), &params)
-			if err != nil {
-				http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusBadRequest)
-				return
-			}
-		} else {
-			err := json.NewDecoder(r.Body).Decode(&params)
-			if err != nil {
-				http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusBadRequest)
-				return
-			}
-		}
-
-		// Generate the intelligence
-		intelligence, err := getIntelligence(model, params)
-		if err != nil {
-			http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusBadRequest)
+		// Decode the incoming JSON
+		var rawRequest map[string]interface{}
+		decoder := json.NewDecoder(request.Body)
+		decoder.DisallowUnknownFields()
+		if err := decoder.Decode(&rawRequest); err != nil {
+			http.Error(writer, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusBadRequest)
 			return
 		}
 
-		// Prepare and send response
-		response := make(map[string]interface{})
-		if intelligence != nil {
-			response[model] = intelligence
+		var isBatch bool
+		var requests = make(map[string]map[string]interface{})
+
+		// Determine if the request is a single or batch request
+		model := request.URL.Query().Get("model")
+		if model != "" {
+			isBatch = false
+			requests[model] = rawRequest
+		} else {
+			isBatch = true
+			for key, value := range rawRequest {
+				if valueMap, ok := value.(map[string]interface{}); ok {
+					if _, exists := valueMap["model"]; !exists {
+						// Default to the key if model isn't set
+						valueMap["model"] = key
+					}
+					requests[key] = valueMap
+				}
+			}
 		}
 
-		err = json.NewEncoder(w).Encode(response)
+		// Channel for handling parallel processing
+		results := make(chan struct {
+			key    string
+			result interface{}
+			err    error
+		}, len(requests))
+
+		// Process each request in parallel
+		for key, req := range requests {
+			go func(key string, req map[string]interface{}) {
+				model, ok := req["model"].(string)
+				if !ok || model == "" {
+					model = key
+				}
+				intelligence, err := getIntelligence(model, req)
+				results <- struct {
+					key    string
+					result interface{}
+					err    error
+				}{key: key, result: intelligence, err: err}
+			}(key, req)
+		}
+
+		// Collect results and prepare the response
+		response := make(map[string]interface{})
+		errors := make(map[string]string)
+		for i := 0; i < len(requests); i++ {
+			request := <-results
+			if request.err != nil {
+				errors[request.key] = request.err.Error()
+			} else {
+				response[request.key] = request.result
+			}
+		}
+
+		// Handle errors based on whether it was a batch request or not
+		if len(errors) > 0 {
+			if isBatch {
+				response["errors"] = errors
+			} else {
+				for _, error := range errors {
+					response = map[string]interface{}{"error": error}
+					break
+				}
+			}
+		}
+
+		// Send the response
+		err := json.NewEncoder(writer).Encode(response)
 		if err != nil {
-			http.Error(w, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusInternalServerError)
+			http.Error(writer, fmt.Sprintf(`{"error":"%s"}`, err.Error()), http.StatusInternalServerError)
 		}
 	}
 }
