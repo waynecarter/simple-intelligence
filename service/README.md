@@ -68,13 +68,23 @@ To use CURL in SQL++ queries with Couchbase Server:
 Integrate the intelligence services with Couchbase Server using this User-Defined Function (UDF):
 
 ```sql
-CREATE FUNCTION intelligence(model, params) {
-    CURL("http://localhost:8080/intelligence?model=" || model, {
-        "request": "POST",
-        "header": ["Content-Type: application/json"],
-        "connect-timeout": 5000,
-        "data": ENCODE_JSON(params)
-    })
+CREATE FUNCTION intelligence(...) {
+    CASE 
+        WHEN ISSTRING(args[0]) AND ISOBJECT(args[1]) THEN
+            CURL("http://localhost:8080/intelligence?model=" || args[0], {
+                "request": "POST",
+                "header": ["Content-Type: application/json"],
+                "connect-timeout": 5000,
+                "data": ENCODE_JSON(args[1])
+            })
+        WHEN ISOBJECT(args[0]) THEN
+            CURL("http://localhost:8080/intelligence", {
+                "request": "POST",
+                "header": ["Content-Type: application/json"],
+                "connect-timeout": 5000,
+                "data": ENCODE_JSON(args[0])
+            })
+    END
 };
 ```
 
@@ -216,35 +226,57 @@ SELECT intelligence("moderation", { "text": "This is some harmful content." }).m
 
 ```javascript
 {
-   "moderation": {
-      "flagged": true,
-      "categories": {
-         "harassment": true,
-         "harassment/threatening": true,
-         "hate": false,
-         "hate/threatening": false,
-         "self-harm": false,
-         "self-harm/instructions": false,
-         "self-harm/intent": false,
-         "sexual": false,
-         "sexual/minors": false,
-         "violence": true,
-         "violence/graphic": false
-      },
-      "category_scores": {
-         "harassment": 0.5665766596794128,
-         "harassment/threatening": 0.503197431564331,
-         "hate": 0.0006636827602051198,
-         "hate/threatening": 0.00013561644300352782,
-         "self-harm": 0.0000034303338907193393,
-         "self-harm/instructions": 7.106075283758173e-9,
-         "self-harm/intent": 2.732113273395953e-7,
-         "sexual": 0.0003790947957895696,
-         "sexual/minors": 0.000006095848675613524,
-         "violence": 0.9586367011070251,
-         "violence/graphic": 0.000556226703338325
-      }
-   }
+  "moderation": {
+    "flagged": true,
+    "categories": {
+      "harassment": true,
+      "harassment/threatening": true,
+      "hate": false,
+      "hate/threatening": false,
+      "self-harm": false,
+      "self-harm/instructions": false,
+      "self-harm/intent": false,
+      "sexual": false,
+      "sexual/minors": false,
+      "violence": true,
+      "violence/graphic": false
+    },
+    "category_scores": {
+      "harassment": 0.5665766596794128,
+      "harassment/threatening": 0.503197431564331,
+      "hate": 0.0006636827602051198,
+      "hate/threatening": 0.00013561644300352782,
+      "self-harm": 0.0000034303338907193393,
+      "self-harm/instructions": 7.106075283758173e-9,
+      "self-harm/intent": 2.732113273395953e-7,
+      "sexual": 0.0003790947957895696,
+      "sexual/minors": 0.000006095848675613524,
+      "violence": 0.9586367011070251,
+      "violence/graphic": 0.000556226703338325
+    }
+  }
+}
+```
+
+### Batch
+
+```sql
+SELECT RAW intelligence({
+  "sentiment": { "text": "I am happy" },
+  "classification": { "text": "My password is leaked.", "labels": ["urgent", "not urgent"] },
+  "my_extraction": { "model": "extraction", "text": "John Doe lives in New York and works for Acme Corp.", "labels": ["person", "location", "organization"] }
+});
+```
+
+```javascript
+{
+  "sentiment": "positive",
+  "classification": "urgent",
+  "my_extraction": {
+    "location": "New York",
+    "organization": "Acme Corp.",
+    "person": "John Doe"
+  }
 }
 ```
 
