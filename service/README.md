@@ -6,12 +6,12 @@ Discover how our intelligence services can transform your data into actionable i
 
 ### Services
 
-- **Sentiment Analysis:** Detects sentiment in text (positive, negative, neutral, or mixed)
+- **Sentiment Analysis:** Detects positive, negative, neutral, or mixed sentiment in text
 - **Classification:** Categorizes text into predefined classes
-- **Entity Extraction:** Identifies entities (e.g. persons, locations, organizations) within text
+- **Entity Extraction:** Identifies entities within text like persons, locations, and organizations
 - **Grammar Correction:** Fixes grammatical errors
 - **Text Generation:** Produces text from a prompt
-- **Masking:** Hides specified entities (e.g. names, emails)
+- **Masking:** Hides specified entities like names and emails
 - **Similarity Analysis:** Compares texts and provides a similarity score
 - **Summarization:** Condenses text into a shorter version
 - **Translation:** Converts text between languages
