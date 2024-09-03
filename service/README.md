@@ -25,72 +25,9 @@ These demos showcase the intelligence services in action:
 - [Query](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
 - [Enrichment](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
 
-## Service Setup
-
-To set up the service:
-
-1. **Install Golang:** Ensure Golang is installed
-2. **Set Environment Variables:** 
-   - Set `OPENAI_API_KEY` in your environment
-   - Optionally, set `PORT` (default is 8080)
-   - You can define these variables directly in your environment or use an `intelligence.env` file in the root directory of your project like the following:
-     ```
-     OPENAI_API_KEY=your_openai_api_key
-     PORT=8080
-     ```
-3. **Start the Service:** Run `intelligence.go`
-
-### Example CURL Call
-
-Here is an example of how to make a CURL call directly to the intelligence service:
-
-```sh
-curl -X POST "http://localhost:8080/intelligence?model=sentiment" \
-     -H "Content-Type: application/json" \
-     -d '{"text": "I am happy"}'
-```
-
-## Query Setup
-
-### Enable CURL
-
-To use CURL in SQL++ queries with Couchbase Server:
-
-1. Ensure [Couchbase Server](https://www.couchbase.com/downloads/?family=couchbase-server) is installed
-2. Go to Couchbase Server dashboard
-3. Navigate to **Settings > Query Settings > Advanced Query Settings**
-4. Set **CURL() Function Access** to `Restricted`
-5. Add an **Allowed CURL URL** with the value `http://localhost:8080/intelligence`
-6. Save the changes
-
-### Create UDF
-
-Integrate the intelligence services with Couchbase Server using this User-Defined Function (UDF):
-
-```sql
-CREATE FUNCTION intelligence(...) {
-    CASE 
-        WHEN ISSTRING(args[0]) AND ISOBJECT(args[1]) THEN
-            CURL("http://localhost:8080/intelligence?model=" || args[0], {
-                "request": "POST",
-                "header": ["Content-Type: application/json"],
-                "connect-timeout": 5000,
-                "data": ENCODE_JSON(args[1])
-            })
-        WHEN ISOBJECT(args[0]) THEN
-            CURL("http://localhost:8080/intelligence", {
-                "request": "POST",
-                "header": ["Content-Type: application/json"],
-                "connect-timeout": 5000,
-                "data": ENCODE_JSON(args[0])
-            })
-    END
-};
-```
-
 ## Query Examples
 
-Here are SQL++ query examples using the intelligence UDF:
+Here are SQL query examples using the [intelligence UDF](#create-udf):
 
 ### Sentiment Analysis
 
@@ -278,6 +215,69 @@ SELECT RAW intelligence({
     "person": "John Doe"
   }
 }
+```
+
+## Service Setup
+
+To set up the service:
+
+1. **Install Golang:** Ensure Golang is installed
+2. **Set Environment Variables:** 
+   - Set `OPENAI_API_KEY` in your environment
+   - Optionally, set `PORT` (default is 8080)
+   - You can define these variables directly in your environment or use an `intelligence.env` file in the root directory of your project like the following:
+     ```
+     OPENAI_API_KEY=your_openai_api_key
+     PORT=8080
+     ```
+3. **Start the Service:** Run `intelligence.go`
+
+### Example CURL Call
+
+Here is an example of how to make a CURL call directly to the intelligence service:
+
+```sh
+curl -X POST "http://localhost:8080/intelligence?model=sentiment" \
+     -H "Content-Type: application/json" \
+     -d '{"text": "I am happy"}'
+```
+
+## Query Setup
+
+### Enable CURL
+
+To use CURL in SQL++ queries with Couchbase Server:
+
+1. Ensure [Couchbase Server](https://www.couchbase.com/downloads/?family=couchbase-server) is installed
+2. Go to Couchbase Server dashboard
+3. Navigate to **Settings > Query Settings > Advanced Query Settings**
+4. Set **CURL() Function Access** to `Restricted`
+5. Add an **Allowed CURL URL** with the value `http://localhost:8080/intelligence`
+6. Save the changes
+
+### Create UDF
+
+Integrate the intelligence services with Couchbase Server using this User-Defined Function (UDF):
+
+```sql
+CREATE FUNCTION intelligence(...) {
+    CASE 
+        WHEN ISSTRING(args[0]) AND ISOBJECT(args[1]) THEN
+            CURL("http://localhost:8080/intelligence?model=" || args[0], {
+                "request": "POST",
+                "header": ["Content-Type: application/json"],
+                "connect-timeout": 5000,
+                "data": ENCODE_JSON(args[1])
+            })
+        WHEN ISOBJECT(args[0]) THEN
+            CURL("http://localhost:8080/intelligence", {
+                "request": "POST",
+                "header": ["Content-Type: application/json"],
+                "connect-timeout": 5000,
+                "data": ENCODE_JSON(args[0])
+            })
+    END
+};
 ```
 
 ## Eventing Setup
