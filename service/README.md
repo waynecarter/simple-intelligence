@@ -27,7 +27,7 @@ These demos showcase the intelligence services in action:
 
 ## Query Examples
 
-Here are SQL query examples using the [intelligence UDF](#create-udf):
+Here are SQL query examples using the [intelligence function](#create-udf):
 
 ### Sentiment Analysis
 
