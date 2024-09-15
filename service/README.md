@@ -59,7 +59,7 @@ SELECT intelligence("classification", { "text": "My password is leaked.", "label
 #### Images
 
 ```sql
-SELECT intelligence("classification", { "labels": ["circle", "square", "triangle"], "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII=" } }).classification;
+SELECT intelligence("classification", { "labels": ["circle", "square", "triangle"], "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." } }).classification;
 ```
 
 ```javascript
@@ -89,7 +89,7 @@ SELECT intelligence("extraction", { "text": "John Doe lives in New York and work
 #### Images
 
 ```sql
-SELECT intelligence("extraction", { "labels": ["shape", "color", "background"], "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII=" } }).extraction;
+SELECT intelligence("extraction", { "labels": ["shape", "color", "background"], "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." } }).extraction;
 ```
 
 ```javascript
@@ -131,7 +131,7 @@ SELECT intelligence("generated_text", { "prompt": "Generate a concise, cheerful 
 #### Images
 
 ```sql
-SELECT intelligence("generated_text", { "prompt": "Describe the image", "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII=" } }).generated_text;
+SELECT intelligence("generated_text", { "prompt": "Describe the image", "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." } }).generated_text;
 ```
 
 ```javascript
@@ -143,14 +143,14 @@ SELECT intelligence("generated_text", { "prompt": "Describe the image", "files":
 ### Image Generation
 
 ```sql
-SELECT intelligence("generated_image", { "prompt": "A sunset over the mountains in a watercolor style" }).generated_image;
+SELECT intelligence("generated_image", { "prompt": "A beautiful beach in a photorealistic style", "size": "1024x1024" }).generated_image;
 ```
 
 ```javascript
 {
   "generated_image": {
       "content_type": "image/png",
-      "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII="
+      "base64": "iVBORw0KGgoAAAANSU..."
   }
 }
 ```
@@ -275,6 +275,154 @@ SELECT RAW intelligence({
     "location": "New York",
     "organization": "Acme Corp.",
     "person": "John Doe"
+  }
+}
+```
+
+## GraphQL Integration
+
+Intelligence Service supports GraphQL, allowing you to query services for real-time insights and data processing. The GraphQL endpoint is accessible at `/graphql`.
+
+### GraphQL Schema
+
+```graphql
+schema {
+  query: Query
+}
+
+type Query {
+  sentiment(text: String!): String!
+  classification(text: String, files: [InputBlob!], labels: [String!]!): String!
+  extraction(text: String, files: [InputBlob!], labels: [String!]!): JSON!
+  correctedGrammar(text: String!): String!
+  generatedText(prompt: String!, files: [InputBlob!], maxWords: Int): String!
+  generatedImage(prompt: String!, size: String, quality: String, style: String): Blob!
+  masked(text: String!, labels: [String!]!): String!
+  similarity(text1: String!, text2: String!): Float!
+  summary(text: String!, maxWords: Int!): String!
+  translation(text: String!, toLanguage: String!): String!
+  embeddings(texts: [String!]!): [[Float!]!]!
+  moderation(text: String!): ModerationResponse!
+}
+
+type Blob {
+  contentType: String!
+  base64: String!
+}
+
+type InputBlob {
+  contentType: String!
+  base64: String!
+}
+
+type ModerationResponse {
+  flagged: Boolean!
+  categories: ModerationCategories!
+  categoryScores: ModerationCategoryScores!
+}
+
+type ModerationCategories {
+  sexual: Boolean!
+  hate: Boolean!
+  harassment: Boolean!
+  selfHarm: Boolean!
+  sexualMinors: Boolean!
+  hateThreatening: Boolean!
+  violenceGraphic: Boolean!
+  selfHarmIntent: Boolean!
+  selfHarmInstructions: Boolean!
+  harassmentThreatening: Boolean!
+  violence: Boolean!
+}
+
+type ModerationCategoryScores {
+  sexual: Float!
+  hate: Float!
+  harassment: Float!
+  selfHarm: Float!
+  sexualMinors: Float!
+  hateThreatening: Float!
+  violenceGraphic: Float!
+  selfHarmIntent: Float!
+  selfHarmInstructions: Float!
+  harassmentThreatening: Float!
+  violence: Float!
+}
+
+scalar JSON
+```
+
+### Example Queries
+
+Here are example GraphQL queries for the intelligence services:
+
+#### Sentiment Analysis
+
+```graphql
+query {
+  sentiment(text: "I am happy")
+}
+```
+
+```json
+{
+  "data": {
+    "sentiment": "positive"
+  }
+}
+```
+
+#### Classification
+
+```graphql
+query {
+  classification(text: "My password is leaked.", labels: ["urgent", "not urgent"])
+}
+```
+
+```json
+{
+  "data": {
+    "classification": "urgent"
+  }
+}
+```
+
+#### Extraction
+
+```graphql
+query {
+  extraction(text: "John Doe lives in New York and works for Acme Corp.", labels: ["person", "location", "organization"])
+}
+```
+
+```json
+{
+  "data": {
+    "extraction": {
+      "person": "John Doe",
+      "location": "New York",
+      "organization": "Acme Corp."
+    }
+  }
+}
+```
+
+#### Image Generation
+
+```graphql
+query {
+  generatedImage(prompt: "A beautiful beach in a photorealistic style", size: "1024x1024")
+}
+```
+
+```json
+{
+  "data": {
+    "generatedImage": {
+      "contentType": "image/png",
+      "base64": "iVBORw0KGgoAAAANSU..."
+    }
   }
 }
 ```
