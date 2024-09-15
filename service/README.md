@@ -42,7 +42,7 @@ SELECT intelligence("sentiment", { "text": "I am happy" }).sentiment;
 }
 ```
 
-### Text Classification
+### Classification
 
 #### Text
 
