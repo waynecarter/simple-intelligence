@@ -1,0 +1,65 @@
+
+schema {
+  query: Query
+}
+
+type Query {
+  sentiment(text: String!): String!
+  classification(text: String, files: [InputBlob!], labels: [String!]!): String!
+  extraction(text: String, files: [InputBlob!], labels: [String!]!): JSON!
+  correctedGrammar(text: String!): String!
+  generatedText(prompt: String!, files: [InputBlob!], maxWords: Int): String!
+  generatedImage(prompt: String!, size: String, quality: String, style: String): Blob!
+  masked(text: String!, labels: [String!]!): String!
+  similarity(text1: String!, text2: String!): Float!
+  summary(text: String!, maxWords: Int!): String!
+  translation(text: String!, toLanguage: String!): String!
+  embeddings(texts: [String!]!): [[Float!]!]!
+  moderation(text: String!): ModerationResponse!
+}
+
+type Blob {
+  contentType: String!
+  base64: String!
+}
+
+type InputBlob {
+  contentType: String!
+  base64: String!
+}
+
+type ModerationResponse {
+  flagged: Boolean!
+  categories: ModerationCategories!
+  categoryScores: ModerationCategoryScores!
+}
+
+type ModerationCategories {
+  sexual: Boolean!
+  hate: Boolean!
+  harassment: Boolean!
+  selfHarm: Boolean!
+  sexualMinors: Boolean!
+  hateThreatening: Boolean!
+  violenceGraphic: Boolean!
+  selfHarmIntent: Boolean!
+  selfHarmInstructions: Boolean!
+  harassmentThreatening: Boolean!
+  violence: Boolean!
+}
+
+type ModerationCategoryScores {
+  sexual: Float!
+  hate: Float!
+  harassment: Float!
+  selfHarm: Float!
+  sexualMinors: Float!
+  hateThreatening: Float!
+  violenceGraphic: Float!
+  selfHarmIntent: Float!
+  selfHarmInstructions: Float!
+  harassmentThreatening: Float!
+  violence: Float!
+}
+
+scalar JSON

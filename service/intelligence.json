@@ -1,0 +1,346 @@
+
+{
+  "sentiment": {
+    "type": "v1/completions",
+    "model": "gpt-4o-mini",
+    "provider": "openai",
+    "params": {
+      "text": { "required": true }
+    },
+    "completions": {
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            "You are a highly accurate sentiment analysis assistant. Your task is to determine the",
+            "sentiment of the text provided by the user. You must respond with exactly one of the",
+            "following terms: positive, negative, neutral, mixed, or unknown. Provide no additional",
+            "text or explanation."
+          ]
+        },
+        {
+          "role": "user",
+          "content": [ "{{params.text}}" ]
+        }
+      ],
+      "temperature": 0.5,
+      "max_tokens": {
+        "value": 10
+      }
+    }
+  },
+  "classification": {
+    "type": "v1/completions",
+    "model": "gpt-4o-mini",
+    "provider": "openai",
+    "params": {
+      "text": null,
+      "files": null,
+      "labels": { "required": true }
+    },
+    "completions": {
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            "You are a highly accurate classification assistant. Your task is to categorize the text provided by the user",
+            "into one of the following classifications: {{params.labels}}. If the text clearly aligns with one of these",
+            "labels, respond with the exact label. If the text does not clearly match any of the provided labels, respond",
+            "with 'unknown'. Do not include any additional text or explanation."
+          ]
+        },
+        {
+          "role": "user",
+          "content": [ "{{params.text}}" ]
+        }
+      ],
+      "temperature": 0.5,
+      "max_tokens": {
+        "add": [
+          { "param": "labels", "measure": "max_item_length", "add": 10 }
+        ]
+      }
+    }
+  },
+  "extraction": {
+    "type": "v1/completions",
+    "model": "gpt-4o-mini",
+    "provider": "openai",
+    "params": {
+      "text": null,
+      "files": null,
+      "labels": { "required": true }
+    },
+    "completions": {
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            "You are a highly accurate entity extraction assistant. Extract specific types of entities from the provided text.",
+            "The entities to be extracted are: {{params.labels}}. Return the entities in a JSON format with the entity types",
+            "as keys and the extracted values as values. If an entity is not found, completely omit that entity type from the",
+            "JSON output. Do not return null or empty values.",
+            "",
+            "Example 1:",
+            "Text: John Doe lives in New York and works for Acme Corp.",
+            "Entity Types: person, location, organization, time",
+            "Result: {\"person\": \"John Doe\", \"location\": \"New York\", \"organization\": \"Acme Corp.\"}",
+            "",
+            "Example 2:",
+            "Text: Send an email to jane.doe@example.com about the meeting at 10am.",
+            "Entity Types: email, time",
+            "Result: {\"email\": \"jane.doe@example.com\", \"time\": \"10am\"}"
+          ]
+        },
+        {
+          "role": "user",
+          "content": [ "{{params.text}}" ]
+        }
+      ],
+      "temperature": 0.5,
+      "max_tokens": {
+        "add": [
+          { "param": "labels", "measure": "length", "multiply": 50 },
+          { "param": "labels", "measure": "sum_item_length" }
+        ]
+      },
+      "response_format": {
+        "type": "json_schema",
+        "json_schema": {
+          "name": "extraction_response",
+          "schema": {
+            "type": "object",
+            "properties": {
+              "@for-each": {
+                "in": "{{params.labels}}",
+                "key": "{{item}}",
+                "value": {
+                  "type": "string"
+                }
+              }
+            },
+            "additionalProperties": false
+          }
+        }
+      }
+    }
+  },
+  "corrected_grammar": {
+    "type": "v1/completions",
+    "model": "gpt-4o-mini",
+    "provider": "openai",
+    "params": {
+      "text": { "required": true }
+    },
+    "completions": {
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            "You are a highly accurate grammar correction assistant. Your task is to correct the grammar",
+            "in the text provided by the user. Respond with the corrected version of the text only, with",
+            "no additional text or explanation."
+          ]
+        },
+        {
+          "role": "user",
+          "content": [ "{{params.text}}" ]
+        }
+      ],
+      "temperature": 0.5,
+      "max_tokens": {
+        "add": [
+          { "param": "text", "measure": "length", "multiply": 1.5 }
+        ]
+      }
+    }
+  },
+  "generated_text": {
+    "type": "v1/completions",
+    "model": "gpt-4o-mini",
+    "provider": "openai",
+    "params": {
+      "prompt": { "required": true },
+      "max_words": { "default": 50 },
+      "files": null
+    },
+    "completions": {
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            "You are a skilled text generation assistant with a strong command of language. Your task is to",
+            "write well-structured, clear, and effective responses based on the user's prompt in {{params.max_words}}",
+            "words or less. Ensure the response is relevant and concise. Do not include any emojis unless the",
+            "user explicitly requests them. Don't use leading and trailing quotation marks."
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            "{{params.prompt}}",
+            "Don't use leading and trailing quotation marks."
+          ]
+        }
+      ],
+      "temperature": 0.7,
+      "max_tokens": {
+        "add": [
+          { "param": "max_words", "multiply": 1.3 }
+        ]
+      }
+    }
+  },
+  "masked": {
+    "type": "v1/completions",
+    "model": "gpt-4o-mini",
+    "provider": "openai",
+    "params": {
+      "text": { "required": true },
+      "labels": { "required": true }
+    },
+    "completions": {
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            "You are a skilled text processing assistant. Your task is to mask specific types of information in the text",
+            "provided by the user. The types of information to be masked are: {{params.labels}}. Replace each instance",
+            "of the specified information with '[MASKED]'. Ensure that only the specified information is masked, and that",
+            "the rest of the content remains unchanged."
+          ]
+        },
+        {
+          "role": "user",
+          "content": [ "{{params.text}}" ]
+        }
+      ],
+      "temperature": 0.5,
+      "max_tokens": {
+        "add": [
+          { "param": "text", "measure": "length", "multiply": 1.5 }
+        ]
+      }
+    }
+  },
+  "similarity": {
+    "type": "v1/completions",
+    "model": "gpt-4o-mini",
+    "provider": "openai",
+    "params": {
+      "text1": { "required": true },
+      "text2": { "required": true }
+    },
+    "completions": {
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            "You are a highly accurate semantic analysis assistant. Your task is to evaluate the semantic similarity between",
+            "two pieces of text provided by the user. Provide a similarity score as a floating-point number between 0.0 and 1.0,",
+            "where 1.0 means the texts are identical in meaning, and 0.0 means they are completely different. Provide only the",
+            "similarity score as a floating-point number, with no additional text or explanation."
+          ]
+        },
+        {
+          "role": "user",
+          "content": [
+            "Text 1: {{params.text1}}",
+            "Text 2: {{params.text2}}"
+          ]
+        }
+      ],
+      "temperature": 0.1,
+      "max_tokens": {
+        "value": 10
+      }
+    }
+  },
+  "summary": {
+    "type": "v1/completions",
+    "model": "gpt-4o-mini",
+    "provider": "openai",
+    "params": {
+      "text": { "required": true },
+      "max_words": { "default": 50 }
+    },
+    "completions": {
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            "You are a highly accurate summarization assistant. Summarize the user's content in {{params.max_words}} words",
+            "or less. Focus on the key points and avoid repetition. Return only the summary without any explanations or",
+            "instructions."
+          ]
+        },
+        {
+          "role": "user",
+          "content": [ "{{params.text}}" ]
+        }
+      ],
+      "temperature": 0.5,
+      "max_tokens": {
+        "add": [
+          { "param": "max_words", "multiply": 1.3 }
+        ]
+      }
+    }
+  },
+  "translation": {
+    "type": "v1/completions",
+    "model": "gpt-4o-mini",
+    "provider": "openai",
+    "params": {
+      "text": { "required": true },
+      "to_language": { "required": true }
+    },
+    "completions": {
+      "messages": [
+        {
+          "role": "system",
+          "content": [
+            "You are a highly accurate translation assistant. Translate the provided text to {{params.to_language}}.",
+            "Return only the translated text, with no additional explanation."
+          ]
+        },
+        {
+          "role": "user",
+          "content": [ "{{params.text}}" ]
+        }
+      ],
+      "temperature": 0.1,
+      "max_tokens": {
+        "add": [
+          { "param": "text", "measure": "length", "multiply": 1.5 }
+        ]
+      }
+    }
+  },
+  "generated_image": {
+    "type": "v1/images/generations",
+    "model": "dall-e-3",
+    "provider": "openai",
+    "params": {
+      "prompt": { "required": true },
+      "size": null,
+      "quality": null,
+      "style": null
+    }
+  },
+  "embeddings": {
+    "type": "v1/embeddings",
+    "model": "text-embedding-3-small",
+    "provider": "openai",
+    "params": {
+      "texts": { "required": true }
+    }
+  },
+  "moderation": {
+    "type": "v1/moderations",
+    "provider": "openai",
+    "params": {
+      "text": { "required": true }
+    }
+  }
+}
