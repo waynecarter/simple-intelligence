@@ -7,10 +7,11 @@ Discover how our intelligence services can transform your data into actionable i
 ### Services
 
 - **Sentiment Analysis:** Detects positive, negative, neutral, or mixed sentiment in text
-- **Classification:** Categorizes text into predefined classes
-- **Entity Extraction:** Identifies entities within text like persons, locations, and organizations
+- **Classification:** Categorizes text or images into predefined classes
+- **Entity Extraction:** Identifies entities within text or images like persons, locations, and organizations
 - **Grammar Correction:** Fixes grammatical errors
-- **Text Generation:** Produces text from a prompt
+- **Text Generation:** Produces text from a prompt or images
+- **Image Generation:** Produces an image from prompt
 - **Masking:** Hides specified entities like names and emails
 - **Similarity Analysis:** Compares texts and provides a similarity score
 - **Summarization:** Condenses text into a shorter version
@@ -43,6 +44,8 @@ SELECT intelligence("sentiment", { "text": "I am happy" }).sentiment;
 
 ### Text Classification
 
+#### Text
+
 ```sql
 SELECT intelligence("classification", { "text": "My password is leaked.", "labels": ["urgent", "not urgent"] }).classification;
 ```
@@ -53,7 +56,21 @@ SELECT intelligence("classification", { "text": "My password is leaked.", "label
 }
 ```
 
+#### Images
+
+```sql
+SELECT intelligence("classification", { "labels": ["circle", "square", "triangle"], "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII=" } }).classification;
+```
+
+```javascript
+{
+  "classification": "triangle"
+}
+```
+
 ### Entity Extraction
+
+#### Text
 
 ```sql
 SELECT intelligence("extraction", { "text": "John Doe lives in New York and works for Acme Corp.", "labels": ["person", "location", "organization"] }).extraction;
@@ -65,6 +82,22 @@ SELECT intelligence("extraction", { "text": "John Doe lives in New York and work
     "location": "New York",
     "organization": "Acme Corp.",
     "person": "John Doe"
+  }
+}
+```
+
+#### Images
+
+```sql
+SELECT intelligence("extraction", { "labels": ["shape", "color", "background"], "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII=" } }).extraction;
+```
+
+```javascript
+{
+  "extraction": {
+    "background": "white",
+    "color": "red",
+    "shape": "triangle"
   }
 }
 ```
@@ -83,13 +116,42 @@ SELECT intelligence("corrected_grammar", { "text": "This sentence have some mist
 
 ### Text Generation
 
+#### Text
+
 ```sql
-SELECT intelligence("generated_text", { "prompt": "Generate a concise, cheerful email title for a summer bike sale with 20% discount.", "max_words": 50 }).generated_text;
+SELECT intelligence("generated_text", { "prompt": "Generate a concise, cheerful email title for a summer bike sale with 20% discount." }).generated_text;
 ```
 
 ```javascript
 {
   "generated_text": "Pedal into Summer: Enjoy 20% Off Our Bike Sale!"
+}
+```
+
+#### Images
+
+```sql
+SELECT intelligence("generated_text", { "prompt": "Describe the image", "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII=" } }).generated_text;
+```
+
+```javascript
+{
+  "generated_text": "The image features a solid red triangle centered on a white background. The triangle points upwards, showcasing its geometric shape without any additional elements or colors.'"
+}
+```
+
+### Image Generation
+
+```sql
+SELECT intelligence("generated_image", { "prompt": "A sunset over the mountains in a watercolor style" }).generated_image;
+```
+
+```javascript
+{
+  "generated_image": {
+      "content_type": "image/png",
+      "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII="
+  }
 }
 ```
 
