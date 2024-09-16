@@ -26,6 +26,31 @@ These demos showcase the intelligence services in action:
 - [Query](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
 - [Enrichment](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
 
+## Service Setup
+
+To set up the service:
+
+1. **Install Golang:** Ensure Golang is installed
+2. **Set Environment Variables:** 
+   - Set `OPENAI_API_KEY` in your environment
+   - Optionally, set `PORT` (default is 8080)
+   - You can define these variables directly in your environment or use an `intelligence.env` file in the root directory of your project like the following:
+     ```
+     OPENAI_API_KEY=your_openai_api_key
+     PORT=8080
+     ```
+3. **Start the Service:** Run `main.go`
+
+### Example CURL Call
+
+Here is an example of how to make a CURL call directly to the intelligence service:
+
+```sh
+curl -X POST "http://localhost:8080/intelligence?model=sentiment" \
+     -H "Content-Type: application/json" \
+     -d '{"text": "I am happy"}'
+```
+
 ## Query Examples
 
 Here are SQL query examples using the [intelligence function](#create-udf):
@@ -279,37 +304,6 @@ SELECT RAW intelligence({
 }
 ```
 
-## GraphQL Integration
-
-You can also access our intelligence services using GraphQL.
-
-[Explore GraphQL Integration](./graphql/README.md)
-
-## Service Setup
-
-To set up the service:
-
-1. **Install Golang:** Ensure Golang is installed
-2. **Set Environment Variables:** 
-   - Set `OPENAI_API_KEY` in your environment
-   - Optionally, set `PORT` (default is 8080)
-   - You can define these variables directly in your environment or use an `intelligence.env` file in the root directory of your project like the following:
-     ```
-     OPENAI_API_KEY=your_openai_api_key
-     PORT=8080
-     ```
-3. **Start the Service:** Run `intelligence.go`
-
-### Example CURL Call
-
-Here is an example of how to make a CURL call directly to the intelligence service:
-
-```sh
-curl -X POST "http://localhost:8080/intelligence?model=sentiment" \
-     -H "Content-Type: application/json" \
-     -d '{"text": "I am happy"}'
-```
-
 ## Query Setup
 
 ### Enable CURL
@@ -393,3 +387,9 @@ function OnUpdate(doc, meta) {
     }
 }
 ```
+
+## GraphQL Integration
+
+You can also access our intelligence services using GraphQL.
+
+[Explore GraphQL Integration](./graphql/README.md)
