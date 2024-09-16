@@ -4,6 +4,31 @@ Access our intelligence services using GraphQL for real-time insights and data p
 
 [See All Intelligence Services](../README.md)
 
+## Service Setup
+
+To set up the service:
+
+1. **Install Golang:** Ensure Golang is installed
+2. **Set Environment Variables:** 
+   - Set `OPENAI_API_KEY` in your environment
+   - Optionally, set `PORT` (default is 8080)
+   - You can define these variables directly in your environment or use an `intelligence.env` file in the root directory of your project like the following:
+     ```
+     OPENAI_API_KEY=your_openai_api_key
+     PORT=8080
+     ```
+3. **Start the Service:** Run `main.go`
+
+### Example CURL Call
+
+Here is an example of how to make a CURL call directly to the intelligence service:
+
+```sh
+curl -X POST "http://localhost:8080/graphql" \
+     -H "Content-Type: application/json" \
+     -d '{"query": "query { sentiment(text: \"I am happy\") }"}'
+```
+
 ## Schema
 
 ```graphql
