@@ -1,6 +1,6 @@
 # GraphQL Integration
 
-Access our intelligence services via GraphQL for real-time insights and data processing. The GraphQL endpoint is `/graphql`.
+Access our intelligence services using GraphQL for real-time insights and data processing. The GraphQL endpoint is `/graphql`.
 
 [See All Intelligence Services](../README.md)
 
