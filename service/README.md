@@ -279,6 +279,12 @@ SELECT RAW intelligence({
 }
 ```
 
+## GraphQL Integration
+
+You can also access our intelligence services using GraphQL.
+
+[Explore GraphQL Integration](./graphql/README.md)
+
 ## Service Setup
 
 To set up the service:
