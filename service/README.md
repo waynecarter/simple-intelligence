@@ -84,7 +84,7 @@ SELECT intelligence("classification", { "text": "My password is leaked.", "label
 #### Images
 
 ```sql
-SELECT intelligence("classification", { "labels": ["circle", "square", "triangle"], "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." } }).classification;
+SELECT intelligence("classification", { "labels": ["circle", "square", "triangle"], "files": [{ "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." }] }).classification;
 ```
 
 ```javascript
@@ -114,7 +114,7 @@ SELECT intelligence("extraction", { "text": "John Doe lives in New York and work
 #### Images
 
 ```sql
-SELECT intelligence("extraction", { "labels": ["shape", "color", "background"], "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." } }).extraction;
+SELECT intelligence("extraction", { "labels": ["shape", "color", "background"], "files": [{ "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." }] }).extraction;
 ```
 
 ```javascript
@@ -156,7 +156,7 @@ SELECT intelligence("generated_text", { "prompt": "Generate a concise, cheerful 
 #### Images
 
 ```sql
-SELECT intelligence("generated_text", { "prompt": "Describe the image", "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." } }).generated_text;
+SELECT intelligence("generated_text", { "prompt": "Describe the image", "files": [{ "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." }] }).generated_text;
 ```
 
 ```javascript
