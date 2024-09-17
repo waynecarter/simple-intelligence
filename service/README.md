@@ -24,7 +24,7 @@ Discover how our intelligence services can transform your data into actionable i
 These demos showcase the intelligence services in action:
 
 - [Query](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
-- [Enrichment](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
+- [Enrichment](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-enrichment.mov)
 
 ## Service Setup
 
