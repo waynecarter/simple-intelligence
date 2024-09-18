@@ -133,4 +133,4 @@ client.query({
 
 ---
 
-Stay tuned for updates—we’re continuously adding new features and content to the platform. Make sure to [watch this repository](https://github.com/waynecarter/simple-intelligence) to get notified about the latest updates.
+Stay tuned for updates—we’re continuously adding new features and content to the platform. Make sure to [watch this repository](https://github.com/waynecarter/simple-intelligence) to get notified about the latest.
