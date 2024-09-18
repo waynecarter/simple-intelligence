@@ -72,10 +72,8 @@ function OnUpdate(doc, meta) {
     if (!doc.message) { return; }
 
     let response = curl('POST', intelligenceService, {
-        params: {
-            'model': 'sentiment'
-        },
         body: {
+            'model': 'sentiment',
             'text': doc.message
         }
     });
