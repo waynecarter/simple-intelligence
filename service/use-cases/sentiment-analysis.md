@@ -6,12 +6,10 @@ By scaling sentiment analysis, companies can quickly prioritize issues, resolve 
 
 ## Table of Contents
 - [Solution](#solution)
-- [Input Examples](#input-examples)
-- [Output Examples](#output-examples)
+- [Real-Time Query](#real-time-query)
 - [Data Enrichment](#data-enrichment)
 - [Real-World Application](#real-world-application)
 - [Sentiment Analyzer with GraphQL and Node.js](#sentiment-analyzer-with-graphql-and-nodejs)
-- [Explore More Use Cases](#explore-more-use-cases)
 
 ## Solution
 
