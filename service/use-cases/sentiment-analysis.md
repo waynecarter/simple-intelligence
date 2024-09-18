@@ -16,7 +16,7 @@ By scaling sentiment analysis, companies can quickly prioritize issues, resolve 
 The Intelligence Service offers two powerful approaches to handle sentiment analysis: **real-time querying** for immediate insights and **enrichment** for faster, recurring queries.
 
 - **Real-time Query**: Use direct queries to the Intelligence Service to categorize feedback (positive, negative, neutral, or mixed) in real time, helping your team act quickly. 
-- **Enrichment**: Use a data update trigger to automatically enrich feedback with sentiment data as it flows into your system. This allows you to index and query the enriched feedback faster, without needing real-time processing each time.
+- **Data Enrichment**: Use a data update trigger to automatically enrich feedback with sentiment data as it flows into your system. This allows you to index and query the enriched feedback faster, without needing real-time processing each time.
 
 ## Real-Time Query
 
