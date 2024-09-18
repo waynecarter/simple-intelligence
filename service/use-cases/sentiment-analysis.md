@@ -71,12 +71,10 @@ Here’s an example of how you can set up a data update trigger to enrich incomi
 function OnUpdate(doc, meta) {
     if (!doc.message) { return; }
 
-    let response = curl('POST', intelligenceService, {
-        body: {
-            'model': 'sentiment',
-            'text': doc.message
-        }
-    });
+    let response = curl('POST', intelligenceService, { body: {
+        'model': 'sentiment',
+        'text': doc.message
+    }});
     
     if (response.status === 200) {
         let intelligence = response.body;
