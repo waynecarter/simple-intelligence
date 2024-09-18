@@ -46,9 +46,9 @@ To set up the service:
 Here is an example of how to make a CURL call directly to the intelligence service:
 
 ```sh
-curl -X POST "http://localhost:8080/intelligence?model=sentiment" \
+curl -X POST "http://localhost:8080/intelligence" \
      -H "Content-Type: application/json" \
-     -d '{"text": "I am happy"}'
+     -d '{"model": "sentiment", "text": "I am happy"}'
 ```
 
 ## Query Examples
