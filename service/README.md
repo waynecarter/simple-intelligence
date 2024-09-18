@@ -6,18 +6,18 @@ Discover how our intelligence services can transform your data into actionable i
 
 ### Services
 
-- **Sentiment Analysis:** Detects positive, negative, neutral, or mixed sentiment in text
-- **Classification:** Categorizes text or images into predefined classes
-- **Entity Extraction:** Identifies entities within text or images like persons, locations, and organizations
-- **Grammar Correction:** Fixes grammatical errors
-- **Text Generation:** Produces text from a prompt or images
-- **Image Generation:** Produces an image from prompt
-- **Masking:** Hides specified entities like names and emails
-- **Similarity Analysis:** Compares texts and provides a similarity score
-- **Summarization:** Condenses text into a shorter version
-- **Translation:** Converts text between languages
-- **Text Embedding:** Converts text into numerical vectors for machine learning
-- **Moderation:** Identifies and flags inappropriate or harmful content in text
+- **[Sentiment Analysis](./use-cases/sentiment-analysis.md)**: Detects positive, negative, neutral, or mixed sentiment in text
+- **Classification**: Categorizes text or images into predefined classes
+- **Entity Extraction**: Identifies entities within text or images like persons, locations, and organizations
+- **Grammar Correction**: Fixes grammatical errors
+- **Text Generation**: Produces text from a prompt or images
+- **Image Generation**: Produces an image from prompt
+- **Masking**: Hides specified entities like names and emails
+- **Similarity Analysis**: Compares texts and provides a similarity score
+- **Summarization**: Condenses text into a shorter version
+- **Translation**: Converts text between languages
+- **Text Embedding**: Converts text into numerical vectors for machine learning
+- **Moderation**: Identifies and flags inappropriate or harmful content in text
 
 ### Demo Videos
 
@@ -30,8 +30,8 @@ These demos showcase the intelligence services in action:
 
 To set up the service:
 
-1. **Install Golang:** Ensure Golang is installed
-2. **Set Environment Variables:** 
+1. **Install Golang**: Ensure Golang is installed
+2. **Set Environment Variables**:
    - Set `OPENAI_API_KEY` in your environment
    - Optionally, set `PORT` (default is 8080)
    - You can define these variables directly in your environment or use an `intelligence.env` file in the root directory of your project like the following:
@@ -39,7 +39,7 @@ To set up the service:
      OPENAI_API_KEY=your_openai_api_key
      PORT=8080
      ```
-3. **Start the Service:** Run `main.go`
+3. **Start the Service**: Run `main.go`
 
 ### CURL Example
 
@@ -353,11 +353,11 @@ To set up an eventing function in Couchbase Server that enriches documents:
 ### Create Aliases
 In the function setting:
 1. Create a **URL Alias**:
-   * **Name:** `intelligenceService`
-   * **URL:** `http://localhost:8080/intelligence`
+   * **Name**: `intelligenceService`
+   * **URL**: `http://localhost:8080/intelligence`
 2. Create a **Bucket Alias**:
-   * **Name:** `targetBucket`
-   * **Bucket:** Select the target bucket
+   * **Name**: `targetBucket`
+   * **Bucket**: Select the target bucket
 
 ### Code
 
