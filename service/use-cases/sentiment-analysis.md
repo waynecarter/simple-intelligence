@@ -1,3 +1,5 @@
+[Use-Cases](./..)
+
 # Sentiment Analysis: Understanding Customer Feedback
 
 Businesses today receive massive amounts of feedback through social media, reviews, and support channels. Automating sentiment analysis helps teams respond faster, improve products, and boost customer satisfaction—without overwhelming resources.
