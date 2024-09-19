@@ -20,7 +20,7 @@ The Intelligence Service offers two powerful approaches to handle sentiment anal
 
 ## Real-Time Query
 
-The Intelligence Service offers real-time querying for immediate insights. You can directly query the service to categorize feedback in real time, helping your team respond quickly.
+You can query the Intelligence Service for real-time sentiment analysis of text.
 
 - **SQL**
   ```sql
