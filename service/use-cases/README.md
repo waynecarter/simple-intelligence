@@ -9,6 +9,7 @@ This use case hub addresses real-world challenges in software development, autom
 The Intelligence Service offers AI-driven capabilities to solve business challenges effectively and at scale. Below is the first use case, demonstrating how to leverage the platform's functionality.
 
 - [Sentiment Analysis: Understanding Customer Feedback](./sentiment-analysis.md): Businesses today receive large volumes of customer feedback across social media, reviews, and email. Sentiment analysis allows you to automatically categorize this feedback into positive, negative, neutral, or mixed sentiment, helping teams prioritize responses and improve customer satisfaction and product quality.
+- [Classification: Organizing Customer Feedback and Support Tickets](./classification.md): Automatically categorize customer feedback, support tickets, and other text or image data into predefined categories like urgency or feature focus. This helps teams prioritize tasks, improve decision-making, and streamline workflows.
 
 ---
 
