@@ -88,9 +88,9 @@ function OnUpdate(doc, meta) {
 }
 ```
 
-> **Performance Tip**: Use real-time queries when you need immediate, low-latency results, such as live customer feedback analysis. For scenarios where feedback is processed in bulk or queried repeatedly, enrichment allows for faster, pre-indexed data retrieval.
+> **Performance Tip**: Use real-time queries when you need immediate, low-latency results, such as live customer feedback analysis. For scenarios where data is processed in bulk or queried repeatedly, enrichment allows for faster, pre-indexed data retrieval.
 >
-> You can also leverage the **Batch API** to retrieve multiple results in parallel, whether you're using real-time queries or enrichment. This enables faster bulk processing, especially in high-volume environments, and improves performance when handling simultaneous requests.
+> You can also leverage the **Batch API** to retrieve multiple results in parallel. This enables faster bulk processing.
 
 ## Real-World Application
 
