@@ -1,4 +1,4 @@
-[Use-Cases](./..)
+[Use Cases](./..)
 
 # Classification: Organizing Customer Feedback and Support Tickets
 
