@@ -1,6 +1,6 @@
-# Classification: Automatically Categorizing Text and Images
+# Classification: Organizing Customer Feedback and Support Tickets
 
-Classification is a core AI service that helps businesses efficiently categorize and organize large amounts of unstructured data. Whether it’s classifying product reviews, support tickets, or identifying objects in images, automated classification accelerates workflows and optimizes resource allocation.
+Classification is a core AI service that helps businesses efficiently organize and categorize customer feedback, support tickets, and unstructured data. By using classification, companies can quickly assign predefined categories to text or image data, such as determining urgency or product features discussed, enabling faster decision-making and improved accuracy across business operations.
 
 By using classification, companies can quickly sift through text or image data and assign predefined categories, enabling faster decision-making and improving accuracy across various business operations.
 
@@ -13,7 +13,7 @@ By using classification, companies can quickly sift through text or image data a
 
 ## Solution
 
-The Intelligence Service offers two approaches for classification: **real-time querying** for on-demand results and **data enrichment** for faster, recurring queries.
+The Intelligence Service offers two approaches for classification: **Real-Time Querying** for on-demand results and **Data Enrichment** for faster, recurring queries.
 
 - **Real-time Query**: Use direct queries to instantly classify text or images into predefined categories, allowing your team to act quickly.
 - **Data Enrichment**: Set up automatic classification that processes incoming data and stores the results for faster future queries. This reduces the need for real-time processing each time you access the data, improving scalability.
