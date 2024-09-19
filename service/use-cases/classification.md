@@ -1,3 +1,5 @@
+[Use-Cases](./..)
+
 # Classification: Organizing Customer Feedback and Support Tickets
 
 Classification is a core AI service that helps businesses efficiently organize and categorize customer feedback, support tickets, and unstructured data. By using classification, companies can quickly assign predefined categories to text or image data, such as determining urgency or product features discussed, enabling faster decision-making and improved accuracy across business operations.
