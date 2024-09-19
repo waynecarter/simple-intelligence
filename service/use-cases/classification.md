@@ -1,4 +1,4 @@
-[Use Cases](.)
+[Use Cases](./#readme)
 
 # Classification: Organizing Customer Feedback and Support Tickets
 
