@@ -7,7 +7,7 @@ Discover how our intelligence services can transform your data into actionable i
 ### Services
 
 - **[Sentiment Analysis](./use-cases/sentiment-analysis.md)**: Detects positive, negative, neutral, or mixed sentiment in text
-- **Classification**: Categorizes text or images into predefined classes
+- **[Classification](./use-cases/classification.md)**: Categorizes text or images into predefined classes
 - **Entity Extraction**: Identifies entities within text or images like persons, locations, and organizations
 - **Grammar Correction**: Fixes grammatical errors
 - **Text Generation**: Produces text from a prompt or images
