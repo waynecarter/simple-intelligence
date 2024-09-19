@@ -1,4 +1,4 @@
-# Intelligence Service Use Cases: Real-World Solutions for Developers
+# Use Cases: Real-World Solutions for Developers
 
 The Intelligence Service is an AI-powered platform designed to help developers transform data into actionable insights. Whether you're working with SQL, REST, or GraphQL, our services streamline workflows by automating tasks such as sentiment analysis, text classification, entity extraction, and more.
 
