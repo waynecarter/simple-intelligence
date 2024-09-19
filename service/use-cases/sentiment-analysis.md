@@ -1,4 +1,4 @@
-[Use Cases](./..)
+[Use Cases](./#readme)
 
 # Sentiment Analysis: Understanding Customer Feedback
 
