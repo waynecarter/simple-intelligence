@@ -6,25 +6,50 @@ Discover how our intelligence services can transform your data into actionable i
 
 ### Services
 
-- **Sentiment Analysis:** Detects positive, negative, neutral, or mixed sentiment in text
-- **Classification:** Categorizes text or images into predefined classes
-- **Entity Extraction:** Identifies entities within text or images like persons, locations, and organizations
-- **Grammar Correction:** Fixes grammatical errors
-- **Text Generation:** Produces text from a prompt or images
-- **Image Generation:** Produces an image from prompt
-- **Masking:** Hides specified entities like names and emails
-- **Similarity Analysis:** Compares texts and provides a similarity score
-- **Summarization:** Condenses text into a shorter version
-- **Translation:** Converts text between languages
-- **Text Embedding:** Converts text into numerical vectors for machine learning
-- **Moderation:** Identifies and flags inappropriate or harmful content in text
+- **[Sentiment Analysis](./use-cases/sentiment-analysis.md)**: Detects positive, negative, neutral, or mixed sentiment in text
+- **[Classification](./use-cases/classification.md)**: Categorizes text or images into predefined classes
+- **Entity Extraction**: Identifies entities within text or images like persons, locations, and organizations
+- **Grammar Correction**: Fixes grammatical errors
+- **Text Generation**: Produces text from a prompt or images
+- **Image Generation**: Produces an image from prompt
+- **Masking**: Hides specified entities like names and emails
+- **Similarity Analysis**: Compares texts and provides a similarity score
+- **Summarization**: Condenses text into a shorter version
+- **Translation**: Converts text between languages
+- **Text Embedding**: Converts text into numerical vectors for machine learning
+- **Moderation**: Identifies and flags inappropriate or harmful content in text
 
 ### Demo Videos
 
 These demos showcase the intelligence services in action:
 
 - [Query](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
-- [Enrichment](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-query.mov)
+- [Enrichment](https://github.com/waynecarter/simple-intelligence/raw/main/service/videos/intelligence-enrichment.mov)
+
+## Service Setup
+
+To set up the service:
+
+1. **Install Golang**: Ensure Golang is installed
+2. **Set Environment Variables**:
+   - Set `OPENAI_API_KEY` in your environment
+   - Optionally, set `PORT` (default is 8080)
+   - You can define these variables directly in your environment or use an `intelligence.env` file in the root directory of your project like the following:
+     ```
+     OPENAI_API_KEY=your_openai_api_key
+     PORT=8080
+     ```
+3. **Start the Service**: Run `main.go`
+
+### CURL Example
+
+Here is an example of how to make a CURL call directly to the intelligence service:
+
+```sh
+curl -X POST "http://localhost:8080/intelligence" \
+     -H "Content-Type: application/json" \
+     -d '{"model": "sentiment", "text": "I am happy"}'
+```
 
 ## Query Examples
 
@@ -59,7 +84,7 @@ SELECT intelligence("classification", { "text": "My password is leaked.", "label
 #### Images
 
 ```sql
-SELECT intelligence("classification", { "labels": ["circle", "square", "triangle"], "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII=" } }).classification;
+SELECT intelligence("classification", { "labels": ["circle", "square", "triangle"], "files": [{ "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." }] }).classification;
 ```
 
 ```javascript
@@ -89,7 +114,7 @@ SELECT intelligence("extraction", { "text": "John Doe lives in New York and work
 #### Images
 
 ```sql
-SELECT intelligence("extraction", { "labels": ["shape", "color", "background"], "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII=" } }).extraction;
+SELECT intelligence("extraction", { "labels": ["shape", "color", "background"], "files": [{ "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." }] }).extraction;
 ```
 
 ```javascript
@@ -131,7 +156,7 @@ SELECT intelligence("generated_text", { "prompt": "Generate a concise, cheerful 
 #### Images
 
 ```sql
-SELECT intelligence("generated_text", { "prompt": "Describe the image", "files": { "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII=" } }).generated_text;
+SELECT intelligence("generated_text", { "prompt": "Describe the image", "files": [{ "content_type": "image/png", "base64": "iVBORw0KGgoAAAANSU..." }] }).generated_text;
 ```
 
 ```javascript
@@ -143,14 +168,14 @@ SELECT intelligence("generated_text", { "prompt": "Describe the image", "files":
 ### Image Generation
 
 ```sql
-SELECT intelligence("generated_image", { "prompt": "A sunset over the mountains in a watercolor style" }).generated_image;
+SELECT intelligence("generated_image", { "prompt": "A beautiful beach in a photorealistic style", "size": "1024x1024" }).generated_image;
 ```
 
 ```javascript
 {
   "generated_image": {
       "content_type": "image/png",
-      "base64": "iVBORw0KGgoAAAANSU...UVORK5CYII="
+      "base64": "iVBORw0KGgoAAAANSU..."
   }
 }
 ```
@@ -279,31 +304,6 @@ SELECT RAW intelligence({
 }
 ```
 
-## Service Setup
-
-To set up the service:
-
-1. **Install Golang:** Ensure Golang is installed
-2. **Set Environment Variables:** 
-   - Set `OPENAI_API_KEY` in your environment
-   - Optionally, set `PORT` (default is 8080)
-   - You can define these variables directly in your environment or use an `intelligence.env` file in the root directory of your project like the following:
-     ```
-     OPENAI_API_KEY=your_openai_api_key
-     PORT=8080
-     ```
-3. **Start the Service:** Run `intelligence.go`
-
-### Example CURL Call
-
-Here is an example of how to make a CURL call directly to the intelligence service:
-
-```sh
-curl -X POST "http://localhost:8080/intelligence?model=sentiment" \
-     -H "Content-Type: application/json" \
-     -d '{"text": "I am happy"}'
-```
-
 ## Query Setup
 
 ### Enable CURL
@@ -353,11 +353,11 @@ To set up an eventing function in Couchbase Server that enriches documents:
 ### Create Aliases
 In the function setting:
 1. Create a **URL Alias**:
-   * **Name:** `intelligenceService`
-   * **URL:** `http://localhost:8080/intelligence`
+   * **Name**: `intelligenceService`
+   * **URL**: `http://localhost:8080/intelligence`
 2. Create a **Bucket Alias**:
-   * **Name:** `targetBucket`
-   * **Bucket:** Select the target bucket
+   * **Name**: `targetBucket`
+   * **Bucket**: Select the target bucket
 
 ### Code
 
@@ -387,3 +387,9 @@ function OnUpdate(doc, meta) {
     }
 }
 ```
+
+## GraphQL Integration
+
+You can also access our intelligence services using GraphQL.
+
+[Explore GraphQL Integration](./graphql/README.md)
