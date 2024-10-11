@@ -20,6 +20,7 @@ class Database {
     private init() {
         setupDatabase()
         endpoint = Settings.shared.endpoint
+        startSync()
         
         // When the demo is enabled/disabled, update the database and sync
         Settings.shared.$isDemoEnabled
