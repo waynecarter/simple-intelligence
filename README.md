@@ -237,3 +237,37 @@ To explore the code, start with the following source files:
 * `AI.swift`: Provides the AI features.
 * `Camera.swift`: Manages the camera.
 * `Settings.swift`: Manages the settings.
+
+# Customize the App
+
+You can customize the app by syncing with a Couchbase backend. Here are the steps for setting up Capella:
+
+1. Create a Database
+2. Create an App Service
+3. Create an App Service Endpoint
+   1. Update the function in `Access Control`:
+      ```js
+        function (doc, oldDoc, meta) {
+          requireRole("admin");
+        
+          if (doc.type !== "product") {
+            throw({forbidden: "Document type must be 'product'"});
+          }
+        
+          channel(doc.type);
+        }
+      ```
+   2. Configure CORS in `Settings > Advansed`
+      1. **Origin**: *
+      2. **Login Origin**: *
+      3. **Max Age**: 86400
+      4. **Headers**: Content-Type, Authorization
+   3. Create an admin user
+      1. Create a role named `admin`
+      2. Create a user with the role `admin`
+   4. Create non-admin user
+      1. Create a user with channel `product`
+   5. Copy the endpoint URL from `Connections`
+4. Use the `admin` user to add products to the backend using the [Simple Intelligence Admin tool](https://waynecarter.github.io/simple-intelligence/)
+5. In the Simple Intelligence app setting, configure the Sync Endpoint using the `non-admin` user.
+
