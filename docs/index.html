@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Product</title>
+    <style>
+        body {
+            margin: 1.15em;
+            padding: 0;
+            background-color: white;
+            color: black;
+            font-family: "Helvetica Neue","Helvetica","Arial",sans-serif;
+            font-size: 1.15em;
+        }
+
+        h1 {
+            font-size: 1.9em;
+            font-weight: 400;
+        }
+
+        h2 {
+            font-size: 1.5em;
+            font-weight: 400;
+        }
+
+        label {
+            font-weight: 500;
+        }
+
+        input {
+            font: inherit;
+            width: 100%;
+            box-sizing: border-box;
+            margin-block-end: 0.9em;
+        }
+
+        input[type="text"], 
+        input[type="number"], 
+        input[type="password"] {
+            font: inherit;
+            border-radius: 4px;
+            padding: 8px;
+            border: solid #777777 1px;
+        }
+
+        input[type="file"] {
+            width: auto;
+        }
+
+        input[type=submit] {
+            display: block;
+            margin-block-start: 0.9em;
+            padding: 0.7em 1.7em;
+            border: none;
+            border-radius: 8px;
+            box-sizing: border-box;
+
+            font-weight: 400;
+            text-align: center;
+            
+            color: white;
+            background-color: #006ee6;
+        }
+
+        input[type=submit]:not([disabled]):hover {
+            opacity: 0.9;
+        }
+    </style>
+    <script>
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+
+        function encodeImageToBase64(imageFile) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(',')[1]); // Get the Base64 part of data URL
+                reader.onerror = reject;
+                reader.readAsDataURL(imageFile); // Read the image as a Data URL
+            });
+        }
+
+        async function generateSHA1Digest(file) {
+            const arrayBuffer = await readFileAsArrayBuffer(file);
+            const hashBuffer = await crypto.subtle.digest('SHA-1', arrayBuffer);
+            return arrayBufferToBase64(hashBuffer);
+        }
+
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+
+        async function submitForm() {
+            try {
+                var endpointUrl = document.getElementById("endpointUrl").value;
+                const username = document.getElementById("username").value;
+                const password = document.getElementById("password").value;
+                const name = document.getElementById("name").value;
+                const category = document.getElementById("category").value;
+                const price = document.getElementById("price").value;
+                const location = document.getElementById("location").value;
+                const imageFile = document.getElementById("image").files[0];
+
+                // Ensure an image is selected
+                if (!imageFile) {
+                    alert("Please select an image file.");
+                    return;
+                }
+
+                // Generate the SHA-1 digest
+                const sha1Digest = await generateSHA1Digest(imageFile);
+
+                // Encode the image to Base64
+                const base64Image = await encodeImageToBase64(imageFile);
+
+                // Create the document payload with the digest, type, and length
+                const documentPayload = {
+                    type: "product",
+                    name: name,
+                    category: category,
+                    price: parseFloat(price),
+                    location: location,
+                    image: {
+                        "@type": "blob",
+                        digest: "sha1-" + sha1Digest,  // Base64-encoded SHA-1 digest prefixed with "sha1-"
+                        type: imageFile.type,          // MIME type of the image
+                        length: base64Image.length     // Base64 string length
+                    },
+                    _attachments: {
+                        image: {
+                            content_type: imageFile.type,
+                            data: base64Image
+                        }
+                    }
+                };
+
+                // Fix up the endpoint URL so that it uses the http(s) scheme and ends with a slash
+                if (endpointUrl.startsWith("ws://")) {
+                    endpointUrl = endpointUrl.replace("ws://", "http://");
+                } else if (endpointUrl.startsWith("wss://")) {
+                    endpointUrl = endpointUrl.replace("wss://", "https://");
+                }
+                if (!endpointUrl.endsWith("/")) {
+                    endpointUrl += "/";
+                }
+
+                // Upload the document to the endpoint
+                const response = await fetch(endpointUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + btoa(`${username}:${password}`)
+                    },
+                    body: JSON.stringify(documentPayload)
+                });
+
+                const result = await response.json();
+
+                if (response.ok) {
+                    alert("Product added with ID: " + result.id);
+                } else {
+                    alert("Product add failed: " + JSON.stringify(result));
+                }
+            } catch (error) {
+                alert("An error occurred: " + error.message);
+            }
+        }
+    </script>
+</head>
+<body>
+
+<h1>Add Product</h1>
+
+<form id="uploadForm" autocomplete="on" onsubmit="event.preventDefault(); submitForm();">
+    <h2>Endpoint</h2>
+    <input type="text" id="endpointUrl" name="endpointUrl" placeholder="URL" autocomplete="url" required>
+    <input type="text" id="username" name="username" placeholder="User" autocomplete="username" required>
+    <input type="password" id="password" name="password" placeholder="Password" autocomplete="off" required>
+
+    <h2>Product</h2>
+    <input type="text" id="name" name="name" placeholder="Name" required>
+    <input type="text" id="category" name="category" placeholder="Category" required>
+    <input type="number" step="0.01" id="price" name="price" placeholder="Price" required>
+    <input type="text" id="location" name="location" placeholder="Location" required>
+
+    <label for="image">Image</label>
+    <input type="file" id="image" name="image" accept="image/*" required>
+
+    <input type="submit" value="Add Product">
+</form>
+
+</body>
+</html>
