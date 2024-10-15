@@ -77,40 +77,27 @@
         }
     </style>
     <script>
-        function readFileAsArrayBuffer(file) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result);
-                reader.onerror = reject;
-                reader.readAsArrayBuffer(file);
-            });
-        }
-
-        function encodeImageToBase64(imageFile) {
-            return new Promise((resolve, reject) => {
-                const reader = new FileReader();
-                reader.onloadend = () => resolve(reader.result.split(',')[1]); // Get the Base64 part of data URL
-                reader.onerror = reject;
-                reader.readAsDataURL(imageFile); // Read the image as a Data URL
-            });
-        }
-
-        async function generateSHA1Digest(file) {
-            const arrayBuffer = await readFileAsArrayBuffer(file);
-            const hashBuffer = await crypto.subtle.digest('SHA-1', arrayBuffer);
-            return arrayBufferToBase64(hashBuffer);
-        }
-
-        function arrayBufferToBase64(buffer) {
-            let binary = '';
-            const bytes = new Uint8Array(buffer);
-            const len = bytes.byteLength;
-            for (let i = 0; i < len; i++) {
-                binary += String.fromCharCode(bytes[i]);
+        // Read values from localStorage and populate the form fields when the page loads
+        window.onload = function() {
+            const savedUrl = localStorage.getItem('endpointUrl');
+            const savedUsername = localStorage.getItem('username');
+            if (savedUrl) {
+                document.getElementById('endpointUrl').value = savedUrl;
             }
-            return window.btoa(binary);
-        }
+            if (savedUsername) {
+                document.getElementById('username').value = savedUsername;
+            }
 
+            // Add event listeners to save changes
+            document.getElementById('endpointUrl').addEventListener('input', function() {
+                localStorage.setItem('endpointUrl', this.value);
+            });
+
+            document.getElementById('username').addEventListener('input', function() {
+                localStorage.setItem('username', this.value);
+            });
+        };
+    
         async function submitForm() {
             try {
                 var endpointUrl = document.getElementById("endpointUrl").value;
@@ -121,19 +108,19 @@
                 const price = document.getElementById("price").value;
                 const location = document.getElementById("location").value;
                 const imageFile = document.getElementById("image").files[0];
-
+    
                 // Ensure an image is selected
                 if (!imageFile) {
                     alert("Please select an image file.");
                     return;
                 }
-
+    
                 // Generate the SHA-1 digest
                 const sha1Digest = await generateSHA1Digest(imageFile);
-
+    
                 // Encode the image to Base64
                 const base64Image = await encodeImageToBase64(imageFile);
-
+    
                 // Create the document payload with the digest, type, and length
                 const documentPayload = {
                     type: "product",
@@ -154,7 +141,7 @@
                         }
                     }
                 };
-
+    
                 // Fix up the endpoint URL so that it uses the http(s) scheme and ends with a slash
                 if (endpointUrl.startsWith("ws://")) {
                     endpointUrl = endpointUrl.replace("ws://", "http://");
@@ -164,7 +151,7 @@
                 if (!endpointUrl.endsWith("/")) {
                     endpointUrl += "/";
                 }
-
+    
                 // Upload the document to the endpoint
                 const response = await fetch(endpointUrl, {
                     method: 'POST',
@@ -174,9 +161,9 @@
                     },
                     body: JSON.stringify(documentPayload)
                 });
-
+    
                 const result = await response.json();
-
+    
                 if (response.ok) {
                     alert("Product added with ID: " + result.id);
                 } else {
@@ -186,7 +173,41 @@
                 alert("An error occurred: " + error.message);
             }
         }
-    </script>
+    
+        function readFileAsArrayBuffer(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result);
+                reader.onerror = reject;
+                reader.readAsArrayBuffer(file);
+            });
+        }
+    
+        function encodeImageToBase64(imageFile) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.onloadend = () => resolve(reader.result.split(',')[1]); // Get the Base64 part of data URL
+                reader.onerror = reject;
+                reader.readAsDataURL(imageFile); // Read the image as a Data URL
+            });
+        }
+    
+        async function generateSHA1Digest(file) {
+            const arrayBuffer = await readFileAsArrayBuffer(file);
+            const hashBuffer = await crypto.subtle.digest('SHA-1', arrayBuffer);
+            return arrayBufferToBase64(hashBuffer);
+        }
+    
+        function arrayBufferToBase64(buffer) {
+            let binary = '';
+            const bytes = new Uint8Array(buffer);
+            const len = bytes.byteLength;
+            for (let i = 0; i < len; i++) {
+                binary += String.fromCharCode(bytes[i]);
+            }
+            return window.btoa(binary);
+        }
+    </script>    
 </head>
 <body>
 
