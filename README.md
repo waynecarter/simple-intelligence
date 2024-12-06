@@ -47,7 +47,7 @@ func search(image: UIImage) -> [Product] {
 
 ### AI Prediction
 
-The search function uses AI predictions. The AI prediction logic processes images and extracts predictions using Vision and Core ML.
+The search function uses AI to process images and extract predictions using Vision and Core ML.
 
 #### Embedding Extraction
 
