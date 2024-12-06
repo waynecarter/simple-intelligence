@@ -67,7 +67,7 @@ func embedding(for image: UIImage, attention: Attention) -> [Float]? {
 }
 ```
 
-#### Barcode Detection
+#### Barcode Extraction
 
 The `AI.barcode(from image: UIImage)` function extracts barcodes from images.
 
