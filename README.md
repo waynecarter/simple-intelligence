@@ -316,7 +316,7 @@ You can customize the app by syncing with a Couchbase backend. Here are the step
           channel(doc.type);
         }
       ```
-   2. Configure CORS in `Settings > Advansed`
+   2. Configure CORS in `Settings > Advanced`
       1. **Origin**: *
       2. **Login Origin**: *
       3. **Max Age**: 86400
