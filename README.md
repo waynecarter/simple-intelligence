@@ -270,6 +270,7 @@ private func startSync() {
     replicator.start()
 }
 ```
+
 # Demo the Project
 
 The app is designed to be run on an iPhone or iPad in the following configurations:
@@ -295,6 +296,18 @@ The iPhone setups work well for mobile use. Use cases include inventory, persona
 The demo is trained to recognize the products in it's catalog using the camera. To help demonstrating these capabilities, [download the demo cards](https://raw.githubusercontent.com/waynecarter/simple-search/main/images/demo-cards.pdf), display them from your computer or print them out, and scan the cards to find the corresponding products in the app. Here are a few examples of cards from the set:
 
 ![Demo Card Examples](images/demo-card-examples.png)
+
+# Customize the Demo
+
+If you want to customize the data used in the Simple Intelligence app, you can use the [Simple Intelligence Admin](https://waynecarter.github.io/simple-intelligence/) tool. This web-based utility allows you to add new products, categories, and images to your database.
+
+To customize your data:
+
+1. Use the [Simple Intelligence Admin](https://waynecarter.github.io/simple-intelligence/) tool:
+   - Configure the endpoint settings.
+   - Upload your custom data (products, categories, images, etc.).
+
+2. Update the Sync Endpoint settings in the Simple Intelligence app to sync the newly added data to the app.
 
 # Build the Project
 
