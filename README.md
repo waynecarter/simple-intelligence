@@ -14,10 +14,10 @@ The app includes a demo that enables experiencing the features and functionality
 
 1) [Download the Simple Intelligence app](https://apps.apple.com/us/app/simple-intelligence/id6504311724) from the Apple App Store
 2) [Download the demo images PDF](https://raw.githubusercontent.com/waynecarter/simple-intelligence/main/images/demo-cards.pdf) and open it on your computer
-6) Open the app
-3) On the splash screen, press the "Try Now" button
-4) Grant camera access when prompted
-5) Aim the back-facing camera at one of demo images displayed on your computer
+3) Open the app
+4) On the splash screen, press the "Try Now" button
+5) Grant camera access when prompted
+6) Aim the back-facing camera at one of demo images displayed on your computer
 7) See the corresponding item instantly appear on the screen in the app
 
 # Code
@@ -293,7 +293,7 @@ The iPhone setups work well for mobile use. Use cases include inventory, persona
 
 ## Demo Cards
 
-The demo is trained to recognize the products in it's catalog using the camera. To help demonstrating these capabilities, [download the demo cards](https://raw.githubusercontent.com/waynecarter/simple-search/main/images/demo-cards.pdf), display them from your computer or print them out, and scan the cards to find the corresponding products in the app. Here are a few examples of cards from the set:
+The demo is trained to recognize the products in its catalog using the camera. To help demonstrating these capabilities, [download the demo cards](https://raw.githubusercontent.com/waynecarter/simple-search/main/images/demo-cards.pdf), display them from your computer or print them out, and scan the cards to find the corresponding products in the app. Here are a few examples of cards from the set:
 
 ![Demo Card Examples](images/demo-card-examples.png)
 
