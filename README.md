@@ -45,6 +45,72 @@ func search(image: UIImage) -> [Product] {
 }
 ```
 
+### AI Prediction
+
+The search function uses AI predictions. The AI prediction logic processes images and extracts predictions using Vision and Core ML.
+
+#### Embedding Extraction
+
+The `AI.embedding(for image: UIImage, attention: Attention)` function generates vector representations of an image, which are used in vector search for finding similar products.
+
+```swift
+func embedding(for image: UIImage, attention: Attention) -> [Float]? {
+    guard let cgImage = image.cgImage else { return nil }
+    
+    // Process the input image and generate the embedding
+    var embedding: [Float]?
+    if let processedImage = process(cgImage: cgImage, attention: attention).first {
+        embedding = self.embedding(for: processedImage)
+    }
+    
+    return embedding
+}
+```
+
+#### Barcode Detection
+
+The `AI.barcode(from image: UIImage)` function extracts barcodes from images.
+
+```swift
+func barcode(from image: UIImage) -> String? {
+    guard let cgImage = image.cgImage else {
+        return nil
+    }
+    
+    let barcode = barcode(from: cgImage)
+    return barcode
+}
+```
+
+#### Image Preprocessing
+
+The `AI.process(cgImage: CGImage, attention: Attention)` function processes images using attention mechanisms like saliency detection, foreground segmentation, face detection, and zoom adjustments to enhance prediction accuracy.
+
+```swift
+func process(cgImage: CGImage, attention: Attention) -> [CGImage] {
+    var processedImages = [CGImage]()
+    
+    switch attention {
+    case .none:
+        processedImages.append(cgImage)
+    case .saliency(let saliency):
+        let processedImage = cropToSalientRegion(cgImage: cgImage, saliency: saliency)
+        processedImages.append(processedImage)
+    case .foreground:
+        let processedImage = segmentForegroundSubjects(cgImage: cgImage)
+        processedImages.append(processedImage)
+    case .faces:
+        let faceImages = cropToFaces(cgImage: cgImage)
+        processedImages.append(contentsOf: faceImages)
+    case .zoom(let factors):
+        let zoomedImages = zoom(cgImage: cgImage, factors: factors)
+        processedImages.append(contentsOf: zoomedImages)
+    }
+    
+    return processedImages
+}
+```
+
 ## Vector Search
 
 The `Database.search(vector: [Float])` function demonstrates the vector search capabilities.
