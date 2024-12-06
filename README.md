@@ -297,34 +297,6 @@ The demo is trained to recognize the products in it's catalog using the camera. 
 
 ![Demo Card Examples](images/demo-card-examples.png)
 
-# Customize the Demo
-
-If you want to customize the data used in the Simple Intelligence app, you can use the [Simple Intelligence Admin](https://waynecarter.github.io/simple-intelligence/) tool. This web-based utility allows you to add new products, categories, and images to your database.
-
-To customize your data:
-
-1. Use the [Simple Intelligence Admin](https://waynecarter.github.io/simple-intelligence/) tool:
-   - Configure the endpoint settings.
-   - Upload your custom data (products, categories, images, etc.).
-
-2. Update the Sync Endpoint settings in the Simple Intelligence app to sync the newly added data to the app.
-
-# Build the Project
-
-1. Clone or download this repository
-2. [Download](https://www.couchbase.com/downloads/?family=couchbase-lite) the latest `CouchbaseLiteSwift.xcframework` and `CouchbaseLiteVectorSearch.xcframework`, and copy them to the project's `Frameworks` directory.
-3. Open the project in Xcode.
-4. Run the app on a phone or tablet.
-
-## Source Files
-
-To explore the code, start with the following source files:
-
-* `Database.swift`: Manages the search and sync features.
-* `AI.swift`: Provides the AI features.
-* `Camera.swift`: Manages the camera.
-* `Settings.swift`: Manages the settings.
-
 # Customize the App
 
 You can customize the app by syncing with a Couchbase backend. Here are the steps for setting up Capella:
@@ -357,4 +329,20 @@ You can customize the app by syncing with a Couchbase backend. Here are the step
    5. Copy the endpoint URL from `Connections`
 4. Use the `admin` user to add products to the backend using the [Simple Intelligence Admin tool](https://waynecarter.github.io/simple-intelligence/)
 5. In the Simple Intelligence app setting, configure the Sync Endpoint using the `non-admin` user.
+
+# Build the Project
+
+1. Clone or download this repository
+2. [Download](https://www.couchbase.com/downloads/?family=couchbase-lite) the latest `CouchbaseLiteSwift.xcframework` and `CouchbaseLiteVectorSearch.xcframework`, and copy them to the project's `Frameworks` directory.
+3. Open the project in Xcode.
+4. Run the app on a phone or tablet.
+
+## Source Files
+
+To explore the code, start with the following source files:
+
+* `Database.swift`: Manages the search and sync features.
+* `AI.swift`: Provides the AI features.
+* `Camera.swift`: Manages the camera.
+* `Settings.swift`: Manages the settings.
 
