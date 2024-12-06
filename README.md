@@ -317,8 +317,8 @@ You can customize the app by syncing with a Couchbase backend. Here are the step
         }
       ```
    2. Configure CORS in `Settings > Advanced`
-      1. **Origin**: *
-      2. **Login Origin**: *
+      1. **Origin**: https://waynecarter.github.io
+      2. **Login Origin**: https://waynecarter.github.io
       3. **Max Age**: 86400
       4. **Headers**: Content-Type, Authorization
    3. Create an admin user
