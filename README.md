@@ -84,7 +84,7 @@ func barcode(from image: UIImage) -> String? {
 
 #### Image Preprocessing
 
-The `AI.process(cgImage: CGImage, attention: Attention)` function processes images using attention mechanisms like saliency detection, foreground segmentation, face detection, and zoom adjustments to enhance prediction accuracy.
+The `AI.process(cgImage: CGImage, attention: Attention)` function processes images using focus mechanisms like saliency detection, foreground segmentation, face detection, and zoom adjustments to enhance prediction accuracy.
 
 ```swift
 func process(cgImage: CGImage, attention: Attention) -> [CGImage] {
