@@ -77,8 +77,16 @@ func barcode(from image: UIImage) -> String? {
         return nil
     }
     
-    let barcode = barcode(from: cgImage)
-    return barcode
+    // Perform barcode detection
+    let request = VNDetectBarcodesRequest()
+    let handler = VNImageRequestHandler(cgImage: cgImage, options: [:])
+
+    // Return the first detected barcode
+    if let payloadString = results.first(where: { $0.payloadStringValue != nil })?.payloadStringValue {
+        return payloadString
+    }
+    
+    return nil
 }
 ```
 
